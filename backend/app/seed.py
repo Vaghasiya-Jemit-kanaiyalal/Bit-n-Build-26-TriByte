@@ -24,6 +24,7 @@ from app.models.bin_activity import BinActivity
 from app.models.route import Route, RouteStatus, RoutePriority
 from app.models.route_stop import RouteStop, StopStatus, StopPriority
 from app.models.waste_classification import WasteClassification, ClassificationSource
+from app.models.alert import Alert, AlertActivity
 
 DEMO_USERS = [
     {
@@ -854,6 +855,516 @@ async def seed_all():
 
             await session.commit()
             print("[+] Seeded 60 realistic waste classifications across active bins!")
+
+        # -------------------------------------------------------------------------
+        # Seed Alerts & Alert Activities
+        # -------------------------------------------------------------------------
+        alert_res = await session.execute(select(func.count(Alert.id)))
+        alert_count = alert_res.scalar_one()
+        if alert_count < 15:
+            bins_list_res = await session.execute(select(Bin).limit(15))
+            bins_list = bins_list_res.scalars().all()
+            veh_list_res = await session.execute(select(Vehicle).limit(5))
+            veh_list = veh_list_res.scalars().all()
+
+            now = datetime.now(timezone.utc)
+            b0_code = bins_list[0].bin_code if len(bins_list) > 0 else "BIN-001"
+            b0_loc = bins_list[0].address or bins_list[0].location_name if len(bins_list) > 0 else "North Depot"
+            b0_zone = bins_list[0].zone if len(bins_list) > 0 else "North Zone"
+
+            b1_code = bins_list[1].bin_code if len(bins_list) > 1 else "BIN-002"
+            b1_loc = bins_list[1].address or bins_list[1].location_name if len(bins_list) > 1 else "Central Market"
+            b1_zone = bins_list[1].zone if len(bins_list) > 1 else "Central Zone"
+
+            b2_code = bins_list[2].bin_code if len(bins_list) > 2 else "BIN-003"
+            b2_loc = bins_list[2].address or bins_list[2].location_name if len(bins_list) > 2 else "Tech Park Gate 2"
+            b2_zone = bins_list[2].zone if len(bins_list) > 2 else "Tech Corridor"
+
+            b3_code = bins_list[3].bin_code if len(bins_list) > 3 else "BIN-004"
+            b3_loc = bins_list[3].address or bins_list[3].location_name if len(bins_list) > 3 else "South Station"
+            b3_zone = bins_list[3].zone if len(bins_list) > 3 else "South Zone"
+
+            b4_code = bins_list[4].bin_code if len(bins_list) > 4 else "BIN-005"
+            b4_loc = bins_list[4].address or bins_list[4].location_name if len(bins_list) > 4 else "West Mall"
+            b4_zone = bins_list[4].zone if len(bins_list) > 4 else "West Zone"
+
+            v0_reg = veh_list[0].registration_number if len(veh_list) > 0 else "GJ-01-WW-1001"
+            v1_reg = veh_list[1].registration_number if len(veh_list) > 1 else "GJ-01-WW-1002"
+            v2_reg = veh_list[2].registration_number if len(veh_list) > 2 else "GJ-01-WW-1003"
+
+            demo_alerts_data = [
+                # 4 Critical
+                {
+                    "code": "ALT-1001",
+                    "title": "Critical Overflow Detected: High Fill Level (96%)",
+                    "description": f"Bin {b0_code} in {b0_zone} has reached 96% volumetric fill. Immediate collection dispatch required to prevent street spillover.",
+                    "category": "BIN",
+                    "severity": "CRITICAL",
+                    "status": "ACTIVE",
+                    "source": "SENSOR",
+                    "entity_type": "BIN",
+                    "entity_id": b0_code,
+                    "location": b0_loc,
+                    "zone": b0_zone,
+                    "is_read": False,
+                    "ai_generated": False,
+                    "recommended_action": "Dispatch emergency collection vehicle immediately.",
+                    "offset_hours": 1,
+                },
+                {
+                    "code": "ALT-1002",
+                    "title": "AI Predictive Overflow Warning: 100% in 45 Mins",
+                    "description": f"Prophet fill-prediction model forecasts bin {b1_code} will breach 100% threshold before scheduled evening route.",
+                    "category": "PREDICTION",
+                    "severity": "CRITICAL",
+                    "status": "ACTIVE",
+                    "source": "AI",
+                    "entity_type": "BIN",
+                    "entity_id": b1_code,
+                    "location": b1_loc,
+                    "zone": b1_zone,
+                    "is_read": False,
+                    "ai_generated": True,
+                    "recommended_action": "Adjust Route RT-021 dynamically to collect earlier.",
+                    "offset_hours": 2,
+                },
+                {
+                    "code": "ALT-1003",
+                    "title": "Severe Engine Temperature Warning",
+                    "description": f"Fleet vehicle {v0_reg} telemetry reports coolant temperature at 108°C exceeding safe thermal operational limits.",
+                    "category": "VEHICLE",
+                    "severity": "CRITICAL",
+                    "status": "ACKNOWLEDGED",
+                    "source": "VEHICLE",
+                    "entity_type": "VEHICLE",
+                    "entity_id": v0_reg,
+                    "location": "North Transit Highway KM 14",
+                    "zone": "North Zone",
+                    "is_read": True,
+                    "ai_generated": False,
+                    "acknowledged_by": "yug@gmail.com",
+                    "recommended_action": "Halt vehicle safely at roadside and summon fleet recovery unit.",
+                    "offset_hours": 3,
+                },
+                {
+                    "code": "ALT-1004",
+                    "title": "Sensor Hardware Offline: Telemetry Heartbeat Lost",
+                    "description": f"Ultrasonic fill sensor for {b2_code} has not reported telemetry packets for over 90 minutes.",
+                    "category": "SENSOR",
+                    "severity": "CRITICAL",
+                    "status": "ACTIVE",
+                    "source": "SENSOR",
+                    "entity_type": "SENSOR",
+                    "entity_id": b2_code,
+                    "location": b2_loc,
+                    "zone": b2_zone,
+                    "is_read": False,
+                    "ai_generated": False,
+                    "recommended_action": "Send field technician to inspect solar battery and antenna connection.",
+                    "offset_hours": 4,
+                },
+                # 8 High / Warning
+                {
+                    "code": "ALT-1005",
+                    "title": "Route Delay Exceeding SLA: RT-021 (+35 mins)",
+                    "description": "Traffic congestion on Eastern Expressway causing severe delivery delay on assigned route stops.",
+                    "category": "ROUTE",
+                    "severity": "HIGH",
+                    "status": "ACTIVE",
+                    "source": "PLANNING",
+                    "entity_type": "ROUTE",
+                    "entity_id": "RT-021",
+                    "location": "Eastern Expressway Sector 4",
+                    "zone": "East Zone",
+                    "is_read": False,
+                    "ai_generated": True,
+                    "recommended_action": "Reassign pending 4 stops to standby vehicle VH-102.",
+                    "offset_hours": 5,
+                },
+                {
+                    "code": "ALT-1006",
+                    "title": "Rapid Fill Rate Anomaly: +45% in 20 Mins",
+                    "description": f"Fill rate algorithm detected abnormal acceleration in bin {b3_code}. Likely commercial bulk dumping.",
+                    "category": "BIN",
+                    "severity": "HIGH",
+                    "status": "ACKNOWLEDGED",
+                    "source": "AI",
+                    "entity_type": "BIN",
+                    "entity_id": b3_code,
+                    "location": b3_loc,
+                    "zone": b3_zone,
+                    "is_read": True,
+                    "ai_generated": True,
+                    "acknowledged_by": "admin@gmail.com",
+                    "recommended_action": "Review CCTV footage and dispatch verification crew.",
+                    "offset_hours": 6,
+                },
+                {
+                    "code": "ALT-1007",
+                    "title": "Low Electric Vehicle Battery: 14% Remaining",
+                    "description": f"Electric collection vehicle {v1_reg} state-of-charge has fallen below 15% safety threshold while completing Route RT-022.",
+                    "category": "VEHICLE",
+                    "severity": "HIGH",
+                    "status": "SNOOZED",
+                    "source": "VEHICLE",
+                    "entity_type": "VEHICLE",
+                    "entity_id": v1_reg,
+                    "location": "Central Depot Charger Station",
+                    "zone": "Central Zone",
+                    "is_read": False,
+                    "ai_generated": False,
+                    "snooze_hours": 3,
+                    "recommended_action": "Dock at DC Fast Charger immediately before next collection run.",
+                    "offset_hours": 7,
+                },
+                {
+                    "code": "ALT-1008",
+                    "title": "Scheduled Collection Overdue: Commercial Hub",
+                    "description": "High-priority commercial sector collection window closed without confirmation of completed pickup.",
+                    "category": "COLLECTION",
+                    "severity": "HIGH",
+                    "status": "ACTIVE",
+                    "source": "SYSTEM",
+                    "entity_type": "ROUTE",
+                    "entity_id": "RT-022",
+                    "location": "Central Commercial Hub",
+                    "zone": "Commercial East",
+                    "is_read": True,
+                    "ai_generated": False,
+                    "recommended_action": "Ping driver Rahul for real-time status update.",
+                    "offset_hours": 8,
+                },
+                {
+                    "code": "ALT-1009",
+                    "title": "Sensor Battery Depletion Warning: 11% Capacity",
+                    "description": f"IoT telemetry indicates internal Li-ion battery on bin {b4_code} is critical and may shut down within 24h.",
+                    "category": "SENSOR",
+                    "severity": "WARNING",
+                    "status": "ACTIVE",
+                    "source": "SENSOR",
+                    "entity_type": "SENSOR",
+                    "entity_id": b4_code,
+                    "location": b4_loc,
+                    "zone": b4_zone,
+                    "is_read": False,
+                    "ai_generated": False,
+                    "recommended_action": "Schedule battery replacement during tomorrow's maintenance round.",
+                    "offset_hours": 10,
+                },
+                {
+                    "code": "ALT-1010",
+                    "title": "Predicted Weekend Waste Spike in Entertainment District",
+                    "description": "Historical regression model projects a 180% surge in glass and beverage containers this Saturday evening.",
+                    "category": "PREDICTION",
+                    "severity": "WARNING",
+                    "status": "ACKNOWLEDGED",
+                    "source": "AI",
+                    "entity_type": "BIN",
+                    "entity_id": b0_code,
+                    "location": b0_loc,
+                    "zone": b0_zone,
+                    "is_read": True,
+                    "ai_generated": True,
+                    "acknowledged_by": "yug@gmail.com",
+                    "recommended_action": "Stage additional recycling bins along pedestrian concourse.",
+                    "offset_hours": 12,
+                },
+                {
+                    "code": "ALT-1011",
+                    "title": "Severe Recyclables Contamination Detected (68%)",
+                    "description": f"Computer vision scanner on bin {b1_code} detected high organic and wet waste content inside designated plastic stream.",
+                    "category": "CLASSIFICATION",
+                    "severity": "WARNING",
+                    "status": "ACTIVE",
+                    "source": "AI",
+                    "entity_type": "BIN",
+                    "entity_id": b1_code,
+                    "location": b1_loc,
+                    "zone": b1_zone,
+                    "is_read": True,
+                    "ai_generated": True,
+                    "recommended_action": "Route contents to sorting facility instead of direct recycling stream.",
+                    "offset_hours": 14,
+                },
+                {
+                    "code": "ALT-1012",
+                    "title": "API Telemetry Ingestion Latency Surge",
+                    "description": "Message queue processing latency exceeded 1200ms threshold during peak sensor batch check-in.",
+                    "category": "SYSTEM",
+                    "severity": "WARNING",
+                    "status": "SNOOZED",
+                    "source": "SYSTEM",
+                    "entity_type": "SYSTEM",
+                    "entity_id": "SYS-INGEST-01",
+                    "location": "Cloud Ingestion Cluster",
+                    "zone": "Infrastructure",
+                    "is_read": True,
+                    "ai_generated": False,
+                    "snooze_hours": 6,
+                    "recommended_action": "Auto-scaling policy has triggered 2 additional worker pods.",
+                    "offset_hours": 16,
+                },
+                # Medium / Low / Info
+                {
+                    "code": "ALT-1013",
+                    "title": "Bin Fill Level Crossed 75% Threshold",
+                    "description": f"Smart bin {b2_code} reached 78% fill capacity during standard operational hours.",
+                    "category": "BIN",
+                    "severity": "MEDIUM",
+                    "status": "ACTIVE",
+                    "source": "SENSOR",
+                    "entity_type": "BIN",
+                    "entity_id": b2_code,
+                    "location": b2_loc,
+                    "zone": b2_zone,
+                    "is_read": False,
+                    "ai_generated": False,
+                    "recommended_action": "Add to next standard morning collection batch.",
+                    "offset_hours": 18,
+                },
+                {
+                    "code": "ALT-1014",
+                    "title": "Unscheduled Route Deviation Detected",
+                    "description": f"Vehicle {v2_reg} deviated >500m from prescribed GPS path on Route RT-023 due to road construction.",
+                    "category": "ROUTE",
+                    "severity": "MEDIUM",
+                    "status": "ACKNOWLEDGED",
+                    "source": "ROUTE",
+                    "entity_type": "ROUTE",
+                    "entity_id": "RT-023",
+                    "location": "West Boulevard Ring Road",
+                    "zone": "West Sector",
+                    "is_read": True,
+                    "ai_generated": False,
+                    "acknowledged_by": "admin@gmail.com",
+                    "recommended_action": "Log detour in route analytics and adjust travel time estimates.",
+                    "offset_hours": 20,
+                },
+                {
+                    "code": "ALT-1015",
+                    "title": "Vehicle Capacity Mismatch Detected for Route RT-024",
+                    "description": "VRP optimization algorithm identified potential overload risk on assigned compact truck based on cumulative bin weights.",
+                    "category": "PLANNING",
+                    "severity": "MEDIUM",
+                    "status": "ACTIVE",
+                    "source": "PLANNING",
+                    "entity_type": "ROUTE",
+                    "entity_id": "RT-024",
+                    "location": "Logistics Park Hub",
+                    "zone": "Industrial South",
+                    "is_read": False,
+                    "ai_generated": True,
+                    "recommended_action": "Reassign to 15-ton compactor truck or split into two runs.",
+                    "offset_hours": 22,
+                },
+                {
+                    "code": "ALT-1016",
+                    "title": "Sensor Clock Drift Detected (3.8s offset)",
+                    "description": f"Telemetry node on bin {b3_code} has clock drift of 3.8 seconds compared to NTP master.",
+                    "category": "SENSOR",
+                    "severity": "LOW",
+                    "status": "ACTIVE",
+                    "source": "SENSOR",
+                    "entity_type": "SENSOR",
+                    "entity_id": b3_code,
+                    "location": b3_loc,
+                    "zone": b3_zone,
+                    "is_read": True,
+                    "ai_generated": False,
+                    "recommended_action": "Trigger over-the-air firmware sync on next check-in.",
+                    "offset_hours": 26,
+                },
+                {
+                    "code": "ALT-1017",
+                    "title": "Database Snapshot Verification Finished",
+                    "description": "Automated WAL archive backup completed with non-blocking index rebuild recommendations.",
+                    "category": "SYSTEM",
+                    "severity": "LOW",
+                    "status": "ACKNOWLEDGED",
+                    "source": "SYSTEM",
+                    "entity_type": "SYSTEM",
+                    "entity_id": "DB-PRIM-01",
+                    "location": "Primary Database Cluster",
+                    "zone": "Infrastructure",
+                    "is_read": True,
+                    "ai_generated": False,
+                    "acknowledged_by": "yug@gmail.com",
+                    "recommended_action": "Schedule vacuum maintenance during Sunday off-peak window.",
+                    "offset_hours": 28,
+                },
+                {
+                    "code": "ALT-1018",
+                    "title": "Quarterly Preventive Maintenance Inspection Due",
+                    "description": f"Fleet vehicle {v0_reg} has reached 8,000 km since last scheduled chassis and hydraulic inspection.",
+                    "category": "VEHICLE",
+                    "severity": "INFO",
+                    "status": "ACTIVE",
+                    "source": "VEHICLE",
+                    "entity_type": "VEHICLE",
+                    "entity_id": v0_reg,
+                    "location": "Central Fleet Workshop",
+                    "zone": "Central Zone",
+                    "is_read": False,
+                    "ai_generated": False,
+                    "recommended_action": "Book vehicle into workshop for standard 2-hour servicing.",
+                    "offset_hours": 32,
+                },
+                {
+                    "code": "ALT-1019",
+                    "title": "Bi-Weekly Bin Sanitization Cycle Scheduled",
+                    "description": f"Bin {b4_code} is queued for standard antimicrobial wash and deodorization service.",
+                    "category": "BIN",
+                    "severity": "INFO",
+                    "status": "ACTIVE",
+                    "source": "SYSTEM",
+                    "entity_type": "BIN",
+                    "entity_id": b4_code,
+                    "location": b4_loc,
+                    "zone": b4_zone,
+                    "is_read": True,
+                    "ai_generated": False,
+                    "recommended_action": "Sanitization team scheduled for Thursday 06:00.",
+                    "offset_hours": 36,
+                },
+                # Resolved Today
+                {
+                    "code": "ALT-1020",
+                    "title": "Critical Overflow Cleared: Bin Collected Successfully",
+                    "description": f"Emergency collection team emptied bin {b0_code}. Fill level reset to 8%.",
+                    "category": "BIN",
+                    "severity": "CRITICAL",
+                    "status": "RESOLVED",
+                    "source": "SENSOR",
+                    "entity_type": "BIN",
+                    "entity_id": b0_code,
+                    "location": b0_loc,
+                    "zone": b0_zone,
+                    "is_read": True,
+                    "ai_generated": False,
+                    "acknowledged_by": "yug@gmail.com",
+                    "resolved_by": "yug@gmail.com",
+                    "resolution_note": "Truck collected 450kg waste. Sensor validated fill level at 8%. Normal operation restored.",
+                    "offset_hours": 4,
+                    "resolved_offset_hours": 1,
+                },
+                {
+                    "code": "ALT-1021",
+                    "title": "Traffic Obstruction Cleared: Route RT-021 Back on Schedule",
+                    "description": "Highway blockage cleared by municipal traffic division. Route delays recovered.",
+                    "category": "ROUTE",
+                    "severity": "HIGH",
+                    "status": "RESOLVED",
+                    "source": "ROUTE",
+                    "entity_type": "ROUTE",
+                    "entity_id": "RT-021",
+                    "location": "Sector 7 Highway",
+                    "zone": "North Zone",
+                    "is_read": True,
+                    "ai_generated": False,
+                    "acknowledged_by": "admin@gmail.com",
+                    "resolved_by": "admin@gmail.com",
+                    "resolution_note": "Driver navigated past cleared section. Remaining stops completed on time.",
+                    "offset_hours": 5,
+                    "resolved_offset_hours": 2,
+                },
+                {
+                    "code": "ALT-1022",
+                    "title": "Sensor Gateway Reconnected: Live Telemetry Restored",
+                    "description": f"LoRaWAN gateway link re-established for {b1_code}. Telemetry heartbeat operational.",
+                    "category": "SENSOR",
+                    "severity": "MEDIUM",
+                    "status": "RESOLVED",
+                    "source": "SENSOR",
+                    "entity_type": "SENSOR",
+                    "entity_id": b1_code,
+                    "location": b1_loc,
+                    "zone": b1_zone,
+                    "is_read": True,
+                    "ai_generated": False,
+                    "acknowledged_by": "admin@gmail.com",
+                    "resolved_by": "admin@gmail.com",
+                    "resolution_note": "Gateway power cycle restored cellular uplink. Signal RSSI -72dBm (Good).",
+                    "offset_hours": 6,
+                    "resolved_offset_hours": 3,
+                },
+            ]
+
+            for d in demo_alerts_data:
+                created_time = now - timedelta(hours=d["offset_hours"])
+                ack_time = (created_time + timedelta(minutes=15)) if d.get("acknowledged_by") else None
+                res_time = (now - timedelta(hours=d["resolved_offset_hours"])) if d.get("resolved_by") else None
+                snooze_time = (now + timedelta(hours=d["snooze_hours"])) if d.get("snooze_hours") else None
+
+                alert_obj = Alert(
+                    uuid=uuid.uuid4(),
+                    alert_code=d["code"],
+                    title=d["title"],
+                    description=d["description"],
+                    category=d["category"],
+                    severity=d["severity"],
+                    status=d["status"],
+                    source=d["source"],
+                    entity_type=d["entity_type"],
+                    entity_id=d["entity_id"],
+                    location=d["location"],
+                    zone=d["zone"],
+                    is_read=d["is_read"],
+                    ai_generated=d["ai_generated"],
+                    recommended_action=d.get("recommended_action"),
+                    acknowledged_at=ack_time,
+                    acknowledged_by=d.get("acknowledged_by"),
+                    resolved_at=res_time,
+                    resolved_by=d.get("resolved_by"),
+                    resolution_note=d.get("resolution_note"),
+                    snoozed_until=snooze_time,
+                    created_at=created_time,
+                    updated_at=res_time or ack_time or created_time,
+                )
+                session.add(alert_obj)
+                await session.flush()
+
+                # Activities
+                act_create = AlertActivity(
+                    alert_id=alert_obj.id,
+                    action="CREATED",
+                    performed_by="System Rule Engine" if not d["ai_generated"] else "Prophet AI Agent",
+                    note=f"Alert {d['code']} triggered via {d['source']}",
+                    created_at=created_time,
+                )
+                session.add(act_create)
+
+                if ack_time:
+                    act_ack = AlertActivity(
+                        alert_id=alert_obj.id,
+                        action="ACKNOWLEDGED",
+                        performed_by=d["acknowledged_by"],
+                        note="Alert acknowledged by operator",
+                        created_at=ack_time,
+                    )
+                    session.add(act_ack)
+
+                if snooze_time:
+                    act_snz = AlertActivity(
+                        alert_id=alert_obj.id,
+                        action="SNOOZED",
+                        performed_by="admin@gmail.com",
+                        note=f"Snoozed for {d['snooze_hours']} hours",
+                        created_at=created_time + timedelta(minutes=20),
+                    )
+                    session.add(act_snz)
+
+                if res_time:
+                    act_res = AlertActivity(
+                        alert_id=alert_obj.id,
+                        action="RESOLVED",
+                        performed_by=d["resolved_by"],
+                        note=d["resolution_note"],
+                        created_at=res_time,
+                    )
+                    session.add(act_res)
+
+            await session.commit()
+            print("[+] Seeded 22 realistic alerts and alert activities across bins, routes, vehicles, sensors!")
 
     print("[*] Database seeding finished successfully!\n")
 

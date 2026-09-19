@@ -130,6 +130,21 @@ from app.schemas.classification import (
     ClassificationClassDistribution,
     ClassificationDistributionResponse,
 )
+from app.schemas.alert import (
+    AlertCreate,
+    AlertUpdate,
+    AcknowledgeAlertRequest,
+    ResolveAlertRequest,
+    SnoozeAlertRequest,
+    BulkAlertActionRequest,
+    AlertItemResponse,
+    AlertListResponse,
+    AlertSummaryResponse,
+    AlertTrendItem,
+    AlertTrendsResponse,
+    AlertCategoryItem,
+    AlertCategoriesResponse,
+)
 
 __all__ = [
     "AdminCreateUserRequest",
@@ -246,4 +261,17 @@ __all__ = [
     "ClassificationSummaryResponse",
     "ClassificationClassDistribution",
     "ClassificationDistributionResponse",
+    "AlertCreate",
+    "AlertUpdate",
+    "AcknowledgeAlertRequest",
+    "ResolveAlertRequest",
+    "SnoozeAlertRequest",
+    "BulkAlertActionRequest",
+    "AlertItemResponse",
+    "AlertListResponse",
+    "AlertSummaryResponse",
+    "AlertTrendItem",
+    "AlertTrendsResponse",
+    "AlertCategoryItem",
+    "AlertCategoriesResponse",
 ]
