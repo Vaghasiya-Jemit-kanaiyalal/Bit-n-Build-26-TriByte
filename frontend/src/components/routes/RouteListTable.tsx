@@ -1,5 +1,5 @@
 import React from 'react';
-import { Eye, Edit2, Copy, Route } from 'lucide-react';
+import { Eye, Copy, Route } from 'lucide-react';
 import type { RouteItem } from '../../mock/routeData';
 
 import { showWebsiteToast } from '../common/NotificationToast';
@@ -135,13 +135,6 @@ export const RouteListTable: React.FC<RouteListTableProps> = ({
                           <span>View</span>
                         </button>
 
-                        <button
-                          onClick={() => showWebsiteToast(`Editing configuration for route ${rt.id}...`, 'info', 'Edit Route')}
-                          title="Edit Route"
-                          className="p-1 text-[#6b7280] hover:text-[#111827] bg-white border border-[#d1d5db] rounded cursor-pointer hover:bg-[#f3f4f6]"
-                        >
-                          <Edit2 className="w-3 h-3" />
-                        </button>
 
                         <button
                           onClick={() => showWebsiteToast(`Route ${rt.id} duplicated into draft template.`, 'success', 'Route Duplicated')}

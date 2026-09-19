@@ -2,14 +2,14 @@ import type { AllAdminSettings } from '../types/settings';
 
 export const initialAdminSettingsMock: AllAdminSettings = {
   organization: {
-    name: 'WasteWise Municipal Operations',
-    id: 'WW-ORG-001',
+    name: 'EcoTrack Municipal Operations',
+    id: 'ET-ORG-001',
     department: 'Municipal Waste Management',
     operatingRegion: 'Vadodara Operating Region',
     operatingZones: ['Central Zone', 'North Zone', 'South Zone', 'East Zone', 'West Zone', 'Industrial Zone', 'Residential Zone'],
     defaultTimezone: 'Asia/Kolkata (IST +5:30)',
     defaultCurrency: 'INR (₹)',
-    contactEmail: 'operations@wastewise.local',
+    contactEmail: 'operations@ecotrack.local',
     contactPhone: '+91 98765 43210',
     address: 'Municipal Corporation Complex, Sector 4, Vadodara, Gujarat 390001',
     status: 'Operational',
@@ -219,7 +219,7 @@ export const initialAdminSettingsMock: AllAdminSettings = {
   },
 
   system: {
-    appName: 'WasteWise AI — Municipal Platform',
+    appName: 'EcoTrack AI — Municipal Platform',
     version: '1.0.0 (Build 2026.09)',
     environment: 'Demo / Production Ready',
     frontendFramework: 'React 19 + TypeScript + Tailwind CSS v4',

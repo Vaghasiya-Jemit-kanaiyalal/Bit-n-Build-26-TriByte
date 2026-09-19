@@ -1,10 +1,10 @@
 ### Bit N Build'26 🕷️🕸️🕷️
 
-# EchoTrack AI
+# EcoTrack AI
 
 ## AI-Powered Waste Management & Recycling Optimizer
 
-EchoTrack AI  is an intelligent waste management platform designed to optimize waste collection, monitor smart bins, predict waste levels, dynamically plan collection routes, and improve recycling operations.
+EcoTrack AI is an intelligent waste management platform designed to optimize waste collection, monitor smart bins, predict waste levels, dynamically plan collection routes, and improve recycling operations.
 
 ---
 
@@ -31,7 +31,7 @@ Municipalities, smart city planners, and private waste management operators lack
 
 ## 💡 Solution
 
-**EchoTrack AI** is an end-to-end, AI-powered smart waste management and recycling optimization platform. It ingests real-time IoT bin telemetry, executes ML-driven fill-level prediction models, runs automated computer vision waste classification algorithms, and dynamically computes bin collection priority scores.
+**EcoTrack AI** is an end-to-end, AI-powered smart waste management and recycling optimization platform. It ingests real-time IoT bin telemetry, executes ML-driven fill-level prediction models, runs automated computer vision waste classification algorithms, and dynamically computes bin collection priority scores.
 
 The platform automatically generates distance-optimized collection routes for field drivers, delivers real-time operational alerts (overflow warnings, fire/heat risks, sensor dropouts), and provides an interactive dashboard with multi-role access (**Waste Manager / Admin**, **Collection Driver**, and **Operations Analyst**).
 

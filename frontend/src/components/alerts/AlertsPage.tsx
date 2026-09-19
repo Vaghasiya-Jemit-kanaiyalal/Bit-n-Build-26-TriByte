@@ -7,7 +7,6 @@ import { AlertStatusSummary } from './AlertStatusSummary';
 import { CriticalAlertsSection } from './CriticalAlertsSection';
 import { AlertFilterToolbar } from './AlertFilterToolbar';
 import { AlertFeedTable } from './AlertFeedTable';
-import { AlertOverviewPanel } from './AlertOverviewPanel';
 import { AlertDetailsDrawer } from './AlertDetailsDrawer';
 import { AlertSettingsDrawer } from './AlertSettingsDrawer';
 import { ResolveAlertModal } from './ResolveAlertModal';
@@ -312,36 +311,22 @@ export const AlertsPage: React.FC<AlertsPageProps> = ({ onNavigateTab }) => {
               totalCount={alerts.length}
             />
 
-            {/* Desktop 2-Column Layout */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-              
-              {/* Left 70%: Alert Feed Table */}
-              <div className="lg:col-span-8">
-                <AlertFeedTable
-                  alerts={filteredAlerts}
-                  selectedIds={selectedIds}
-                  onToggleSelect={handleToggleSelect}
-                  onToggleSelectAll={handleToggleSelectAll}
-                  onViewAlert={handleOpenDrawer}
-                  onAcknowledge={handleAcknowledge}
-                  onSnooze={handleOpenSnoozeModal}
-                  onResolve={handleOpenResolveModal}
-                  onToggleRead={handleToggleRead}
-                  onNavigateToResource={handleNavigateToResource}
-                  onBulkAction={handleBulkAction}
-                  onClearFilters={handleClearFilters}
-                />
-              </div>
-
-              {/* Right 30%: Alert Overview Panel */}
-              <div className="lg:col-span-4">
-                <AlertOverviewPanel
-                  alerts={alerts}
-                  onSelectAlert={handleOpenDrawer}
-                  onNavigateToPredictions={() => onNavigateTab && onNavigateTab('Predictions')}
-                />
-              </div>
-
+            {/* Full-Width Alert Feed Table */}
+            <div className="w-full">
+              <AlertFeedTable
+                alerts={filteredAlerts}
+                selectedIds={selectedIds}
+                onToggleSelect={handleToggleSelect}
+                onToggleSelectAll={handleToggleSelectAll}
+                onViewAlert={handleOpenDrawer}
+                onAcknowledge={handleAcknowledge}
+                onSnooze={handleOpenSnoozeModal}
+                onResolve={handleOpenResolveModal}
+                onToggleRead={handleToggleRead}
+                onNavigateToResource={handleNavigateToResource}
+                onBulkAction={handleBulkAction}
+                onClearFilters={handleClearFilters}
+              />
             </div>
           </>
         )}

@@ -44,7 +44,7 @@ export const CollectionPerformance: React.FC<CollectionPerformanceProps> = ({ on
       </div>
 
       {/* 6 Key Performance Metrics */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-5">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-5">
         {metrics.map((m, idx) => (
           <div key={idx} className="p-3 bg-slate-50/80 border border-slate-200/80 rounded-lg">
             <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block mb-1">

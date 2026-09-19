@@ -5,7 +5,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    PROJECT_NAME: str = "WasteWise AI"
+    PROJECT_NAME: str = "EcoTrack AI"
     API_V1_STR: str = "/api/v1"
     ENVIRONMENT: str = "development"
 
@@ -29,7 +29,7 @@ class Settings(BaseSettings):
 
     # Waste Classification Configuration
     CLASSIFICATION_LOW_CONFIDENCE_THRESHOLD: float = 0.70
-    CLASSIFICATION_DEFAULT_MODEL_NAME: str = "wastewise-vision-classifier"
+    CLASSIFICATION_DEFAULT_MODEL_NAME: str = "ecotrack-vision-classifier"
     CLASSIFICATION_DEFAULT_MODEL_VERSION: str = "1.0.0"
 
     # CORS

@@ -20,7 +20,7 @@ const API_BASE = 'http://localhost:8000/api/v1';
 // ─── helpers ────────────────────────────────────────────────────────────────
 
 function getToken(): string | null {
-  return localStorage.getItem('wastewise_token');
+  return localStorage.getItem('ecotrack_token') || localStorage.getItem('wastewise_token');
 }
 
 function authHeaders(): Record<string, string> {
