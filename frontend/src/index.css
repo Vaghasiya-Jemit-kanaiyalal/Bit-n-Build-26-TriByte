@@ -16,7 +16,7 @@
   --text-secondary: #c2bebe;
   --text-muted: #888680;
   --text-dim: #5c5b57;
-  
+
   /* Restrained Earthy Accents */
   --accent-olive: #738a62;
   --accent-olive-hover: #839b71;
@@ -63,13 +63,16 @@
 }
 
 /* Reset & Base Setup */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
-html, body {
+html,
+body {
   height: 100%;
   width: 100%;
   background-color: var(--bg-canvas);
@@ -89,7 +92,12 @@ html, body {
 }
 
 /* Typography Utilities */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   color: var(--text-primary);
   font-weight: 600;
   letter-spacing: -0.02em;
@@ -256,13 +264,13 @@ label {
   height: 0;
 }
 
-.checkbox-input:checked + .checkbox-custom {
+.checkbox-input:checked+.checkbox-custom {
   background-color: var(--accent-olive);
   border-color: var(--accent-olive);
   color: #0c0e10;
 }
 
-.checkbox-input:focus-visible + .checkbox-custom {
+.checkbox-input:focus-visible+.checkbox-custom {
   box-shadow: 0 0 0 3px var(--accent-olive-muted);
 }
 
@@ -420,8 +428,15 @@ label {
 
 /* Animations */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .animate-fade-in {
@@ -429,7 +444,9 @@ label {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .spinner {
@@ -446,13 +463,16 @@ label {
   width: 6px;
   height: 6px;
 }
+
 ::-webkit-scrollbar-track {
   background: var(--bg-canvas);
 }
+
 ::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.12);
   border-radius: 3px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.25);
 }
