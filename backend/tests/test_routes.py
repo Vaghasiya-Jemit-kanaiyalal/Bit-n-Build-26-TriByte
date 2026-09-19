@@ -45,12 +45,15 @@ async def create_test_vehicle(
         uuid=uuid.uuid4(),
         vehicle_code=code or f"VEH-{unique_str}",
         name=f"Compactor {unique_str}",
-        vehicle_type="Compactor Truck",
+        vehicle_type="COMPACTOR",
+        registration_number=f"GJ-01-{unique_str.upper()}",
+        energy_type="DIESEL",
         capacity_kg=capacity,
         current_load_kg=0.0,
         status=status,
         latitude=23.0225,
         longitude=72.5714,
+        is_active=True,
     )
     db.add(veh)
     await db.commit()

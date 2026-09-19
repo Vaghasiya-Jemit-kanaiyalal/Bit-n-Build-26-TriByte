@@ -400,11 +400,14 @@ All administrative route endpoints require the `ADMIN` role. Non-admin users (Co
 The test suite runs against the isolated `wastewise_test` database without affecting development data:
 
 ```bash
-# Run all authentication and route management tests
-python -m pytest tests/test_auth.py tests/test_routes.py -v
+# Run all backend tests (Auth, Routes, Vehicles - 64 tests total)
+python -m pytest tests/test_auth.py tests/test_routes.py tests/test_vehicles.py -v
+
+# Run vehicle management tests specifically
+python -m pytest tests/test_vehicles.py -v
 ```
 
-Covered test suites (35 tests total):
+Covered test suites (64 tests total):
 - User registration, login, logout, password reset, JWT validation
 - Route CRUD, pagination, filtering, search, and sorting
 - Route stops addition, removal, reordering, completion, and skipping
@@ -412,6 +415,326 @@ Covered test suites (35 tests total):
 - Driver role validation (`DRIVER`/`COLLECTOR` permitted; `ADMIN`/`VIEWER` blocked)
 - Vehicle and driver scheduling conflict validation (409 Conflict)
 - Backend progress and capacity utilization calculations
-- Route completion validation against incomplete stops (with `force=true` support)
+- Vehicle CRUD, auto-generation of unique codes (`VEH-XXX`), duplicate checks
+- Vehicle soft-deactivation (guarded against active routes) & reactivation
+- Driver assignment & unassignment with role & conflict checks
+- Vehicle operational status transitions (`AVAILABLE` → `ON_ROUTE`, etc.)
+- Dynamic payload tracking & capacity utilization calculation
+- GPS telemetry location updates and retrieval
+- Maintenance record lifecycle (`SCHEDULED`, `IN_PROGRESS`, `COMPLETED`, `OVERDUE`)
+- Chronological audit logging (`VehicleActivity`)
+- Fleet summary KPIs, capacity utilization distribution, and vehicles requiring attention
 - Admin role authorization enforcement (`403 Forbidden` for non-admins)
+
+---
+
+## 9. Admin → Vehicle Management API Reference
+
+All endpoints below require an `ADMIN` JWT bearer token in the `Authorization` header (`Bearer <token>`).
+
+### 9.1 Summary & Dashboard Analytics
+
+#### `GET /api/v1/admin/vehicles/dashboard`
+- **Method:** `GET`
+- **URL:** `/api/v1/admin/vehicles/dashboard`
+- **Authorization:** `ADMIN`
+- **Query Parameters:** None
+- **Request Body:** None
+- **Success Response (200 OK):**
+```json
+{
+  "summary": {
+    "total": 13,
+    "active": 13,
+    "on_route": 6,
+    "available": 4,
+    "idle": 0,
+    "maintenance": 2,
+    "offline": 1,
+    "inactive": 0
+  },
+  "utilization": {
+    "total_capacity_kg": 13350.0,
+    "current_load_kg": 6897.0,
+    "utilization_percentage": 51.66,
+    "vehicles_below_50_percent": 5,
+    "vehicles_50_to_75_percent": 4,
+    "vehicles_75_to_90_percent": 2,
+    "vehicles_above_90_percent": 2
+  },
+  "attention_items": [
+    {
+      "vehicle_id": 27,
+      "vehicle_code": "VEH-001",
+      "type": "HIGH_LOAD",
+      "severity": "warning",
+      "message": "91.67% capacity - Near collection limit (1100.0kg / 1200.0kg)",
+      "action_type": "view_vehicle",
+      "target_id": "VEH-001"
+    }
+  ],
+  "recent_activity": [...],
+  "recent_vehicles": [...],
+  "maintenance_overview": {
+    "scheduled": 3,
+    "in_progress": 1,
+    "completed": 0,
+    "overdue": 1
+  }
+}
+```
+- **Error Response:** `401 Unauthorized`, `403 Forbidden`
+
+#### `GET /api/v1/admin/vehicles/summary`
+- **Method:** `GET`
+- **URL:** `/api/v1/admin/vehicles/summary`
+- **Authorization:** `ADMIN`
+- **Success Response (200 OK):** Fleet KPI counts (`total`, `active`, `on_route`, `available`, `idle`, `maintenance`, `offline`, `inactive`).
+
+#### `GET /api/v1/admin/vehicles/utilization`
+- **Method:** `GET`
+- **URL:** `/api/v1/admin/vehicles/utilization`
+- **Authorization:** `ADMIN`
+- **Success Response (200 OK):** `total_capacity_kg`, `current_load_kg`, `utilization_percentage`, and bucket counts (`<50%`, `50-75%`, `75-90%`, `>90%`).
+
+#### `GET /api/v1/admin/vehicles/attention`
+- **Method:** `GET`
+- **URL:** `/api/v1/admin/vehicles/attention`
+- **Authorization:** `ADMIN`
+- **Success Response (200 OK):** List of critical and warning items (e.g. `HIGH_LOAD`, `MAINTENANCE_OVERDUE`, `OFFLINE`, `ROUTE_ISSUE`).
+
+---
+
+### 9.2 Vehicle Fleet CRUD & Search
+
+#### `GET /api/v1/admin/vehicles`
+- **Method:** `GET`
+- **URL:** `/api/v1/admin/vehicles`
+- **Authorization:** `ADMIN`
+- **Query Parameters:**
+  - `page`: int (default `1`)
+  - `page_size`: int (default `10`, max `100`)
+  - `search`: string (matches vehicle code, name, registration number, driver name)
+  - `status`: string (`AVAILABLE`, `ON_ROUTE`, `IDLE`, `MAINTENANCE`, `OFFLINE`, `INACTIVE`)
+  - `vehicle_type`: string (`COMPACTOR`, `TIPPER`, `RECYCLING_TRUCK`, `MINI_COLLECTION`, `ELECTRIC_COLLECTION`)
+  - `energy_type`: string (`DIESEL`, `CNG`, `ELECTRIC`, `HYBRID`)
+  - `zone`: string
+  - `driver_id`: int
+  - `min_capacity`: float
+  - `max_capacity`: float
+  - `sort_by`: string (default `created_at`)
+  - `sort_order`: string (`asc` / `desc`, default `desc`)
+- **Success Response (200 OK):**
+```json
+{
+  "items": [
+    {
+      "id": 27,
+      "vehicle_code": "VEH-001",
+      "name": "EcoCompactor 01",
+      "vehicle_type": "COMPACTOR",
+      "registration_number": "GJ-01-AB-1234",
+      "capacity_kg": 1200.0,
+      "current_load_kg": 1100.0,
+      "capacity_utilization": 91.67,
+      "energy_type": "CNG",
+      "status": "ON_ROUTE",
+      "zone": "NORTH",
+      "is_active": true,
+      "driver": {
+        "id": 5,
+        "name": "Arjun Patel",
+        "email": "arjun.patel@wastewise.ai"
+      },
+      "current_route": {
+        "id": 1,
+        "route_code": "RT-001",
+        "name": "Morning Commercial Loop",
+        "status": "IN_PROGRESS"
+      }
+    }
+  ],
+  "page": 1,
+  "page_size": 10,
+  "total": 13,
+  "pages": 2
+}
+```
+
+#### `POST /api/v1/admin/vehicles`
+- **Method:** `POST`
+- **URL:** `/api/v1/admin/vehicles`
+- **Authorization:** `ADMIN`
+- **Request Body:**
+```json
+{
+  "name": "EcoCompactor 01",
+  "vehicle_type": "COMPACTOR",
+  "registration_number": "GJ-01-AB-1234",
+  "capacity_kg": 1200,
+  "energy_type": "CNG",
+  "zone": "NORTH",
+  "driver_id": null
+}
+```
+- **Success Response (201 Created):** Full vehicle object with auto-generated `vehicle_code` (e.g. `VEH-001`), `status = "AVAILABLE"`, `current_load_kg = 0.0`.
+- **Error Responses:** `400 Bad Request` (invalid capacity/driver), `409 Conflict` (duplicate registration number).
+
+#### `GET /api/v1/admin/vehicles/{vehicle_id}`
+- **Method:** `GET`
+- **URL:** `/api/v1/admin/vehicles/{vehicle_id}` (accepts integer ID or string `vehicle_code` like `VEH-001`)
+- **Authorization:** `ADMIN`
+- **Success Response (200 OK):** Detailed vehicle object including `driver`, `current_route`, `recent_maintenance`, and `recent_activities`.
+- **Error Response:** `404 Not Found`.
+
+#### `PUT /api/v1/admin/vehicles/{vehicle_id}`
+- **Method:** `PUT`
+- **URL:** `/api/v1/admin/vehicles/{vehicle_id}`
+- **Authorization:** `ADMIN`
+- **Request Body:**
+```json
+{
+  "name": "EcoCompactor 01 Updated",
+  "vehicle_type": "COMPACTOR",
+  "registration_number": "GJ-01-AB-9999",
+  "capacity_kg": 1400,
+  "energy_type": "CNG",
+  "zone": "NORTH"
+}
+```
+- **Validation:** New capacity cannot be lower than current load.
+- **Success Response (200 OK):** Updated vehicle object.
+- **Error Response:** `400 Bad Request`, `404 Not Found`, `409 Conflict`.
+
+#### `PATCH /api/v1/admin/vehicles/{vehicle_id}/deactivate`
+- **Method:** `PATCH`
+- **URL:** `/api/v1/admin/vehicles/{vehicle_id}/deactivate`
+- **Authorization:** `ADMIN`
+- **Guard:** Cannot deactivate vehicle if assigned to an active route (`PLANNED`, `IN_PROGRESS`, `PAUSED`, `AT_RISK`).
+- **Success Response (200 OK):** `{"message": "Vehicle VEH-001 deactivated successfully."}`
+- **Error Response:** `409 Conflict`.
+
+#### `PATCH /api/v1/admin/vehicles/{vehicle_id}/activate`
+- **Method:** `PATCH`
+- **URL:** `/api/v1/admin/vehicles/{vehicle_id}/activate`
+- **Authorization:** `ADMIN`
+- **Success Response (200 OK):** Sets `is_active = true`, `status = "AVAILABLE"`.
+
+---
+
+### 9.3 Operations, Driver & Telemetry
+
+#### `POST /api/v1/admin/vehicles/{vehicle_id}/assign-driver`
+- **Method:** `POST`
+- **URL:** `/api/v1/admin/vehicles/{vehicle_id}/assign-driver`
+- **Authorization:** `ADMIN`
+- **Request Body:**
+```json
+{
+  "driver_id": 5
+}
+```
+- **Validation:** User must exist, be active, have role `DRIVER` or `COLLECTOR`, and not be currently assigned to another active vehicle.
+- **Success Response (200 OK):** Updated vehicle object with assigned driver.
+- **Error Response:** `400 Bad Request` (invalid role/inactive), `404 Not Found`, `409 Conflict` (driver already assigned).
+
+#### `DELETE /api/v1/admin/vehicles/{vehicle_id}/driver`
+- **Method:** `DELETE`
+- **URL:** `/api/v1/admin/vehicles/{vehicle_id}/driver`
+- **Authorization:** `ADMIN`
+- **Guard:** Blocked if vehicle is currently executing an active route.
+- **Success Response (200 OK):** `{"message": "Driver removed from vehicle VEH-001 successfully."}`
+
+#### `PATCH /api/v1/admin/vehicles/{vehicle_id}/status`
+- **Method:** `PATCH`
+- **URL:** `/api/v1/admin/vehicles/{vehicle_id}/status`
+- **Authorization:** `ADMIN`
+- **Request Body:**
+```json
+{
+  "status": "ON_ROUTE"
+}
+```
+- **Validation:** Enforces valid lifecycle transitions; prevents transitioning inactive vehicles or moving vehicles with active routes to `MAINTENANCE` without completing/cancelling the route.
+- **Success Response (200 OK):** Updated vehicle object.
+
+#### `PATCH /api/v1/admin/vehicles/{vehicle_id}/load`
+- **Method:** `PATCH`
+- **URL:** `/api/v1/admin/vehicles/{vehicle_id}/load`
+- **Authorization:** `ADMIN`
+- **Request Body:**
+```json
+{
+  "current_load_kg": 780
+}
+```
+- **Validation:** `0 <= current_load_kg <= capacity_kg`. Backend calculates `capacity_utilization`.
+- **Success Response (200 OK):**
+```json
+{
+  "vehicle_id": 27,
+  "vehicle_code": "VEH-001",
+  "current_load_kg": 780.0,
+  "capacity_kg": 1200.0,
+  "capacity_utilization": 65.0
+}
+```
+
+#### `PATCH /api/v1/admin/vehicles/{vehicle_id}/location`
+- **Method:** `PATCH`
+- **URL:** `/api/v1/admin/vehicles/{vehicle_id}/location`
+- **Authorization:** `ADMIN`
+- **Request Body:**
+```json
+{
+  "latitude": 23.0300,
+  "longitude": 72.5800
+}
+```
+- **Success Response (200 OK):** Returns telemetry payload with updated timestamp.
+
+#### `GET /api/v1/admin/vehicles/{vehicle_id}/location`
+- **Method:** `GET`
+- **URL:** `/api/v1/admin/vehicles/{vehicle_id}/location`
+- **Authorization:** `ADMIN`
+- **Success Response (200 OK):** `{"vehicle_id": 27, "latitude": 23.0300, "longitude": 72.5800, "last_updated": "..."}`. Returns `null` coordinates if no location has been recorded.
+
+---
+
+### 9.4 Maintenance & Audit Trail
+
+#### `POST /api/v1/admin/vehicles/{vehicle_id}/maintenance`
+- **Method:** `POST`
+- **URL:** `/api/v1/admin/vehicles/{vehicle_id}/maintenance`
+- **Authorization:** `ADMIN`
+- **Request Body:**
+```json
+{
+  "service_type": "Routine Service",
+  "service_date": "2026-09-20",
+  "next_service_date": "2026-10-20",
+  "odometer_km": 18420,
+  "status": "SCHEDULED",
+  "notes": "Oil and filter inspection"
+}
+```
+- **Success Response (201 Created):** Created `VehicleMaintenanceRecord`. Setting status to `IN_PROGRESS` automatically moves vehicle status to `MAINTENANCE`.
+
+#### `GET /api/v1/admin/vehicles/{vehicle_id}/maintenance`
+- **Method:** `GET`
+- **URL:** `/api/v1/admin/vehicles/{vehicle_id}/maintenance`
+- **Query Parameters:** `page`, `page_size`, `status` (`SCHEDULED`, `IN_PROGRESS`, `COMPLETED`, `OVERDUE`, `CANCELLED`).
+- **Success Response (200 OK):** Paginated records ordered by `service_date DESC`.
+
+#### `PATCH /api/v1/admin/vehicles/{vehicle_id}/maintenance/{maintenance_id}`
+- **Method:** `PATCH`
+- **URL:** `/api/v1/admin/vehicles/{vehicle_id}/maintenance/{maintenance_id}`
+- **Success Response (200 OK):** Updated record. Marking record `COMPLETED` restores vehicle from `MAINTENANCE` to `AVAILABLE`.
+
+#### `GET /api/v1/admin/vehicles/{vehicle_id}/history`
+- **Method:** `GET`
+- **URL:** `/api/v1/admin/vehicles/{vehicle_id}/history`
+- **Query Parameters:** `limit` (default `50`)
+- **Success Response (200 OK):** Chronological audit trail records (`activity_type`, `description`, `created_at`).
+
 

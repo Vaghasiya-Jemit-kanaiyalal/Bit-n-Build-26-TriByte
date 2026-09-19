@@ -1,11 +1,13 @@
 import asyncio
 import uuid
 from datetime import date, datetime, timezone
-from sqlalchemy import select
+from sqlalchemy import select, and_
 from app.core.security import hash_password
 from app.db.database import AsyncSessionLocal
 from app.models.user import User, UserRole, UserStatus
-from app.models.vehicle import Vehicle
+from app.models.vehicle import Vehicle, VehicleType, EnergyType, VehicleStatus
+from app.models.vehicle_maintenance import VehicleMaintenanceRecord, MaintenanceStatus
+from app.models.vehicle_history import VehicleActivity
 from app.models.bin import Bin
 from app.models.route import Route, RouteStatus, RoutePriority
 from app.models.route_stop import RouteStop, StopStatus, StopPriority
@@ -100,66 +102,223 @@ DEMO_USERS = [
         "department": "Zone D Logistics",
         "phone": "+91 98765 11004",
     },
+    {
+        "first_name": "Neha",
+        "last_name": "Shah",
+        "email": "neha.shah@wastewise.ai",
+        "password": "Driver@2026!",
+        "role": UserRole.DRIVER,
+        "status": UserStatus.ACTIVE,
+        "organization": "Metro Route Fleet #12",
+        "department": "West Zone Logistics",
+        "phone": "+91 98765 11005",
+    },
+    {
+        "first_name": "Rohan",
+        "last_name": "Patel",
+        "email": "rohan.patel@wastewise.ai",
+        "password": "Driver@2026!",
+        "role": UserRole.DRIVER,
+        "status": UserStatus.ACTIVE,
+        "organization": "Metro Route Fleet #12",
+        "department": "East Zone Logistics",
+        "phone": "+91 98765 11006",
+    },
+    {
+        "first_name": "Vikram",
+        "last_name": "Joshi",
+        "email": "vikram.joshi@wastewise.ai",
+        "password": "Driver@2026!",
+        "role": UserRole.DRIVER,
+        "status": UserStatus.ACTIVE,
+        "organization": "Metro Route Fleet #12",
+        "department": "North Zone Logistics",
+        "phone": "+91 98765 11007",
+    },
 ]
 
 DEMO_VEHICLES = [
+    # Core fleet vehicles matching frontend vehicle page
+    {
+        "vehicle_code": "VEH-001",
+        "name": "EcoCompactor 01",
+        "vehicle_type": "COMPACTOR",
+        "registration_number": "GJ-01-AB-1234",
+        "capacity_kg": 1200.0,
+        "current_load_kg": 780.0,
+        "energy_type": "DIESEL",
+        "status": "ON_ROUTE",
+        "zone": "North Zone",
+        "driver_email": "arjun.patel@wastewise.ai",
+        "latitude": 22.3072,
+        "longitude": 73.1812,
+    },
+    {
+        "vehicle_code": "VEH-002",
+        "name": "GreenHaul 02",
+        "vehicle_type": "RECYCLING_TRUCK",
+        "registration_number": "GJ-01-CD-5678",
+        "capacity_kg": 900.0,
+        "current_load_kg": 420.0,
+        "energy_type": "CNG",
+        "status": "AVAILABLE",
+        "zone": "West Zone",
+        "driver_email": "neha.shah@wastewise.ai",
+        "latitude": 22.2980,
+        "longitude": 73.1750,
+    },
+    {
+        "vehicle_code": "VEH-003",
+        "name": "CleanMove 07",
+        "vehicle_type": "TIPPER",
+        "registration_number": "GJ-01-EF-9012",
+        "capacity_kg": 1500.0,
+        "current_load_kg": 0.0,
+        "energy_type": "DIESEL",
+        "status": "MAINTENANCE",
+        "zone": "Central Zone",
+        "driver_email": None,
+        "latitude": 22.3120,
+        "longitude": 73.1900,
+    },
+    {
+        "vehicle_code": "VEH-004",
+        "name": "EcoMini 03",
+        "vehicle_type": "MINI_COLLECTION",
+        "registration_number": "GJ-01-GH-3456",
+        "capacity_kg": 500.0,
+        "current_load_kg": 310.0,
+        "energy_type": "ELECTRIC",
+        "status": "ON_ROUTE",
+        "zone": "East Zone",
+        "driver_email": "rohan.patel@wastewise.ai",
+        "latitude": 22.3050,
+        "longitude": 73.2010,
+    },
+    {
+        "vehicle_code": "VEH-005",
+        "name": "VoltClean EV-01",
+        "vehicle_type": "ELECTRIC_COLLECTION",
+        "registration_number": "GJ-01-EV-0001",
+        "capacity_kg": 750.0,
+        "current_load_kg": 620.0,
+        "energy_type": "ELECTRIC",
+        "status": "ON_ROUTE",
+        "zone": "North Zone",
+        "driver_email": "vikram.joshi@wastewise.ai",
+        "latitude": 22.3150,
+        "longitude": 73.1840,
+    },
+    {
+        "vehicle_code": "VEH-007",
+        "name": "GreenHaul 05",
+        "vehicle_type": "COMPACTOR",
+        "registration_number": "GJ-01-CD-7744",
+        "capacity_kg": 1000.0,
+        "current_load_kg": 920.0,  # 92% capacity - Near collection limit
+        "energy_type": "CNG",
+        "status": "ON_ROUTE",
+        "zone": "South Zone",
+        "driver_email": "vivek.shah@wastewise.ai",
+        "latitude": 22.2850,
+        "longitude": 73.1700,
+    },
+    {
+        "vehicle_code": "VEH-013",
+        "name": "EcoMini 01",
+        "vehicle_type": "MINI_COLLECTION",
+        "registration_number": "GJ-01-GH-1122",
+        "capacity_kg": 600.0,
+        "current_load_kg": 0.0,
+        "energy_type": "CNG",
+        "status": "MAINTENANCE",
+        "zone": "Central Zone",
+        "driver_email": None,
+        "latitude": 22.3100,
+        "longitude": 73.1890,
+    },
+    {
+        "vehicle_code": "VEH-018",
+        "name": "VoltClean EV-02",
+        "vehicle_type": "ELECTRIC_COLLECTION",
+        "registration_number": "GJ-01-EV-0002",
+        "capacity_kg": 800.0,
+        "current_load_kg": 550.0,
+        "energy_type": "ELECTRIC",
+        "status": "OFFLINE",
+        "zone": "West Zone",
+        "driver_email": None,
+        "latitude": 22.2900,
+        "longitude": 73.1600,
+    },
+    # Existing route demo trucks
     {
         "vehicle_code": "TRK-04",
         "name": "EcoCompactor 04",
-        "vehicle_type": "Compactor Truck",
+        "vehicle_type": "COMPACTOR",
+        "registration_number": "GJ-01-WW-1004",
         "capacity_kg": 1200.0,
         "current_load_kg": 864.0,
-        "status": "IN_USE",
-        "license_plate": "GJ-01-WW-1004",
+        "energy_type": "DIESEL",
+        "status": "ON_ROUTE",
         "zone": "Zone A",
+        "driver_email": "arjun.patel@wastewise.ai",
         "latitude": 23.0225,
         "longitude": 72.5714,
     },
     {
         "vehicle_code": "TRK-01",
         "name": "EcoCompactor 01",
-        "vehicle_type": "Compactor Truck",
+        "vehicle_type": "COMPACTOR",
+        "registration_number": "GJ-01-WW-1001",
         "capacity_kg": 1500.0,
         "current_load_kg": 1425.0,
+        "energy_type": "DIESEL",
         "status": "AVAILABLE",
-        "license_plate": "GJ-01-WW-1001",
         "zone": "Zone C",
+        "driver_email": "rohan.shah@wastewise.ai",
         "latitude": 23.0338,
         "longitude": 72.5850,
     },
     {
         "vehicle_code": "TRK-02",
         "name": "EcoHauler 02",
-        "vehicle_type": "Rear Loader",
+        "vehicle_type": "COMPACTOR",
+        "registration_number": "GJ-01-WW-1002",
         "capacity_kg": 1200.0,
         "current_load_kg": 1008.0,
-        "status": "IN_USE",
-        "license_plate": "GJ-01-WW-1002",
+        "energy_type": "CNG",
+        "status": "ON_ROUTE",
         "zone": "Zone B",
+        "driver_email": "neha.patel@wastewise.ai",
         "latitude": 23.0450,
         "longitude": 72.5620,
     },
     {
         "vehicle_code": "TRK-03",
         "name": "EcoHauler 03",
-        "vehicle_type": "Side Loader",
+        "vehicle_type": "TIPPER",
+        "registration_number": "GJ-01-WW-1003",
         "capacity_kg": 1400.0,
         "current_load_kg": 0.0,
+        "energy_type": "DIESEL",
         "status": "AVAILABLE",
-        "license_plate": "GJ-01-WW-1003",
         "zone": "Zone D",
+        "driver_email": None,
         "latitude": 23.0180,
         "longitude": 72.5910,
     },
     {
         "vehicle_code": "TRK-05",
         "name": "EcoReserve 05",
-        "vehicle_type": "Electric Mini Truck",
+        "vehicle_type": "MINI_COLLECTION",
+        "registration_number": "GJ-01-WW-1005",
         "capacity_kg": 800.0,
         "current_load_kg": 0.0,
+        "energy_type": "ELECTRIC",
         "status": "AVAILABLE",
-        "license_plate": "GJ-01-WW-1005",
         "zone": "Zone A",
+        "driver_email": None,
         "latitude": 23.0290,
         "longitude": 72.5690,
     },
@@ -219,15 +378,27 @@ async def seed_all():
         # 2. Vehicles
         vehicle_map = {}
         for v in DEMO_VEHICLES:
+            driver_user = user_map.get(v.get("driver_email")) if v.get("driver_email") else None
+            driver_id = driver_user.id if driver_user else None
+
             res = await session.execute(select(Vehicle).where(Vehicle.vehicle_code == v["vehicle_code"]))
             existing_v = res.scalar_one_or_none()
             if existing_v:
                 existing_v.name = v["name"]
+                existing_v.vehicle_type = v["vehicle_type"]
+                existing_v.registration_number = v.get("registration_number")
+                existing_v.license_plate = v.get("registration_number")
                 existing_v.capacity_kg = v["capacity_kg"]
                 existing_v.current_load_kg = v["current_load_kg"]
+                existing_v.energy_type = v["energy_type"]
                 existing_v.status = v["status"]
+                existing_v.zone = v["zone"]
+                existing_v.driver_id = driver_id
+                existing_v.current_latitude = v["latitude"]
+                existing_v.current_longitude = v["longitude"]
                 existing_v.latitude = v["latitude"]
                 existing_v.longitude = v["longitude"]
+                existing_v.is_active = (v["status"] != "INACTIVE")
                 vehicle_map[v["vehicle_code"]] = existing_v
             else:
                 new_v = Vehicle(
@@ -235,18 +406,55 @@ async def seed_all():
                     vehicle_code=v["vehicle_code"],
                     name=v["name"],
                     vehicle_type=v["vehicle_type"],
+                    registration_number=v.get("registration_number"),
+                    license_plate=v.get("registration_number"),
                     capacity_kg=v["capacity_kg"],
                     current_load_kg=v["current_load_kg"],
+                    energy_type=v["energy_type"],
                     status=v["status"],
-                    license_plate=v["license_plate"],
                     zone=v["zone"],
+                    driver_id=driver_id,
+                    current_latitude=v["latitude"],
+                    current_longitude=v["longitude"],
                     latitude=v["latitude"],
                     longitude=v["longitude"],
+                    is_active=(v["status"] != "INACTIVE"),
                 )
                 session.add(new_v)
                 await session.flush()
                 vehicle_map[v["vehicle_code"]] = new_v
         print(f"[+] Vehicles checked/seeded: {len(vehicle_map)}")
+
+        # Maintenance records seeding
+        demo_maintenance = [
+            {"vehicle_code": "VEH-001", "service_type": "Routine Service", "service_date": date(2026, 9, 12), "next_service_date": date(2026, 10, 12), "odometer_km": 18420, "status": MaintenanceStatus.COMPLETED, "notes": "Oil and filter inspection, pressure check"},
+            {"vehicle_code": "VEH-001", "service_type": "Brake Inspection", "service_date": date(2026, 8, 12), "next_service_date": date(2026, 9, 12), "odometer_km": 16900, "status": MaintenanceStatus.COMPLETED, "notes": "No major issues, pads 80%"},
+            {"vehicle_code": "VEH-002", "service_type": "Spark Plug & CNG Check", "service_date": date(2026, 9, 5), "next_service_date": date(2026, 10, 5), "odometer_km": 14200, "status": MaintenanceStatus.COMPLETED, "notes": "Cleaned intake valves"},
+            {"vehicle_code": "VEH-003", "service_type": "Hydraulics Check", "service_date": date(2026, 8, 10), "next_service_date": date(2026, 9, 10), "odometer_km": 21000, "status": MaintenanceStatus.COMPLETED, "notes": "Replaced hydraulic fluid line"},
+            {"vehicle_code": "VEH-004", "service_type": "EV Battery Diagnostic", "service_date": date(2026, 9, 14), "next_service_date": date(2026, 10, 14), "odometer_km": 9200, "status": MaintenanceStatus.COMPLETED, "notes": "Health 98%"},
+            {"vehicle_code": "VEH-013", "service_type": "Transmission Overhaul", "service_date": date(2026, 6, 2), "next_service_date": date(2026, 7, 2), "odometer_km": 28000, "status": MaintenanceStatus.OVERDUE, "notes": "Filter replacement & fluid leak"},
+        ]
+        for m in demo_maintenance:
+            v_obj = vehicle_map.get(m["vehicle_code"])
+            if v_obj:
+                m_stmt = select(VehicleMaintenanceRecord).where(
+                    and_(
+                        VehicleMaintenanceRecord.vehicle_id == v_obj.id,
+                        VehicleMaintenanceRecord.service_type == m["service_type"],
+                    )
+                )
+                if not (await session.execute(m_stmt)).scalar_one_or_none():
+                    rec = VehicleMaintenanceRecord(
+                        vehicle_id=v_obj.id,
+                        service_type=m["service_type"],
+                        service_date=m["service_date"],
+                        next_service_date=m["next_service_date"],
+                        odometer_km=m["odometer_km"],
+                        status=m["status"],
+                        notes=m["notes"],
+                    )
+                    session.add(rec)
+        print("[+] Maintenance records checked/seeded")
 
         # 3. Bins
         bin_map = {}
