@@ -70,18 +70,18 @@ export const UserKpiGrid: React.FC<UserKpiGridProps> = ({
         </div>
       </div>
 
-      {/* 3. DRIVERS */}
+      {/* 3. COLLECTORS */}
       <div
-        onClick={() => onFilterRole && onFilterRole('DRIVER')}
+        onClick={() => onFilterRole && onFilterRole('COLLECTOR')}
         className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex items-center justify-between cursor-pointer hover:border-blue-300 transition-all"
       >
         <div>
           <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block mb-1">
-            DRIVERS
+            COLLECTORS
           </span>
           <div className="flex items-baseline gap-2">
             <span className="text-2xl font-extrabold text-blue-700 leading-none">
-              {summary.driverCount}
+              {summary.collectorCount || summary.driverCount}
             </span>
             <span className="text-[10px] font-bold text-blue-600">
               {summary.activeDriverCount} active on duty
@@ -96,25 +96,25 @@ export const UserKpiGrid: React.FC<UserKpiGridProps> = ({
         </div>
       </div>
 
-      {/* 4. ANALYSTS */}
+      {/* 4. VIEWERS */}
       <div
-        onClick={() => onFilterRole && onFilterRole('ANALYST')}
+        onClick={() => onFilterRole && onFilterRole('VIEWER')}
         className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex items-center justify-between cursor-pointer hover:border-purple-300 transition-all"
       >
         <div>
           <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block mb-1">
-            ANALYSTS
+            VIEWERS
           </span>
           <div className="flex items-baseline gap-2">
             <span className="text-2xl font-extrabold text-purple-700 leading-none">
-              {summary.analystCount}
+              {summary.viewerCount || summary.analystCount}
             </span>
             <span className="text-[10px] font-bold text-slate-500">
-              Supervisors & Audit
+              Platform Viewers
             </span>
           </div>
           <span className="text-[11px] font-medium text-slate-500 mt-1 block">
-            Analytics & Reports
+            Analytics & Monitoring
           </span>
         </div>
         <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-700 flex items-center justify-center shrink-0 border border-purple-100">

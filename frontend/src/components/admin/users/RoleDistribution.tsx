@@ -16,19 +16,19 @@ export const RoleDistribution: React.FC<RoleDistributionProps> = ({
   onSelectRole,
 }) => {
   const adminCount = counts.ADMIN || 0;
-  const driverCount = counts.DRIVER || 0;
-  const analystCount = counts.ANALYST || 0;
+  const collectorCount = (counts.COLLECTOR || 0) + (counts.DRIVER || 0);
+  const viewerCount = (counts.VIEWER || 0) + (counts.ANALYST || 0);
 
   const adminPct = total > 0 ? Math.round((adminCount / total) * 100) : 0;
-  const driverPct = total > 0 ? Math.round((driverCount / total) * 100) : 0;
-  const analystPct = total > 0 ? Math.round((analystCount / total) * 100) : 0;
+  const collectorPct = total > 0 ? Math.round((collectorCount / total) * 100) : 0;
+  const viewerPct = total > 0 ? Math.round((viewerCount / total) * 100) : 0;
 
   const roleConfig = [
     {
-      role: 'DRIVER' as UserRole,
-      label: 'Drivers / Field Workers',
-      count: driverCount,
-      percentage: driverPct,
+      role: 'COLLECTOR' as UserRole,
+      label: 'Collectors',
+      count: collectorCount,
+      percentage: collectorPct,
       color: 'bg-emerald-500',
       bgColor: 'bg-emerald-50',
       borderColor: 'border-emerald-200',
@@ -36,10 +36,10 @@ export const RoleDistribution: React.FC<RoleDistributionProps> = ({
       icon: Truck,
     },
     {
-      role: 'ANALYST' as UserRole,
-      label: 'Analysts / Supervisors',
-      count: analystCount,
-      percentage: analystPct,
+      role: 'VIEWER' as UserRole,
+      label: 'Viewers',
+      count: viewerCount,
+      percentage: viewerPct,
       color: 'bg-blue-500',
       bgColor: 'bg-blue-50',
       borderColor: 'border-blue-200',
@@ -72,16 +72,16 @@ export const RoleDistribution: React.FC<RoleDistributionProps> = ({
       {/* Segmented bar */}
       <div className="h-2.5 w-full bg-slate-100 rounded-full overflow-hidden flex mb-4">
         <div
-          style={{ width: `${driverPct}%` }}
+          style={{ width: `${collectorPct}%` }}
           className="bg-emerald-500 transition-all duration-300 hover:opacity-90 cursor-pointer"
-          title={`Drivers: ${driverCount} (${driverPct}%)`}
-          onClick={() => onSelectRole(selectedRole === 'DRIVER' ? 'All' : 'DRIVER')}
+          title={`Collectors: ${collectorCount} (${collectorPct}%)`}
+          onClick={() => onSelectRole(selectedRole === 'COLLECTOR' ? 'All' : 'COLLECTOR')}
         />
         <div
-          style={{ width: `${analystPct}%` }}
+          style={{ width: `${viewerPct}%` }}
           className="bg-blue-500 transition-all duration-300 hover:opacity-90 cursor-pointer"
-          title={`Analysts: ${analystCount} (${analystPct}%)`}
-          onClick={() => onSelectRole(selectedRole === 'ANALYST' ? 'All' : 'ANALYST')}
+          title={`Viewers: ${viewerCount} (${viewerPct}%)`}
+          onClick={() => onSelectRole(selectedRole === 'VIEWER' ? 'All' : 'VIEWER')}
         />
         <div
           style={{ width: `${adminPct}%` }}

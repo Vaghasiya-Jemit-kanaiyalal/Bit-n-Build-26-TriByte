@@ -16,14 +16,12 @@ export const ChangeRoleModal: React.FC<ChangeRoleModalProps> = ({
   onClose,
   onConfirm,
 }) => {
-  const [selectedRole, setSelectedRole] = useState<UserRole>('ANALYST');
+  const [selectedRole, setSelectedRole] = useState<UserRole>('VIEWER');
 
   React.useEffect(() => {
     if (user) {
-      // Pick a default different role
-      if (user.role === 'DRIVER') setSelectedRole('ANALYST');
-      else if (user.role === 'ANALYST') setSelectedRole('ADMIN');
-      else setSelectedRole('DRIVER');
+      if (user.role === 'COLLECTOR' || user.role === 'DRIVER') setSelectedRole('VIEWER');
+      else setSelectedRole('COLLECTOR');
     }
   }, [user, isOpen]);
 
@@ -35,6 +33,18 @@ export const ChangeRoleModal: React.FC<ChangeRoleModalProps> = ({
       'User Management & Role Assignment rights',
       'Bin & Vehicle fleet configuration',
       'System Settings & Integrations',
+    ],
+    COLLECTOR: [
+      'Assigned Route execution panel',
+      'Vehicle telemetry & status reporting',
+      'Collection operations & bin scan logging',
+      'Field notifications',
+    ],
+    VIEWER: [
+      'Waste Analytics & trends inspection',
+      'Prediction Analytics models & ML forecasts',
+      'Collection performance reporting',
+      'Exportable area reports',
     ],
     DRIVER: [
       'Assigned Route execution panel',
@@ -94,9 +104,8 @@ export const ChangeRoleModal: React.FC<ChangeRoleModalProps> = ({
               onChange={(e) => setSelectedRole(e.target.value as UserRole)}
               className="w-full px-3 py-2 border border-slate-300 rounded-md bg-white text-xs font-semibold text-slate-900 focus:ring-1 focus:ring-slate-500 focus:outline-none"
             >
-              <option value="DRIVER">Driver / Field Worker</option>
-              <option value="ANALYST">Analyst / Supervisor</option>
-              <option value="ADMIN">Waste Manager (Admin)</option>
+              <option value="COLLECTOR">Collector</option>
+              <option value="VIEWER">Viewer</option>
             </select>
           </div>
 
