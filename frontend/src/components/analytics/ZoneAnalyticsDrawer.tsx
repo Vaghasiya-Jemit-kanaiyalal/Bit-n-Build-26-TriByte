@@ -168,6 +168,7 @@ export const ZoneAnalyticsDrawer: React.FC<ZoneAnalyticsDrawerProps> = ({
           )}
         </div>
       </div>
+    </div>
   );
 };
 

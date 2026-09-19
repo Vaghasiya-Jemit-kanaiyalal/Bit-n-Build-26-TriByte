@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calendar, Maximize2, Minimize2, RefreshCw } from 'lucide-react';
+import { Calendar, RefreshCw } from 'lucide-react';
 
 interface MonitoringHeaderProps {
   isLive: boolean;
@@ -13,7 +13,7 @@ interface MonitoringHeaderProps {
   onManualRefresh: () => void;
   searchQuery?: string;
   onSearchChange?: (query: string) => void;
-  onToggleFullscreenMap: () => void;
+  onToggleFullscreenMap?: () => void;
   isFullscreenMap?: boolean;
   activeFilterCount?: number;
 }
@@ -22,8 +22,8 @@ export const MonitoringHeader: React.FC<MonitoringHeaderProps> = ({
   isLive,
   onToggleLive,
   onManualRefresh,
-  onToggleFullscreenMap,
-  isFullscreenMap = false,
+  onToggleFullscreenMap: _onToggleFullscreenMap,
+  isFullscreenMap: _isFullscreenMap = false,
 }) => {
   return (
     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-2">

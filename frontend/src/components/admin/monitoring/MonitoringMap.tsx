@@ -15,7 +15,6 @@ import {
   Layers,
   Grid,
   Map as MapIcon,
-  Crosshair,
 } from 'lucide-react';
 
 interface MonitoringMapProps {
@@ -40,9 +39,9 @@ export const MonitoringMap: React.FC<MonitoringMapProps> = ({
   onSelectBin,
   isFullscreen = false,
   onToggleFullscreen,
-  showVehicles: propShowVehicles = true,
-  showRoutes: propShowRoutes = true,
-  showBinLabels: propShowBinLabels = true,
+  showVehicles: _propShowVehicles = true,
+  showRoutes: _propShowRoutes = true,
+  showBinLabels: _propShowBinLabels = true,
 }) => {
   // Map Modes: 'map' (Realistic Campus Map) vs 'vector' (Vector Grid)
   const [mapType, setMapType] = useState<'map' | 'vector'>('map');
