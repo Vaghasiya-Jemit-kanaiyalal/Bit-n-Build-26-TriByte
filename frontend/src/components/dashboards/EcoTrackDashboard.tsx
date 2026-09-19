@@ -45,11 +45,11 @@ const getTabFromPath = (path: string, role: string): string => {
     if (p.startsWith('/admin/classification')) return 'Classification';
     if (p.startsWith('/admin/predictions')) return 'Predictions';
     if (p.startsWith('/admin/planning')) return 'Planning';
-    if (p.startsWith('/admin/routes')) return 'Routes';
-    if (p.startsWith('/admin/vehicles')) return 'Vehicles';
-    if (p.startsWith('/admin/alerts')) return 'Alerts';
-    if (p.startsWith('/admin/analytics')) return 'Analytics';
-    if (p.startsWith('/admin/settings')) return 'Settings';
+    if (p.startsWith('/admin/routes') || p.startsWith('/admin/route')) return 'Routes';
+    if (p.startsWith('/admin/vehicles') || p.startsWith('/admin/vehicle')) return 'Vehicles';
+    if (p.startsWith('/admin/alerts') || p.startsWith('/admin/alert')) return 'Alerts';
+    if (p.startsWith('/admin/analytics') || p.startsWith('/admin/analytic')) return 'Analytics';
+    if (p.startsWith('/admin/settings') || p.startsWith('/admin/profile')) return 'Settings';
     return 'Dashboard';
   }
   if (role === 'DRIVER') {
@@ -58,15 +58,22 @@ const getTabFromPath = (path: string, role: string): string => {
     if (p.startsWith('/driver/collection')) return 'Collection';
     if (p.startsWith('/driver/vehicle')) return 'Vehicle';
     if (p.startsWith('/driver/history')) return 'History';
-    if (p.startsWith('/driver/alerts')) return 'Notifications';
+    if (p.startsWith('/driver/notifications') || p.startsWith('/driver/alerts')) return 'Notifications';
     if (p.startsWith('/driver/profile')) return 'Profile';
+    if (p.startsWith('/driver/settings')) return 'Settings';
     return 'Dashboard';
   }
   if (role === 'ANALYST') {
-    if (p.startsWith('/analyst/analytics')) return 'Analytics';
+    if (p.startsWith('/analyst/waste-analytics')) return 'Waste Analytics';
+    if (p.startsWith('/analyst/prediction-analytics')) return 'Prediction Analytics';
+    if (p.startsWith('/analyst/collection-analytics')) return 'Collection Analytics';
+    if (p.startsWith('/analyst/area-analysis')) return 'Area Analysis';
+    if (p.startsWith('/analyst/recycling-analytics')) return 'Recycling Analytics';
     if (p.startsWith('/analyst/reports')) return 'Reports';
-    if (p.startsWith('/analyst/notifications')) return 'Notifications';
+    if (p.startsWith('/analyst/analytics')) return 'Analytics';
+    if (p.startsWith('/analyst/notifications') || p.startsWith('/analyst/alerts')) return 'Notifications';
     if (p.startsWith('/analyst/profile')) return 'Profile';
+    if (p.startsWith('/analyst/settings')) return 'Settings';
     return 'Dashboard';
   }
   return 'Dashboard';
@@ -85,27 +92,35 @@ const getPathFromTab = (tab: string, role: string): string => {
       case 'Vehicles': case 'Vehicle': return '/admin/vehicles';
       case 'Alerts': case 'Alert': return '/admin/alerts';
       case 'Analytics': case 'Analytic': return '/admin/analytics';
-      case 'Settings': case 'Setting': return '/admin/settings';
+      case 'Settings': case 'Setting': case 'Profile': return '/admin/settings';
       default: return '/admin/dashboard';
     }
   }
   if (role === 'DRIVER') {
     switch (tab) {
-      case 'My Route': return '/driver/my-route';
-      case 'Bins': return '/driver/bins';
-      case 'Collection': return '/driver/collection';
-      case 'Vehicle': return '/driver/vehicle';
+      case 'My Route': case 'Route': return '/driver/my-route';
+      case 'Bins': case 'Bin Management': return '/driver/bins';
+      case 'Collection': case 'Collections': return '/driver/collection';
+      case 'Vehicle': case 'Vehicles': case 'My Vehicle': return '/driver/vehicle';
       case 'History': return '/driver/history';
-      case 'Notifications': return '/driver/notifications';
-      case 'Profile': case 'Settings': return '/driver/profile';
+      case 'Notifications': case 'Alerts': return '/driver/notifications';
+      case 'Profile': return '/driver/profile';
+      case 'Settings': return '/driver/settings';
       default: return '/driver/dashboard';
     }
   }
   if (role === 'ANALYST') {
     switch (tab) {
       case 'Analytics': return '/analyst/analytics';
-      case 'Notifications': return '/analyst/notifications';
-      case 'Profile': case 'Settings': return '/analyst/profile';
+      case 'Waste Analytics': return '/analyst/waste-analytics';
+      case 'Prediction Analytics': return '/analyst/prediction-analytics';
+      case 'Collection Analytics': return '/analyst/collection-analytics';
+      case 'Area Analysis': return '/analyst/area-analysis';
+      case 'Recycling Analytics': return '/analyst/recycling-analytics';
+      case 'Reports': return '/analyst/reports';
+      case 'Notifications': case 'Alerts': return '/analyst/notifications';
+      case 'Profile': return '/analyst/profile';
+      case 'Settings': return '/analyst/settings';
       default: return '/analyst/dashboard';
     }
   }
@@ -152,8 +167,29 @@ export const EcoTrackDashboard: React.FC<EcoTrackDashboardProps> = ({ user, onSi
   const [showProfileMenu, setShowProfileMenu] = useState<boolean>(false);
 
   const handleSelectTab = (tabName: string) => {
-    setActiveTab(tabName);
-    const newPath = getPathFromTab(tabName, userRole);
+    // Canonicalize tabName so that sidebar active item is always perfectly highlighted
+    const canonicalTab = (() => {
+      if (userRole === 'ADMIN') {
+        switch (tabName) {
+          case 'Bin Management': return 'Bins';
+          case 'Route': return 'Routes';
+          case 'Vehicle': return 'Vehicles';
+          case 'Alert': return 'Alerts';
+          case 'Analytic': return 'Analytics';
+          case 'Classifications': return 'Classification';
+          case 'User Management': return 'Users';
+          case 'Collection Planning': return 'Planning';
+          case 'Live Operations': return 'Monitoring';
+          case 'Prediction': return 'Predictions';
+          case 'Setting': return 'Settings';
+          default: return tabName;
+        }
+      }
+      return tabName;
+    })();
+
+    setActiveTab(canonicalTab);
+    const newPath = getPathFromTab(canonicalTab, userRole);
     if (typeof window !== 'undefined' && window.location.pathname !== newPath) {
       window.history.pushState(null, '', newPath);
     }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ShieldAlert } from 'lucide-react';
 import type { UserSession } from '../../types/auth';
 import DriverSidebar from './DriverSidebar';
@@ -18,12 +18,90 @@ interface DriverPortalProps {
   initialTab?: string;
 }
 
+export const getDriverTabFromPath = (path: string): string => {
+  const p = (path || '').toLowerCase();
+  if (p.startsWith('/driver/my-route') || p.startsWith('/driver/route')) return 'My Route';
+  if (p.startsWith('/driver/bins')) return 'Bins';
+  if (p.startsWith('/driver/collection')) return 'Collection';
+  if (p.startsWith('/driver/vehicle')) return 'Vehicle';
+  if (p.startsWith('/driver/history')) return 'History';
+  if (p.startsWith('/driver/notifications') || p.startsWith('/driver/alerts')) return 'Notifications';
+  if (p.startsWith('/driver/profile')) return 'Profile';
+  if (p.startsWith('/driver/settings')) return 'Settings';
+  return 'Dashboard';
+};
+
+export const getDriverPathFromTab = (tab: string): string => {
+  switch (tab) {
+    case 'My Route':
+    case 'Route':
+      return '/driver/my-route';
+    case 'Bins':
+    case 'Bin Management':
+      return '/driver/bins';
+    case 'Collection':
+    case 'Collections':
+      return '/driver/collection';
+    case 'Vehicle':
+    case 'My Vehicle':
+    case 'Vehicles':
+      return '/driver/vehicle';
+    case 'History':
+      return '/driver/history';
+    case 'Notifications':
+    case 'Alerts':
+      return '/driver/notifications';
+    case 'Profile':
+      return '/driver/profile';
+    case 'Settings':
+      return '/driver/settings';
+    default:
+      return '/driver/dashboard';
+  }
+};
+
 export const DriverPortal: React.FC<DriverPortalProps> = ({
   user,
   onSignOut,
-  initialTab = 'Dashboard',
+  initialTab,
 }) => {
-  const [activeTab, setActiveTab] = useState<string>(initialTab);
+  const initialPath = typeof window !== 'undefined' ? window.location.pathname : '/driver/dashboard';
+  const [activeTab, setActiveTab] = useState<string>(() => {
+    const tabFromUrl = getDriverTabFromPath(initialPath);
+    if (initialTab && initialTab !== 'Dashboard' && tabFromUrl === 'Dashboard') {
+      return initialTab;
+    }
+    return tabFromUrl;
+  });
+
+  const handleNavigateTab = (tab: string) => {
+    const canonicalTab = (() => {
+      switch (tab) {
+        case 'Route': return 'My Route';
+        case 'Bin Management': return 'Bins';
+        case 'Collections': return 'Collection';
+        case 'My Vehicle': case 'Vehicles': return 'Vehicle';
+        case 'Alerts': return 'Notifications';
+        default: return tab;
+      }
+    })();
+
+    setActiveTab(canonicalTab);
+    const newPath = getDriverPathFromTab(canonicalTab);
+    if (typeof window !== 'undefined' && window.location.pathname !== newPath) {
+      window.history.pushState(null, '', newPath);
+    }
+  };
+
+  useEffect(() => {
+    const handlePopState = () => {
+      const currentTab = getDriverTabFromPath(window.location.pathname);
+      setActiveTab(currentTab);
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   const rawRole = (user.role || '').toUpperCase();
   const isDriver = rawRole === 'DRIVER' || user.displayRole === 'Collection Driver' || user.role === 'Collection Driver';
@@ -55,7 +133,7 @@ export const DriverPortal: React.FC<DriverPortalProps> = ({
       {/* Driver Layout Sidebar */}
       <DriverSidebar
         activeTab={activeTab}
-        onNavigateTab={(tab) => setActiveTab(tab)}
+        onNavigateTab={handleNavigateTab}
         user={user}
         onSignOut={onSignOut}
       />
@@ -63,23 +141,23 @@ export const DriverPortal: React.FC<DriverPortalProps> = ({
       {/* Driver Workspace Area */}
       <div className="flex-1 flex flex-col min-w-0">
         {activeTab === 'My Route' || activeTab === 'Route' ? (
-          <MyRoutePage user={user} onSignOut={onSignOut} onNavigateTab={setActiveTab} />
+          <MyRoutePage user={user} onSignOut={onSignOut} onNavigateTab={handleNavigateTab} />
         ) : activeTab === 'Bins' || activeTab === 'Bin Management' ? (
-          <DriverBinsPage user={user} onNavigateTab={setActiveTab} />
+          <DriverBinsPage user={user} onNavigateTab={handleNavigateTab} />
         ) : activeTab === 'Collection' || activeTab === 'Collections' ? (
-          <DriverCollectionPage user={user} onNavigateTab={setActiveTab} />
+          <DriverCollectionPage user={user} onNavigateTab={handleNavigateTab} />
         ) : activeTab === 'Vehicle' || activeTab === 'My Vehicle' ? (
-          <DriverVehiclePage user={user} onNavigateTab={setActiveTab} />
+          <DriverVehiclePage user={user} onNavigateTab={handleNavigateTab} />
         ) : activeTab === 'History' ? (
-          <DriverHistoryPage user={user} onNavigateTab={setActiveTab} />
+          <DriverHistoryPage user={user} onNavigateTab={handleNavigateTab} />
         ) : activeTab === 'Notifications' ? (
-          <DriverNotificationsPage user={user} onNavigateTab={setActiveTab} />
+          <DriverNotificationsPage user={user} onNavigateTab={handleNavigateTab} />
         ) : activeTab === 'Profile' ? (
-          <DriverProfilePage user={user} onNavigateTab={setActiveTab} />
+          <DriverProfilePage user={user} onNavigateTab={handleNavigateTab} />
         ) : activeTab === 'Settings' ? (
-          <DriverSettingsPage user={user} onNavigateTab={setActiveTab} />
+          <DriverSettingsPage user={user} onNavigateTab={handleNavigateTab} />
         ) : (
-          <DriverDashboard user={user} onSignOut={onSignOut} onNavigateTab={setActiveTab} />
+          <DriverDashboard user={user} onSignOut={onSignOut} onNavigateTab={handleNavigateTab} />
         )}
       </div>
     </div>
