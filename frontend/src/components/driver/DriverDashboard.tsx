@@ -12,7 +12,6 @@ import RouteProgressCard from './RouteProgressCard';
 import NextCollectionCard from './NextCollectionCard';
 import UpcomingStops from './UpcomingStops';
 import DriverAlerts from './DriverAlerts';
-import DriverActivity from './DriverActivity';
 import DriverQuickActions from './DriverQuickActions';
 import BinDetailsDrawer from './BinDetailsDrawer';
 import CollectionConfirmModal from './CollectionConfirmModal';
@@ -110,7 +109,7 @@ export const DriverDashboard: React.FC<DriverDashboardProps> = ({
     );
   }
 
-  const { driverStatus, lastSync, vehicle, route, alerts, activities } = data;
+  const { driverStatus, lastSync, vehicle, route, alerts } = data;
 
   // Next upcoming or current stop for NextCollectionCard
   const nextStop = route.stops.find((s) => s.status === 'CURRENT' || s.status === 'COLLECTING') ||
@@ -178,13 +177,12 @@ export const DriverDashboard: React.FC<DriverDashboardProps> = ({
           onNavigateToFullRoute={() => onNavigateTab('My Route')}
         />
 
-        {/* Grid Row 4: ATTENTION REQUIRED | RECENT ACTIVITY */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Grid Row 4: ATTENTION REQUIRED */}
+        <div>
           <DriverAlerts
             alerts={alerts}
             onAcknowledgeAlert={handleAcknowledgeAlert}
           />
-          <DriverActivity activities={activities} />
         </div>
 
         {/* Quick Actions Bar */}

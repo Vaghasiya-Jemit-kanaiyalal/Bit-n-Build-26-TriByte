@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useState } from "react";
-import { Leaf, Mail, Lock, Eye, EyeOff, UserPlus, CheckCircle2 } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, UserPlus, CheckCircle2 } from "lucide-react";
 import authBgImage from "../../assets/authbg.jpeg";
 import faviconImg from "../../assets/favicon.png";
 import logoTextImg from "../../assets/logo_text.png";

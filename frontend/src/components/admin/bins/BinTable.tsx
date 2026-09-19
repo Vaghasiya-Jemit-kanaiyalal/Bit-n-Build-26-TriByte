@@ -128,34 +128,6 @@ export const BinTable: React.FC<BinTableProps> = ({
                 </div>
               </th>
 
-              <th className="py-3 px-3">Waste Type</th>
-
-              {/* Predicted Overflow Sortable */}
-              <th
-                onClick={() => handleSortClick('predictedOverflowMinutes')}
-                className="py-3 px-3 cursor-pointer hover:text-slate-900 transition-colors"
-              >
-                <div className="flex items-center gap-1">
-                  <span>Predicted Overflow</span>
-                  <ArrowUpDown className="w-3 h-3 text-slate-400" />
-                </div>
-              </th>
-
-              <th className="py-3 px-3">Collection</th>
-
-              <th className="py-3 px-3">Assigned Route</th>
-
-              {/* Last Collection Sortable */}
-              <th
-                onClick={() => handleSortClick('lastCollectionAt')}
-                className="py-3 px-3 cursor-pointer hover:text-slate-900 transition-colors"
-              >
-                <div className="flex items-center gap-1">
-                  <span>Last Collection</span>
-                  <ArrowUpDown className="w-3 h-3 text-slate-400" />
-                </div>
-              </th>
-
               <th className="py-3 px-3 text-right">Actions</th>
             </tr>
           </thead>

@@ -84,16 +84,16 @@ export const WasteCompositionChart: React.FC<WasteCompositionChartProps> = ({
         <div className="md:col-span-7 space-y-2 text-xs">
           {composition.map((item) => (
             <div key={item.category} className="flex items-center justify-between p-2 rounded hover:bg-slate-50 border border-slate-100">
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2 min-w-0 flex-1 mr-2">
                 <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
-                <span className="font-bold text-slate-800">{item.category}</span>
+                <span className="font-bold text-slate-800 truncate">{item.category}</span>
                 {item.isRecyclable && (
-                  <span className="text-[9px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">
+                  <span className="text-[9px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200 shrink-0">
                     Recyclable
                   </span>
                 )}
               </div>
-              <div className="flex items-center space-x-3 font-mono">
+              <div className="flex items-center space-x-3 font-mono shrink-0 text-right">
                 <span className="text-slate-500">{item.tonsPerDay} t/day</span>
                 <strong className="text-slate-900 w-10 text-right">{item.percentage}%</strong>
               </div>

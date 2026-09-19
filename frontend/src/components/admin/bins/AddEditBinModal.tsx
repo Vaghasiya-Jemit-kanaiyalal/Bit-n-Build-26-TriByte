@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Check } from 'lucide-react';
-import type { SmartBin, WasteType, BinType, ZoneName, CollectionPriority, BinStatus } from '../../../types/bin';
+import type { SmartBin, WasteType, BinType, ZoneName } from '../../../types/bin';
 
 interface AddEditBinModalProps {
   isOpen: boolean;
@@ -340,47 +340,6 @@ export const AddEditBinModal: React.FC<AddEditBinModalProps> = ({
                 >
                   <option value="Online">Online</option>
                   <option value="Offline">Offline</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          {/* COLLECTION & STATUS */}
-          <div className="space-y-3 pt-3 border-t border-slate-100">
-            <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">
-              4. OPERATIONAL STATUS
-            </span>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Collection Priority</label>
-                <select
-                  value={formData.collectionPriority}
-                  onChange={(e) =>
-                    setFormData({ ...formData, collectionPriority: e.target.value as CollectionPriority })
-                  }
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800"
-                >
-                  <option value="Low">Low</option>
-                  <option value="Medium">Medium</option>
-                  <option value="High">High</option>
-                  <option value="Critical">Critical</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Operational Status</label>
-                <select
-                  value={formData.status}
-                  onChange={(e) => setFormData({ ...formData, status: e.target.value as BinStatus })}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800"
-                >
-                  <option value="Normal">Normal</option>
-                  <option value="Warning">Warning</option>
-                  <option value="Critical">Critical</option>
-                  <option value="Offline">Offline</option>
-                  <option value="Maintenance">Maintenance</option>
-                  <option value="Inactive">Inactive</option>
                 </select>
               </div>
             </div>

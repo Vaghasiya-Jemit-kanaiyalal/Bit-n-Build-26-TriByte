@@ -12,8 +12,6 @@ import { userService } from '../../../services/userService';
 // Subcomponents
 import { UsersHeader } from './UsersHeader';
 import { UserKpiGrid } from './UserKpiGrid';
-import { RoleDistribution } from './RoleDistribution';
-import { UserStatusSummary } from './UserStatusSummary';
 import { UserFilterToolbar } from './UserFilterToolbar';
 import { UserTable } from './UserTable';
 import { BulkActionBar } from './BulkActionBar';
@@ -130,25 +128,6 @@ export const UsersPage: React.FC = () => {
     return users.slice(start, start + pageSize);
   }, [users, currentPage, pageSize]);
 
-  // Compute Role counts over current state
-  const roleCounts = useMemo(() => {
-    return {
-      ADMIN: users.filter((u) => u.role === 'ADMIN').length,
-      DRIVER: users.filter((u) => u.role === 'DRIVER').length,
-      ANALYST: users.filter((u) => u.role === 'ANALYST').length,
-    };
-  }, [users]);
-
-  // Compute Status counts over current state
-  const statusCounts = useMemo(() => {
-    return {
-      All: users.length,
-      ACTIVE: users.filter((u) => u.status === 'ACTIVE').length,
-      INACTIVE: users.filter((u) => u.status === 'INACTIVE').length,
-      PENDING: users.filter((u) => u.status === 'PENDING').length,
-      SUSPENDED: users.filter((u) => u.status === 'SUSPENDED').length,
-    };
-  }, [users]);
 
   // Calculate Active Filters Count
   const activeFilterCount = useMemo(() => {
@@ -373,27 +352,6 @@ export const UsersPage: React.FC = () => {
         onFilterStatus={(status) => handleFilterChange({ status })}
       />
 
-      {/* 3. Role Breakdown & Quick Status Filters Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
-        <div className="lg:col-span-2">
-          <RoleDistribution
-            counts={roleCounts}
-            total={users.length}
-            selectedRole={filters.role}
-            onSelectRole={(role) => handleFilterChange({ role })}
-          />
-        </div>
-        <div className="bg-white border border-slate-200 rounded-lg p-4 shadow-sm space-y-3">
-          <h3 className="text-xs font-semibold text-slate-900 uppercase tracking-wider">
-            Quick Status Filters
-          </h3>
-          <UserStatusSummary
-            counts={statusCounts}
-            selectedStatus={filters.status}
-            onSelectStatus={(status) => handleFilterChange({ status })}
-          />
-        </div>
-      </div>
 
       {/* 4. Filter Toolbar */}
       <UserFilterToolbar

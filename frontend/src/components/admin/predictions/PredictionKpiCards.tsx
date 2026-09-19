@@ -5,7 +5,6 @@ import {
   TrendingUp,
   Weight,
   Award,
-  Truck,
 } from 'lucide-react';
 import type { PredictionKpiSummary } from '../../../types/prediction';
 
@@ -15,7 +14,7 @@ interface PredictionKpiCardsProps {
 
 export const PredictionKpiCards: React.FC<PredictionKpiCardsProps> = ({ kpi }) => {
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5 mb-6">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3.5 mb-6">
       {/* 1. Bins at Risk */}
       <div className="bg-white rounded-xl p-3.5 border border-slate-200/80 shadow-2xs flex flex-col justify-between h-full hover:border-slate-300 transition-all">
         <div className="flex items-center justify-between mb-2">
@@ -86,19 +85,6 @@ export const PredictionKpiCards: React.FC<PredictionKpiCardsProps> = ({ kpi }) =
         </div>
       </div>
 
-      {/* 6. Collection Demand */}
-      <div className="bg-white rounded-xl p-3.5 border border-slate-200/80 shadow-2xs flex flex-col justify-between h-full hover:border-slate-300 transition-all">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Collection Demand</span>
-          <div className="w-7 h-7 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center shrink-0">
-            <Truck className="w-3.5 h-3.5" />
-          </div>
-        </div>
-        <div>
-          <span className="text-xl sm:text-2xl font-black text-slate-900 leading-none font-mono">{kpi.collectionDemandBins} bins</span>
-          <span className="text-[10px] font-bold text-blue-600 block mt-1">{kpi.collectionDemandWindow}</span>
-        </div>
-      </div>
     </div>
   );
 };

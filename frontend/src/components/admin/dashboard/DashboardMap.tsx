@@ -3,11 +3,7 @@ import {
   MapPin,
   ZoomIn,
   ZoomOut,
-  Maximize2,
   Truck,
-  Layers,
-  Crosshair,
-  Activity,
   AlertTriangle,
   RotateCcw,
 } from 'lucide-react';

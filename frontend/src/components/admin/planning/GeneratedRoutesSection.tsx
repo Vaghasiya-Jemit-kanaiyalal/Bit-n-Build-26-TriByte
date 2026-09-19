@@ -74,7 +74,7 @@ export const GeneratedRoutesSection: React.FC<GeneratedRoutesSectionProps> = ({
         </div>
 
         {/* Generated Summary Bar */}
-        <div className="mt-5 grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-3 text-center text-xs">
+        <div className="mt-5 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 text-center text-xs">
           <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl">
             <span className="text-[10px] text-slate-400 block font-medium">Routes</span>
             <span className="font-bold font-mono text-slate-900 text-base">{routes.length}</span>

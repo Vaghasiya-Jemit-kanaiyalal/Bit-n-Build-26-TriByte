@@ -1,5 +1,5 @@
 import React from 'react';
-import { Scale, Target, Recycle, AlertCircle, Clock, AlertTriangle } from 'lucide-react';
+import { Scale, Target, Recycle, AlertCircle, Clock } from 'lucide-react';
 import type { ClassificationSummary } from '../../../types/classification';
 
 interface ClassificationKpiCardsProps {
@@ -12,7 +12,7 @@ export const ClassificationKpiCards: React.FC<ClassificationKpiCardsProps> = ({
   onSelectCardTab,
 }) => {
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5 mb-6">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3.5 mb-6">
       {/* 1. CLASSIFIED WASTE */}
       <div className="bg-white rounded-xl p-3.5 border border-slate-200/80 shadow-2xs flex flex-col justify-between h-full hover:border-slate-300 transition-all">
         <div className="flex items-center justify-between mb-2">
@@ -144,35 +144,6 @@ export const ClassificationKpiCards: React.FC<ClassificationKpiCardsProps> = ({
         <div className="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between text-[10px]">
           <span className="font-bold text-amber-700">Click to review</span>
           <span className="text-amber-600 font-semibold font-mono">Audit Queue</span>
-        </div>
-      </div>
-
-      {/* 6. LOW CONFIDENCE */}
-      <div
-        onClick={() => onSelectCardTab && onSelectCardTab('Review Queue')}
-        className="bg-white rounded-xl p-3.5 border border-slate-200/80 shadow-2xs flex flex-col justify-between h-full cursor-pointer hover:border-red-400 transition-all"
-      >
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">
-            Low Confidence
-          </span>
-          <div className="w-7 h-7 rounded-lg bg-red-50 text-red-700 flex items-center justify-center shrink-0 border border-red-200">
-            <AlertTriangle className="w-3.5 h-3.5 text-red-600" />
-          </div>
-        </div>
-        <div>
-          <div className="flex items-baseline gap-1">
-            <span className="text-xl sm:text-2xl font-black text-red-700 leading-none font-mono">
-              {summary.lowConfidenceCount}
-            </span>
-          </div>
-          <p className="text-[10px] font-medium text-slate-500 mt-1">
-            Below 70% confidence
-          </p>
-        </div>
-        <div className="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between text-[10px]">
-          <span className="font-bold text-red-600">Threshold &lt; 70%</span>
-          <span className="text-slate-400 font-mono">Simulated</span>
         </div>
       </div>
     </div>

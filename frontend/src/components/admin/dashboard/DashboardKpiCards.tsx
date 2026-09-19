@@ -5,7 +5,6 @@ import {
   Truck,
   Route as RouteIcon,
   Weight,
-  Recycle,
 } from 'lucide-react';
 import type { DashboardKpiMetrics } from '../../../types/dashboard';
 
@@ -16,7 +15,7 @@ interface DashboardKpiCardsProps {
 
 export const DashboardKpiCards: React.FC<DashboardKpiCardsProps> = ({ kpi, onNavigateTab }) => {
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3.5">
       {/* 1. Total Bins */}
       <div
         onClick={() => onNavigateTab('Bin Management')}
@@ -114,24 +113,6 @@ export const DashboardKpiCards: React.FC<DashboardKpiCardsProps> = ({ kpi, onNav
         </div>
       </div>
 
-      {/* 6. Recyclable Waste */}
-      <div
-        onClick={() => onNavigateTab('Classification')}
-        className="bg-white rounded-xl p-3.5 border border-slate-200/80 shadow-2xs flex flex-col justify-between hover:border-slate-300 transition-all cursor-pointer group h-full"
-      >
-        <div className="flex items-start justify-between gap-1.5">
-          <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider leading-tight max-w-[calc(100%-2.25rem)] truncate">
-            Recyclable %
-          </span>
-          <div className="w-8 h-8 rounded-lg bg-teal-50 text-teal-700 flex items-center justify-center shrink-0 border border-teal-100 group-hover:scale-105 transition-transform">
-            <Recycle className="w-4 h-4" />
-          </div>
-        </div>
-        <div className="mt-2.5 flex flex-col justify-end flex-1">
-          <span className="text-xl sm:text-2xl font-black text-emerald-700 tracking-tight font-mono leading-none">{kpi.recyclablePercentage}%</span>
-          <span className="text-[10px] font-semibold text-teal-600 block mt-1 leading-tight">{kpi.recyclableTons} t today</span>
-        </div>
-      </div>
     </div>
   );
 };

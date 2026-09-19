@@ -72,13 +72,13 @@ export const SettingsSidebar: React.FC<SettingsSidebarProps> = ({
   ];
 
   return (
-    <aside className="w-full lg:w-64 shrink-0 bg-white rounded-xl border border-[#e5e7eb] shadow-2xs p-4 mb-6 lg:mb-0 space-y-5">
+    <aside className="w-full lg:w-52 shrink-0 bg-white rounded-xl border border-[#e5e7eb] shadow-2xs p-3 mb-6 lg:mb-0 space-y-4">
       {categories.map((cat) => (
         <div key={cat.group}>
-          <span className="text-[10px] font-extrabold text-slate-400 tracking-wider uppercase block mb-2 px-2">
+          <span className="text-[10px] font-extrabold text-slate-400 tracking-wider uppercase block mb-1.5 px-2">
             {cat.group}
           </span>
-          <div className="space-y-1">
+          <div className="space-y-0.5">
             {cat.items.map((item) => {
               const IconComp = item.icon;
               const isActive = activeSection === item.id;
@@ -87,17 +87,14 @@ export const SettingsSidebar: React.FC<SettingsSidebarProps> = ({
                 <button
                   key={item.id}
                   onClick={() => onSelectSection(item.id)}
-                  className={`w-full text-left flex items-start space-x-3 p-2.5 rounded-lg transition-all cursor-pointer border-none ${
+                  className={`w-full text-left flex items-center space-x-2.5 px-2.5 py-1.5 rounded-lg transition-all cursor-pointer border-none ${
                     isActive
                       ? 'bg-emerald-50 text-[#047857]'
                       : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900 bg-transparent'
                   }`}
                 >
-                  <IconComp className={`w-4 h-4 mt-0.5 shrink-0 ${isActive ? 'text-[#047857]' : 'text-slate-400'}`} />
-                  <div className="min-w-0">
-                    <span className="text-xs font-bold block leading-tight truncate">{item.label}</span>
-                    <span className="text-[10px] font-medium text-slate-400 block truncate mt-0.5">{item.desc}</span>
-                  </div>
+                  <IconComp className={`w-4 h-4 shrink-0 ${isActive ? 'text-[#047857]' : 'text-slate-400'}`} />
+                  <span className="text-xs font-semibold block leading-tight truncate">{item.label}</span>
                 </button>
               );
             })}

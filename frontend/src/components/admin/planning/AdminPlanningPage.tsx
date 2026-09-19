@@ -8,11 +8,9 @@ import type {
   PlanningDriver,
   PlanningConstraint,
   CollectionWindow,
-  OptimizationPreview,
   PlanningRoute,
   PlanningIssue,
   PlanningPlan,
-  PlanningInsight,
   OptimizationStrategy,
 } from '../../../types/planning';
 import { planningService } from '../../../services/planningService';
@@ -30,14 +28,12 @@ import { FleetCapacitySection } from './FleetCapacitySection';
 import { DriverAvailabilitySection } from './DriverAvailabilitySection';
 import { PlanningConstraintsSection } from './PlanningConstraintsSection';
 import { CollectionWindowsSection } from './CollectionWindowsSection';
-import { OptimizationPreviewSection } from './OptimizationPreviewSection';
 import { GeneratePlanModal } from './GeneratePlanModal';
 import { GeneratedRoutesSection } from './GeneratedRoutesSection';
 import { RoutePlanningDrawer } from './RoutePlanningDrawer';
 import { PlanningMapPreview } from './PlanningMapPreview';
 import { PlanningIssuesSection } from './PlanningIssuesSection';
 import { RecentPlansSection } from './RecentPlansSection';
-import { AiPlanningInsightsSection } from './AiPlanningInsightsSection';
 
 interface AdminPlanningPageProps {
   onNavigate?: (tab: string) => void;
@@ -52,16 +48,14 @@ export const AdminPlanningPage: React.FC<AdminPlanningPageProps> = ({ onNavigate
   const [drivers, setDrivers] = useState<PlanningDriver[]>([]);
   const [constraints, setConstraints] = useState<PlanningConstraint | null>(null);
   const [collectionWindows, setCollectionWindows] = useState<CollectionWindow[]>([]);
-  const [optimization, setOptimization] = useState<OptimizationPreview | null>(null);
   const [generatedRoutes, setGeneratedRoutes] = useState<PlanningRoute[]>([]);
   const [issues, setIssues] = useState<PlanningIssue[]>([]);
   const [recentPlans, setRecentPlans] = useState<PlanningPlan[]>([]);
-  const [insights, setInsights] = useState<PlanningInsight[]>([]);
 
   // Selection & Form States
   const [planningDate, setPlanningDate] = useState<string>('2026-09-19');
   const [planningHorizon, setPlanningHorizon] = useState<string>('Next 24 Hours');
-  const [strategy, setStrategy] = useState<OptimizationStrategy>('Balanced');
+  const [strategy] = useState<OptimizationStrategy>('Balanced');
   const [selectedWindow, setSelectedWindow] = useState<string>('15:00 – 18:00');
   const [selectedVehicleIds, setSelectedVehicleIds] = useState<string[]>(['TRK-021', 'TRK-014', 'TRK-008']);
   const [selectedDriverIds, setSelectedDriverIds] = useState<string[]>(['D-102', 'D-105', 'D-109']);
@@ -89,11 +83,9 @@ export const AdminPlanningPage: React.FC<AdminPlanningPageProps> = ({ onNavigate
     setDrivers(planningService.getAvailableDrivers());
     setConstraints(planningService.getPlanningConstraints());
     setCollectionWindows(planningService.getCollectionWindows());
-    setOptimization(planningService.generatePlanningPreview());
     setGeneratedRoutes(planningService.getGeneratedRoutes());
     setIssues(planningService.getPlanningIssues());
     setRecentPlans(planningService.getRecentPlans());
-    setInsights(planningService.getPlanningInsights());
   }, []);
 
   const handleRefresh = () => {
@@ -138,17 +130,6 @@ export const AdminPlanningPage: React.FC<AdminPlanningPageProps> = ({ onNavigate
     setHasUnsavedChanges(true);
   };
 
-  const handleWeightChange = (factor: keyof OptimizationPreview['weights'], value: number) => {
-    if (!optimization) return;
-    setOptimization({
-      ...optimization,
-      weights: {
-        ...optimization.weights,
-        [factor]: value,
-      },
-    });
-    setHasUnsavedChanges(true);
-  };
 
   const handleResolveIssue = (issueId: string) => {
     setIssues((prev) =>
@@ -186,7 +167,7 @@ export const AdminPlanningPage: React.FC<AdminPlanningPageProps> = ({ onNavigate
     }
   };
 
-  if (!summary || !constraints || !optimization) return null;
+  if (!summary || !constraints) return null;
 
   return (
     <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-300">
@@ -283,13 +264,6 @@ export const AdminPlanningPage: React.FC<AdminPlanningPageProps> = ({ onNavigate
         />
       </div>
 
-      {/* 10. Optimization Preview Sliders */}
-      <OptimizationPreviewSection
-        optimization={optimization}
-        strategy={strategy}
-        onStrategyChange={setStrategy}
-        onWeightChange={handleWeightChange}
-      />
 
       {/* 11. Generated Routes Section */}
       <GeneratedRoutesSection
@@ -313,11 +287,6 @@ export const AdminPlanningPage: React.FC<AdminPlanningPageProps> = ({ onNavigate
         onDeleteDraft={handleDeleteDraftPlan}
       />
 
-      {/* 15. AI Planning Insights & Quick Actions */}
-      <AiPlanningInsightsSection
-        insights={insights}
-        onNavigate={handleNavigate}
-      />
 
       {/* Drawers */}
       <ZonePlanningDrawer
