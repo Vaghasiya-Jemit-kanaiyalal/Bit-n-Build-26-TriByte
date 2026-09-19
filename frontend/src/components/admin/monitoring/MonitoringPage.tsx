@@ -15,20 +15,9 @@ import { monitoringService } from '../../../services/monitoringService';
 // Subcomponents
 import { MonitoringHeader } from './MonitoringHeader';
 import { MonitoringKpiGrid } from './MonitoringKpiGrid';
-import { OperationalHealthBar } from './OperationalHealthBar';
 import { MonitoringMap } from './MonitoringMap';
 import { SelectedEntityDrawer } from './SelectedEntityDrawer';
-import { LiveOperationsPanel } from './LiveOperationsPanel';
-import { SensorHealthSection } from './SensorHealthSection';
-import { FleetMonitoringTable } from './FleetMonitoringTable';
-import { RouteMonitoringTable } from './RouteMonitoringTable';
-import { ZoneLiveStatus } from './ZoneLiveStatus';
-import { CollectionActivitySection } from './CollectionActivitySection';
-import { NetworkHealthBar } from './NetworkHealthBar';
-import { FilterDrawer } from './FilterDrawer';
-
-// Alert strip icon
-import { AlertTriangle, ArrowRight } from 'lucide-react';
+import { LiveVehiclesPanel } from './LiveVehiclesPanel';
 
 interface MonitoringPageProps {
   onNavigateTab?: (tabName: string) => void;
@@ -54,6 +43,16 @@ export const MonitoringPage: React.FC<MonitoringPageProps> = ({ onNavigateTab })
     status: 'All',
     zone: 'All',
     severity: 'All',
+  });
+
+  // Local Map Panel Filter State (Area, Waste Type, Status, Toggles)
+  const [mapPanelFilters, setMapPanelFilters] = useState({
+    area: 'All Areas',
+    wasteType: 'All Waste Types',
+    status: 'All Status',
+    showVehicles: true,
+    showRoutes: true,
+    showBinLabels: true,
   });
 
   // Selected Entity State (for slide-over drawer)
@@ -130,6 +129,14 @@ export const MonitoringPage: React.FC<MonitoringPageProps> = ({ onNavigateTab })
       zone: 'All',
       severity: 'All',
     });
+    setMapPanelFilters({
+      area: 'All Areas',
+      wasteType: 'All Waste Types',
+      status: 'All Status',
+      showVehicles: true,
+      showRoutes: true,
+      showBinLabels: true,
+    });
   };
 
   const handleKpiFilterClick = (
@@ -149,34 +156,8 @@ export const MonitoringPage: React.FC<MonitoringPageProps> = ({ onNavigateTab })
   };
 
   return (
-    <div className="min-h-screen bg-slate-50/50 p-4 lg:p-8 space-y-6 max-w-[1600px] mx-auto pb-24">
-      {/* Live Operational Alert Strip */}
-      <div className="bg-red-50/90 border border-red-200 rounded-2xl p-3.5 px-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs shadow-xs">
-        <div className="flex items-center gap-3">
-          <div className="p-1.5 bg-red-600 text-white rounded-lg shrink-0">
-            <AlertTriangle className="w-4 h-4" />
-          </div>
-          <div>
-            <span className="font-extrabold text-red-950 uppercase tracking-wider font-mono mr-2">
-              CRITICAL NOTICE:
-            </span>
-            <span className="text-red-900 font-medium">
-              14 bins currently above 90% fill capacity. 2 active routes delayed.
-            </span>
-          </div>
-        </div>
-        {onNavigateTab && (
-          <button
-            onClick={() => onNavigateTab('Alerts')}
-            className="flex items-center gap-1 text-xs font-bold text-red-700 hover:text-red-800 hover:underline shrink-0 cursor-pointer"
-          >
-            <span>View All Operational Alerts</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </button>
-        )}
-      </div>
-
-      {/* 1. Monitoring Header & Search */}
+    <div className="min-h-screen bg-[#f8fafc] p-4 lg:p-6 space-y-5 max-w-[1600px] mx-auto pb-24">
+      {/* 1. Monitoring Page Header */}
       <MonitoringHeader
         isLive={isLive}
         onToggleLive={() => setIsLive(!isLive)}
@@ -190,101 +171,60 @@ export const MonitoringPage: React.FC<MonitoringPageProps> = ({ onNavigateTab })
         searchQuery={filters.searchQuery}
         onSearchChange={(q) => handleFilterChange({ searchQuery: q })}
         onToggleFullscreenMap={() => setIsFullscreenMap(!isFullscreenMap)}
+        isFullscreenMap={isFullscreenMap}
         activeFilterCount={activeFilterCount}
       />
 
-      {/* 2. Top Live KPI Cards */}
+      {/* 2. Top 5 KPI Summary Cards */}
       <MonitoringKpiGrid summary={kpiSummary} onFilterClick={handleKpiFilterClick} />
 
-      {/* 3. Operational Network Health Bar */}
-      <OperationalHealthBar />
-
-      {/* 4. MAIN OPERATIONS CANVAS (MAP or LIST) */}
-      {viewMode === 'map' ? (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch min-h-[560px]">
-          {/* Large Simulated Operations Vector Map (Takes 2 Columns) */}
-          <div className="lg:col-span-2 min-h-[500px]">
-            <MonitoringMap
-              bins={bins}
-              vehicles={vehicles}
-              routes={routes}
-              selectedBinId={selectedEntity?.type === 'bin' ? selectedEntity.data.id : undefined}
-              selectedVehicleId={
-                selectedEntity?.type === 'vehicle' ? selectedEntity.data.id : undefined
-              }
-              selectedRouteId={
-                selectedEntity?.type === 'route' ? selectedEntity.data.id : undefined
-              }
-              onSelectBin={(bin) => setSelectedEntity({ type: 'bin', data: bin })}
-              onSelectVehicle={(vehicle) => setSelectedEntity({ type: 'vehicle', data: vehicle })}
-              onSelectRoute={(route) => setSelectedEntity({ type: 'route', data: route })}
-              isFullscreen={isFullscreenMap}
-              onToggleFullscreen={() => setIsFullscreenMap(!isFullscreenMap)}
-            />
-          </div>
-
-          {/* Real-time Streaming Live Operations Activity Feed (Takes 1 Column) */}
-          <div className="min-h-[500px]">
-            <LiveOperationsPanel activities={activities} />
-          </div>
-        </div>
-      ) : (
-        /* LIST VIEW FALLBACK */
-        <div className="space-y-6">
-          <FleetMonitoringTable
+      {/* 3. MAIN MAP & LIVE VEHICLES CANVAS (2 COLUMNS) */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch min-h-[580px]">
+        {/* Left Column: Realistic OpenStreetMap Style Campus Bin Map (Takes 8 Columns) */}
+        <div className="lg:col-span-8 min-h-[540px]">
+          <MonitoringMap
+            bins={bins}
             vehicles={vehicles}
-            onSelectVehicle={(v) => setSelectedEntity({ type: 'vehicle', data: v })}
-          />
-          <RouteMonitoringTable
             routes={routes}
-            onSelectRoute={(r) => setSelectedEntity({ type: 'route', data: r })}
+            selectedBinId={selectedEntity?.type === 'bin' ? selectedEntity.data.id : undefined}
+            selectedVehicleId={
+              selectedEntity?.type === 'vehicle' ? selectedEntity.data.id : undefined
+            }
+            selectedRouteId={
+              selectedEntity?.type === 'route' ? selectedEntity.data.id : undefined
+            }
+            onSelectBin={(bin) => setSelectedEntity({ type: 'bin', data: bin })}
+            onSelectVehicle={(vehicle) => setSelectedEntity({ type: 'vehicle', data: vehicle })}
+            onSelectRoute={(route) => setSelectedEntity({ type: 'route', data: route })}
+            isFullscreen={isFullscreenMap}
+            onToggleFullscreen={() => setIsFullscreenMap(!isFullscreenMap)}
+            showVehicles={mapPanelFilters.showVehicles}
+            showRoutes={mapPanelFilters.showRoutes}
+            showBinLabels={mapPanelFilters.showBinLabels}
           />
         </div>
-      )}
 
-      {/* 5. Municipal Zone Live Operational Status */}
-      <ZoneLiveStatus
-        zones={zoneStatuses}
-        onSelectZone={(zoneName: ZoneName) => handleFilterChange({ zone: zoneName })}
-      />
-
-      {/* 6. Live Collection Activity Progress */}
-      <CollectionActivitySection />
-
-      {/* 7. Fleet & Active Route Monitoring Tables (When in Map View) */}
-      {viewMode === 'map' && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <FleetMonitoringTable
+        {/* Right Column: Live Vehicles & Map Filters Panel (Takes 4 Columns) */}
+        <div className="lg:col-span-4 min-h-[540px]">
+          <LiveVehiclesPanel
             vehicles={vehicles}
-            onSelectVehicle={(v) => setSelectedEntity({ type: 'vehicle', data: v })}
-          />
-          <RouteMonitoringTable
             routes={routes}
-            onSelectRoute={(r) => setSelectedEntity({ type: 'route', data: r })}
+            bins={bins}
+            selectedVehicleId={selectedEntity?.type === 'vehicle' ? selectedEntity.data.id : undefined}
+            onSelectVehicle={(vehicle) => setSelectedEntity({ type: 'vehicle', data: vehicle })}
+            filters={mapPanelFilters}
+            onFilterChange={(updated) => setMapPanelFilters((prev) => ({ ...prev, ...updated }))}
+            onClearFilters={handleResetFilters}
           />
         </div>
-      )}
+      </div>
 
-      {/* 8. IoT Sensor Network Health & Telemetry */}
-      <SensorHealthSection sensors={sensors} />
-
-      {/* 9. Infrastructure Network Health Bar */}
-      <NetworkHealthBar />
-
-      {/* Slide-over Drawers */}
+      {/* 4. Slide-over Entity Inspector Drawer */}
       <SelectedEntityDrawer
         entity={selectedEntity}
         isOpen={!!selectedEntity}
         onClose={() => setSelectedEntity(null)}
         onNavigateToModule={onNavigateTab}
-      />
-
-      <FilterDrawer
-        isOpen={isFilterDrawerOpen}
-        filters={filters}
-        onClose={() => setIsFilterDrawerOpen(false)}
-        onFilterChange={handleFilterChange}
-        onResetFilters={handleResetFilters}
       />
     </div>
   );

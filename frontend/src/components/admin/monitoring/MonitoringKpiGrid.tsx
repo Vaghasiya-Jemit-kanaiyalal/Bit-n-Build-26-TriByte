@@ -1,120 +1,87 @@
 import React from 'react';
+import { Trash2, MapPin, AlertTriangle, Truck, Clock } from 'lucide-react';
 import type { MonitoringKpiSummary } from '../../../types/monitoring';
-import { Trash2, AlertTriangle, Truck, Route as RouteIcon, Activity, CheckCircle2 } from 'lucide-react';
 
 interface MonitoringKpiGridProps {
-  summary: MonitoringKpiSummary;
+  summary?: MonitoringKpiSummary;
   onFilterClick?: (type: 'bins' | 'criticalBins' | 'vehicles' | 'routes' | 'sensors' | 'collection') => void;
 }
 
-export const MonitoringKpiGrid: React.FC<MonitoringKpiGridProps> = ({
-  summary,
-  onFilterClick,
-}) => {
+export const MonitoringKpiGrid: React.FC<MonitoringKpiGridProps> = ({ summary, onFilterClick }) => {
   const cards = [
     {
       id: 'bins',
-      label: 'BINS MONITORED',
-      value: summary.binsMonitored,
-      subtext: `${summary.onlineBins} online connected`,
+      label: 'Total Bins',
+      value: summary ? summary.binsMonitored.toLocaleString() : '1,245',
       icon: Trash2,
-      bgColor: 'bg-slate-100',
-      textColor: 'text-slate-900',
+      bgColor: 'bg-[#f1f5f9]',
       iconColor: 'text-slate-700',
-      hoverBorder: 'hover:border-slate-400',
+    },
+    {
+      id: 'activeBins',
+      label: 'Active Bins',
+      value: summary ? summary.onlineBins.toLocaleString() : '892',
+      badge: '72%',
+      badgeBg: 'bg-emerald-100 text-emerald-800',
+      icon: MapPin,
+      bgColor: 'bg-emerald-50',
+      iconColor: 'text-emerald-700',
     },
     {
       id: 'criticalBins',
-      label: 'CRITICAL BINS',
-      value: summary.criticalBins,
-      subtext: '>90% fill level capacity',
+      label: 'Near Overflow',
+      value: summary ? summary.criticalBins : '28',
+      badge: '2.3%',
+      badgeBg: 'bg-red-100 text-red-700',
       icon: AlertTriangle,
       bgColor: 'bg-red-50',
-      textColor: 'text-red-950',
       iconColor: 'text-red-600',
-      hoverBorder: 'hover:border-red-400',
-      badge: 'URGENT',
-      badgeBg: 'bg-red-200 text-red-800',
     },
     {
       id: 'vehicles',
-      label: 'ACTIVE VEHICLES',
-      value: `${summary.activeVehicles} / ${summary.totalVehicles}`,
-      subtext: '75% fleet currently deployed',
+      label: 'Active Vehicles',
+      value: summary ? summary.activeVehicles : '8',
       icon: Truck,
-      bgColor: 'bg-blue-50',
-      textColor: 'text-blue-950',
-      iconColor: 'text-blue-600',
-      hoverBorder: 'hover:border-blue-400',
-    },
-    {
-      id: 'routes',
-      label: 'ACTIVE ROUTES',
-      value: summary.activeRoutes,
-      subtext: `${summary.onScheduleRoutes} on schedule`,
-      icon: RouteIcon,
-      bgColor: 'bg-emerald-50',
-      textColor: 'text-emerald-950',
-      iconColor: 'text-emerald-600',
-      hoverBorder: 'hover:border-emerald-400',
-    },
-    {
-      id: 'sensors',
-      label: 'SENSOR HEALTH',
-      value: `${summary.sensorHealthPct}%`,
-      subtext: `${summary.offlineSensors} offline sensors`,
-      icon: Activity,
-      bgColor: 'bg-purple-50',
-      textColor: 'text-purple-950',
-      iconColor: 'text-purple-600',
-      hoverBorder: 'hover:border-purple-400',
+      bgColor: 'bg-cyan-50',
+      iconColor: 'text-cyan-700',
     },
     {
       id: 'collection',
-      label: 'COLLECTION ACTIVITY',
-      value: summary.activeStopsCount,
-      subtext: 'Active stops in progress',
-      icon: CheckCircle2,
-      bgColor: 'bg-amber-50',
-      textColor: 'text-amber-950',
-      iconColor: 'text-amber-600',
-      hoverBorder: 'hover:border-amber-400',
+      label: 'Collections Today',
+      value: summary ? (summary.activeStopsCount || 12) : '12',
+      icon: Clock,
+      bgColor: 'bg-slate-100',
+      iconColor: 'text-slate-700',
     },
   ];
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
       {cards.map((card) => {
         const Icon = card.icon;
         return (
           <div
             key={card.id}
             onClick={() => onFilterClick && onFilterClick(card.id as any)}
-            className={`bg-white rounded-2xl p-3.5 border border-slate-200/80 shadow-xs flex flex-col justify-between cursor-pointer ${card.hoverBorder} transition-all hover:shadow-md`}
+            className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex items-center justify-between cursor-pointer hover:shadow-md transition-all"
           >
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">
-                {card.label}
-              </span>
-              <div className={`w-8 h-8 rounded-xl ${card.bgColor} flex items-center justify-center`}>
-                <Icon className={`w-4 h-4 ${card.iconColor}`} />
+            <div className="flex items-center gap-3.5">
+              <div className={`w-11 h-11 rounded-xl ${card.bgColor} flex items-center justify-center shrink-0`}>
+                <Icon className={`w-5 h-5 ${card.iconColor}`} />
               </div>
-            </div>
-
-            <div>
-              <div className="flex items-baseline justify-between gap-1">
-                <span className={`text-xl sm:text-2xl font-extrabold font-mono ${card.textColor}`}>
+              <div className="flex flex-col">
+                <span className="text-xl font-extrabold text-slate-900 leading-tight">
                   {card.value}
                 </span>
+                <span className="text-xs font-semibold text-slate-500 mt-0.5">
+                  {card.label}
+                </span>
                 {card.badge && (
-                  <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded ${card.badgeBg}`}>
+                  <span className={`inline-block text-[10px] font-bold px-1.5 py-0.5 rounded mt-1 w-max ${card.badgeBg}`}>
                     {card.badge}
                   </span>
                 )}
               </div>
-              <span className="text-[11px] font-medium text-slate-500 mt-1 block truncate">
-                {card.subtext}
-              </span>
             </div>
           </div>
         );
