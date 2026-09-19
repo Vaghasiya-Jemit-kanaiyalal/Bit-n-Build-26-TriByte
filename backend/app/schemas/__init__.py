@@ -121,6 +121,15 @@ from app.schemas.monitoring import (
     MonitoringAlertListResponse,
     MonitoringLiveSnapshotResponse,
 )
+from app.schemas.classification import (
+    ClassificationCreateRequest,
+    ClassificationBatchRequest,
+    ClassificationResponse,
+    ClassificationListResponse,
+    ClassificationSummaryResponse,
+    ClassificationClassDistribution,
+    ClassificationDistributionResponse,
+)
 
 __all__ = [
     "AdminCreateUserRequest",
@@ -230,4 +239,11 @@ __all__ = [
     "MonitoringAlertItem",
     "MonitoringAlertListResponse",
     "MonitoringLiveSnapshotResponse",
+    "ClassificationCreateRequest",
+    "ClassificationBatchRequest",
+    "ClassificationResponse",
+    "ClassificationListResponse",
+    "ClassificationSummaryResponse",
+    "ClassificationClassDistribution",
+    "ClassificationDistributionResponse",
 ]

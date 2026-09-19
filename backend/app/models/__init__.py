@@ -18,6 +18,7 @@ from app.models.bin_collection import BinCollectionHistory
 from app.models.bin_activity import BinActivity
 from app.models.route import Route, RoutePriority, RouteStatus
 from app.models.route_stop import RouteStop, StopPriority, StopStatus
+from app.models.waste_classification import WasteClassification, ClassificationSource
 
 __all__ = [
     "User",
@@ -48,4 +49,6 @@ __all__ = [
     "RouteStop",
     "StopPriority",
     "StopStatus",
+    "WasteClassification",
+    "ClassificationSource",
 ]

@@ -1,7 +1,7 @@
 import asyncio
 import uuid
 from datetime import date, datetime, timezone, timedelta
-from sqlalchemy import select, and_
+from sqlalchemy import select, and_, func
 from app.core.security import hash_password
 from app.db.database import AsyncSessionLocal
 from app.models.user import User, UserRole, UserStatus
@@ -23,6 +23,7 @@ from app.models.bin_collection import BinCollectionHistory
 from app.models.bin_activity import BinActivity
 from app.models.route import Route, RouteStatus, RoutePriority
 from app.models.route_stop import RouteStop, StopStatus, StopPriority
+from app.models.waste_classification import WasteClassification, ClassificationSource
 
 DEMO_USERS = [
     {
@@ -802,6 +803,57 @@ async def seed_all():
 
         await session.commit()
         print("[+] Seeded demo routes RT-021, RT-022, RT-023, RT-024 with stops successfully!")
+
+        # -------------------------------------------------------------------------
+        # Seed Waste Classifications
+        # -------------------------------------------------------------------------
+        class_res = await session.execute(select(func.count(WasteClassification.id)))
+        class_count = class_res.scalar_one()
+        if class_count < 20:
+            active_bins_res = await session.execute(select(Bin).limit(30))
+            active_bins = active_bins_res.scalars().all()
+
+            waste_types_cycle = [
+                (WasteType.PLASTIC, 0.94, "https://storage.wastewise.ai/demo/plastic_bottle_01.jpg", ClassificationSource.IMAGE),
+                (WasteType.PAPER, 0.92, "https://storage.wastewise.ai/demo/cardboard_box_02.jpg", ClassificationSource.IMAGE),
+                (WasteType.ORGANIC, 0.96, "https://storage.wastewise.ai/demo/fruit_scraps_03.jpg", ClassificationSource.IMAGE),
+                (WasteType.METAL, 0.89, "https://storage.wastewise.ai/demo/aluminum_can_04.jpg", ClassificationSource.SENSOR),
+                (WasteType.GLASS, 0.91, "https://storage.wastewise.ai/demo/glass_bottle_05.jpg", ClassificationSource.IMAGE),
+                (WasteType.OTHER, 0.58, "https://storage.wastewise.ai/demo/mixed_residue_06.jpg", ClassificationSource.AI_MODEL),
+                (WasteType.PLASTIC, 0.88, "https://storage.wastewise.ai/demo/polythene_bag_07.jpg", ClassificationSource.SIMULATION),
+                (WasteType.ORGANIC, 0.93, "https://storage.wastewise.ai/demo/food_waste_08.jpg", ClassificationSource.MANUAL),
+            ]
+
+            now = datetime.now(timezone.utc)
+            for idx, b in enumerate(active_bins):
+                for sub_idx in range(2):
+                    w_type, conf, img_ref, src = waste_types_cycle[(idx * 2 + sub_idx) % len(waste_types_cycle)]
+                    time_offset = timedelta(hours=(idx * 2 + sub_idx) % 72, minutes=sub_idx * 17)
+                    classified_time = now - time_offset
+                    is_low = conf < 0.70
+
+                    c_record = WasteClassification(
+                        uuid=uuid.uuid4(),
+                        bin_id=b.id,
+                        waste_type=w_type,
+                        confidence=conf,
+                        source=src.value,
+                        model_name="wastewise-vision-classifier" if src != ClassificationSource.MANUAL else "manual-operator",
+                        model_version="1.0.0",
+                        image_reference=img_ref,
+                        metadata_json={
+                            "detection_method": src.value,
+                            "inference_time_ms": 38.4,
+                            "sensor_ambient_temp_c": 26.5,
+                        },
+                        is_low_confidence=is_low,
+                        classified_at=classified_time,
+                        created_at=classified_time,
+                    )
+                    session.add(c_record)
+
+            await session.commit()
+            print("[+] Seeded 60 realistic waste classifications across active bins!")
 
     print("[*] Database seeding finished successfully!\n")
 

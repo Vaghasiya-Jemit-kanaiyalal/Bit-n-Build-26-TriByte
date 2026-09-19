@@ -27,6 +27,11 @@ class Settings(BaseSettings):
     MONITORING_TELEMETRY_ONLINE_SECONDS: int = 300   # 5 minutes
     MONITORING_TELEMETRY_STALE_SECONDS: int = 1800   # 30 minutes
 
+    # Waste Classification Configuration
+    CLASSIFICATION_LOW_CONFIDENCE_THRESHOLD: float = 0.70
+    CLASSIFICATION_DEFAULT_MODEL_NAME: str = "wastewise-vision-classifier"
+    CLASSIFICATION_DEFAULT_MODEL_VERSION: str = "1.0.0"
+
     # CORS
     FRONTEND_URL: str = "http://localhost:5173"
     CORS_ORIGINS: Union[List[str], str] = [

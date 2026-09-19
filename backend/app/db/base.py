@@ -19,6 +19,7 @@ from app.models.bin_collection import BinCollectionHistory  # noqa: F401
 from app.models.bin_activity import BinActivity  # noqa: F401
 from app.models.route import Route, RoutePriority, RouteStatus  # noqa: F401
 from app.models.route_stop import RouteStop, StopPriority, StopStatus  # noqa: F401
+from app.models.waste_classification import WasteClassification, ClassificationSource  # noqa: F401
 
 __all__ = [
     "Base",
@@ -50,4 +51,6 @@ __all__ = [
     "RouteStop",
     "StopPriority",
     "StopStatus",
+    "WasteClassification",
+    "ClassificationSource",
 ]
