@@ -23,6 +23,10 @@ class Settings(BaseSettings):
     # Role Security
     ALLOW_ADMIN_SELF_SIGNUP: bool = False
 
+    # Monitoring Telemetry Freshness Thresholds
+    MONITORING_TELEMETRY_ONLINE_SECONDS: int = 300   # 5 minutes
+    MONITORING_TELEMETRY_STALE_SECONDS: int = 1800   # 30 minutes
+
     # CORS
     FRONTEND_URL: str = "http://localhost:5173"
     CORS_ORIGINS: Union[List[str], str] = [

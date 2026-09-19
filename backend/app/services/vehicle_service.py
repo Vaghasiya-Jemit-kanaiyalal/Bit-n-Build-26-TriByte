@@ -993,7 +993,7 @@ class VehicleService:
                 detail=f"Driver with id {driver_id} not found.",
             )
 
-        if driver.role not in [UserRole.DRIVER, UserRole.COLLECTOR]:
+        if driver.role != UserRole.DRIVER:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"User {driver.full_name} has role '{driver.role.value}'. Only users with DRIVER role can be assigned.",

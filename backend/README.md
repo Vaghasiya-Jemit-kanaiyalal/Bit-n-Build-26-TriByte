@@ -400,14 +400,14 @@ All administrative route endpoints require the `ADMIN` role. Non-admin users (Co
 The test suite runs against the isolated `wastewise_test` database without affecting development data:
 
 ```bash
-# Run all backend tests (Auth, Routes, Vehicles - 64 tests total)
-python -m pytest tests/test_auth.py tests/test_routes.py tests/test_vehicles.py -v
+# Run all backend tests (Auth, Routes, Vehicles, Bins, Monitoring - 112 tests total)
+python -m pytest tests/test_auth.py tests/test_routes.py tests/test_vehicles.py tests/test_bins.py tests/test_monitoring.py -v
 
-# Run vehicle management tests specifically
-python -m pytest tests/test_vehicles.py -v
+# Run monitoring tests specifically
+python -m pytest tests/test_monitoring.py -v
 ```
 
-Covered test suites (64 tests total):
+Covered test suites (112 tests total):
 - User registration, login, logout, password reset, JWT validation
 - Route CRUD, pagination, filtering, search, and sorting
 - Route stops addition, removal, reordering, completion, and skipping
@@ -736,5 +736,93 @@ All endpoints below require an `ADMIN` JWT bearer token in the `Authorization` h
 - **URL:** `/api/v1/admin/vehicles/{vehicle_id}/history`
 - **Query Parameters:** `limit` (default `50`)
 - **Success Response (200 OK):** Chronological audit trail records (`activity_type`, `description`, `created_at`).
+
+---
+
+## 10. Admin → Bin Management API Reference
+
+All endpoints below are under `/api/v1/admin/bins` and require an `ADMIN` JWT bearer token in the `Authorization` header (`Bearer <token>`). Non-admins receive `403 Forbidden`.
+
+### 10.1 Network Summaries & Operational Intelligence
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/v1/admin/bins/summary` | Fleet-wide bin summary: total/active/inactive, status counts, collection needs, priority counts, avg fill, avg battery, online sensor %, predicted overflow count. |
+| `GET` | `/api/v1/admin/bins/network-health` | Network health KPIs: online/offline/degraded sensors, health %, average battery, telemetry freshness string, stale bins, critical bins. |
+| `GET` | `/api/v1/admin/bins/map` | Lightweight map markers (coordinates, status, fill %, priority, zone, waste type, predicted overflow). Accepts `zone`, `status`, `priority`, `waste_type`, `is_active` filters. |
+| `GET` | `/api/v1/admin/bins/analytics` | High-level bin aggregates (average/min/max fill, collection count, overflow events, critical events, waste type distribution, zone distribution). |
+| `GET` | `/api/v1/admin/bins/collection-summary` | Collection state breakdown counts (`NOT_REQUIRED`, `SCHEDULED`, `PRIORITY`, `OVERDUE`, `IN_PROGRESS`, `COLLECTED`), lists of priority & overdue bins, and bins due today. |
+
+### 10.2 Bin CRUD & Search
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/v1/admin/bins` | Paginated bin listing with multidimensional filtering (`status`, `zone`, `waste_type`, `collection_status`, `priority`, `bin_type`, `connectivity_status`, `is_active`, `fill_min`, `fill_max`, `fill_level`), search (`bin_code`, `name`, `address`, `sensor_id`), sorting (`sort_by`, `sort_order`). |
+| `POST` | `/api/v1/admin/bins` | Create bin with auto-generated code (`BIN-XXXX`) or custom code. Validates capacities (`0 < capacity_kg`), initial fill, and uniqueness. Records `CREATED` audit event. |
+| `GET` | `/api/v1/admin/bins/{bin_id}` | Comprehensive bin details drawer data: basic info, location, status, fill, sensor, collection info, prediction info, active route assignment, recent telemetry (10), recent collections (5), recent activities (15), and health summary. |
+| `PATCH` | `/api/v1/admin/bins/{bin_id}` | Update bin fields (`name`, `bin_type`, `capacity_kg`, `waste_type`, `zone`, `address`, `latitude`, `longitude`, `status`, `collection_status`, `priority`, `next_collection_at`). Records `UPDATED` audit event. |
+
+### 10.3 Operational Lifecycle & Bulk Actions
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `PATCH` | `/api/v1/admin/bins/{bin_id}/activate` | Restores inactive bin to `NORMAL` status and `is_active = true`. |
+| `PATCH` | `/api/v1/admin/bins/{bin_id}/deactivate` | Soft-deactivates bin (`is_active = false`, `status = INACTIVE`). Guarded against bins currently in an active route (`409 Conflict`). |
+| `PATCH` | `/api/v1/admin/bins/{bin_id}/status` | Transition operational status (`NORMAL`, `WARNING`, `CRITICAL`, `OFFLINE`, `MAINTENANCE`, `INACTIVE`) with state machine validation. |
+| `PATCH` | `/api/v1/admin/bins/{bin_id}/priority` | Update collection priority (`LOW`, `MEDIUM`, `HIGH`, `CRITICAL`) with source (`MANUAL`, `SYSTEM`, `PREDICTION`) and reason. |
+| `POST` | `/api/v1/admin/bins/{bin_id}/prioritize` | Flags bin for immediate collection (`priority = CRITICAL`, `collection_status = PRIORITY`). |
+| `POST` | `/api/v1/admin/bins/bulk-action` | Batch operations (`ACTIVATE`, `DEACTIVATE`, `SET_PRIORITY`, `SET_STATUS`, `SET_COLLECTION_STATUS`) on list of `bin_ids`. Returns success/failure IDs with detailed error explanations. |
+
+### 10.4 Sensor Management & Telemetry Ingestion
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/v1/admin/bins/{bin_id}/sensor` | Retrieve primary active sensor details for bin. |
+| `POST` | `/api/v1/admin/bins/{bin_id}/sensor` | Attach/pair a hardware sensor (`sensor_id`, `sensor_type`, `battery_percentage`, `firmware_version`). Enforces uniqueness. |
+| `PATCH` | `/api/v1/admin/bins/{bin_id}/sensor` | Update sensor hardware status, battery, firmware, or connectivity. |
+| `DELETE` | `/api/v1/admin/bins/{bin_id}/sensor` | Unpair/detach sensor from bin. |
+| `POST` | `/api/v1/admin/bins/{bin_id}/telemetry` | Ingest IoT sensor reading (`fill_percentage`, `fill_kg`, `battery_percentage`, `temperature_celsius`, `source`). Atomically records historical log, updates current bin fill/battery/connectivity, evaluates status thresholds (`>=90%` -> `CRITICAL`, `>=75%` -> `WARNING`, `<75%` -> `NORMAL`), and triggers audit event on status transition. |
+| `GET` | `/api/v1/admin/bins/{bin_id}/telemetry` | Historical sensor readings with date filtering (`from_date`, `to_date`) and limit. |
+| `GET` | `/api/v1/admin/bins/{bin_id}/collections` | Historical collection log with collector, vehicle, collected weight, and notes. |
+| `GET` | `/api/v1/admin/bins/{bin_id}/activity` | Audit log for bin lifecycle events. |
+
+---
+
+## 11. Admin → Monitoring API Reference (Live Operations Center)
+
+The Monitoring module is an aggregation and read-only operational monitoring layer under `/api/v1/admin/monitoring`. All endpoints require an `ADMIN` JWT bearer token (`Bearer <token>`). Non-admins receive `403 Forbidden`.
+
+### 11.1 Live Operations Snapshot & Summary
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/v1/admin/monitoring/live-snapshot` | **Composite polling endpoint (5–10s polling)**: Returns unified payload containing summary KPIs, GIS map data, sensor health, network health, zone statuses, active routes, active vehicles, active collections, recent activity, and active alerts. |
+| `GET` | `/api/v1/admin/monitoring/summary` | Real-time operations summary: `bins_monitored`, `bins_online`, `bins_offline`, `critical_bins`, `warning_bins`, `active_vehicles`, `total_vehicles`, `active_routes`, `active_collections`, `sensor_health_percentage`, `network_health_percentage`, `unacknowledged_alerts`, `critical_alerts`, and `last_updated`. |
+
+### 11.2 Live GIS Map Data
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/v1/admin/monitoring/map-data` | High-performance GIS map payload: smart bins with current fill and waste type, active vehicles with load and GPS coordinates, and in-progress routes with sequenced stop points. Supports filters: `zone`, `bin_status`, `vehicle_status`, `route_status`, `waste_type`, `collection_status`. |
+
+### 11.3 Monitored Entity Feeds
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/v1/admin/monitoring/bins` | Paginated live monitored bins with current fill %, battery %, telemetry timestamp, and assigned active collection route. Supports search, zone/status/priority/waste-type filters, and sorting. |
+| `GET` | `/api/v1/admin/monitoring/vehicles` | Paginated live fleet vehicles with load %, capacity utilization, driver name, current active route code, and last GPS timestamp. |
+| `GET` | `/api/v1/admin/monitoring/routes` | Active and planned collection routes with dynamic progress metrics (`completed_stops / total_stops * 100`), distance, and estimated completion time. |
+| `GET` | `/api/v1/admin/monitoring/routes/{route_id}` | Detailed monitoring snapshot of a route: vehicle, driver, sequenced stops with coordinates, fill level, and pointer to `current_stop`. Returns `404` if not found. |
+
+### 11.4 Health, Operations & Alert Streams
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/v1/admin/monitoring/sensors/health` | Sensor hardware health KPIs: online, offline, degraded, and low battery counts, average battery percentage, and telemetry freshness. |
+| `GET` | `/api/v1/admin/monitoring/network-health` | Network connectivity status: connected, stale, and offline devices, and telemetry freshness string. |
+| `GET` | `/api/v1/admin/monitoring/zones` | Real-time zone operational statuses: bin counts, online/offline, critical bins, average fill %, active vehicles, active routes, collections, and overall status (`Healthy`, `Attention`, `Critical`). |
+| `GET` | `/api/v1/admin/monitoring/collections` | Active collection operations currently scheduled, in progress, or recently completed from `RouteStop` entries. |
+| `GET` | `/api/v1/admin/monitoring/activity` | Unified chronological live activity stream from `BinActivity`, `VehicleActivity`, and `BinCollectionHistory` with severity levels (`INFO`, `WARNING`, `CRITICAL`, `SUCCESS`). |
+| `GET` | `/api/v1/admin/monitoring/alerts` | Live operational alert strip: active derived alerts for critical bin fills, offline sensors, low battery, vehicle overload, and routes at risk. |
 
 

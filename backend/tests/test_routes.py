@@ -75,13 +75,18 @@ async def create_test_bin(
         name=f"Bin {unique_str}",
         location_name="Station A",
         zone=zone,
-        waste_type="Mixed",
+        waste_type="ORGANIC",
+        bin_type="STANDARD",
+        capacity_kg=100.0,
+        current_fill_kg=round(fill_level / 100.0 * 100.0, 2),
+        current_fill_percentage=fill_level,
         capacity_liters=240.0,
         fill_level=fill_level,
         priority=priority,
         status="ACTIVE",
         latitude=23.0231,
         longitude=72.5718,
+        is_active=True,
     )
     db.add(bin_obj)
     await db.commit()
@@ -649,9 +654,9 @@ async def test_17_invalid_status_transitions(client: AsyncClient, db_session: As
 
 @pytest.mark.asyncio
 async def test_18_invalid_driver_role(client: AsyncClient, db_session: AsyncSession):
-    """18. Test rejecting assignment of users with non-DRIVER roles (e.g. ADMIN or VIEWER)."""
+    """18. Test rejecting assignment of users with non-DRIVER roles (e.g. ADMIN or ANALYST)."""
     admin = await create_test_user(db_session, role=UserRole.ADMIN)
-    viewer = await create_test_user(db_session, role=UserRole.VIEWER)
+    analyst = await create_test_user(db_session, role=UserRole.ANALYST)
     vehicle = await create_test_vehicle(db_session)
 
     res = await client.post(
@@ -660,7 +665,7 @@ async def test_18_invalid_driver_role(client: AsyncClient, db_session: AsyncSess
             "name": "Invalid Driver Route",
             "zone": "NORTH",
             "vehicle_id": vehicle.id,
-            "driver_id": viewer.id,  # Invalid role
+            "driver_id": analyst.id,  # Invalid role
             "scheduled_date": str(date.today() + timedelta(days=17)),
         },
         headers=auth_header(admin),
@@ -841,13 +846,13 @@ async def test_22_route_metrics(client: AsyncClient, db_session: AsyncSession):
 
 @pytest.mark.asyncio
 async def test_23_admin_authorization(client: AsyncClient, db_session: AsyncSession):
-    """23. Test that non-admin users (VIEWER, DRIVER) are rejected with 403 Forbidden."""
-    viewer = await create_test_user(db_session, role=UserRole.VIEWER)
+    """23. Test that non-admin users (ANALYST, DRIVER) are rejected with 403 Forbidden."""
+    analyst = await create_test_user(db_session, role=UserRole.ANALYST)
     driver = await create_test_user(db_session, role=UserRole.DRIVER)
 
-    # Viewer forbidden
-    res_viewer = await client.get("/api/v1/admin/routes", headers=auth_header(viewer))
-    assert res_viewer.status_code == 403
+    # Analyst forbidden
+    res_analyst = await client.get("/api/v1/admin/routes", headers=auth_header(analyst))
+    assert res_analyst.status_code == 403
 
     # Driver forbidden
     res_driver = await client.get("/api/v1/admin/routes", headers=auth_header(driver))

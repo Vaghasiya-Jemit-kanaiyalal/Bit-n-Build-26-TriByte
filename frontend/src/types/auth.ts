@@ -1,12 +1,24 @@
-export type PlatformRole = 'ADMIN' | 'COLLECTOR' | 'VIEWER';
-export type DisplayRole = 'Waste Manager' | 'Driver / Field Worker' | 'Analyst / Supervisor' | 'Waste Collector' | 'Platform Viewer';
+export const USER_ROLES = {
+  ADMIN: 'ADMIN',
+  DRIVER: 'DRIVER',
+  ANALYST: 'ANALYST',
+} as const;
+
+export const ROLE_LABELS = {
+  ADMIN: 'Waste Manager',
+  DRIVER: 'Collection Driver',
+  ANALYST: 'Operations Analyst',
+};
+
+export type PlatformRole = 'ADMIN' | 'DRIVER' | 'ANALYST';
+export type DisplayRole = 'Waste Manager' | 'Collection Driver' | 'Operations Analyst';
 export type UserRole = PlatformRole | string;
 
 export interface UserSession {
   id?: string;
   name: string;
   email: string;
-  role: 'ADMIN' | 'COLLECTOR' | 'VIEWER' | string;
+  role: PlatformRole | string;
   displayRole?: string;
   status?: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED' | string;
   organization: string;

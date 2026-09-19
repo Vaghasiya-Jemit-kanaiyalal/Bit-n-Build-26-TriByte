@@ -155,9 +155,9 @@ async def test_08_admin_user_management_crud(client: AsyncClient, db_session: As
     create_payload = {
         "first_name": "Test",
         "last_name": "Collector",
-        "email": "test_collector@wastewise.ai",
+        "email": "test_collector@driver.gmail.com",
         "phone": "+91 99999 11111",
-        "role": "COLLECTOR",
+        "role": "DRIVER",
         "status": "ACTIVE",
         "organization": "Fleet Ops",
         "department": "North Zone Logistics",
@@ -167,33 +167,33 @@ async def test_08_admin_user_management_crud(client: AsyncClient, db_session: As
     assert res_create.status_code == 201
     created_user = res_create.json()
     user_id = created_user["id"]
-    assert created_user["role"] == "COLLECTOR"
-    assert created_user["email"] == "test_collector@wastewise.ai"
+    assert created_user["role"] == "DRIVER"
+    assert created_user["email"] == "test_collector@driver.gmail.com"
 
     # 3. Verify newly created user can log in with temporary password
     res_login = await client.post("/api/v1/auth/login", json={
-        "email": "test_collector@wastewise.ai",
+        "email": "test_collector@driver.gmail.com",
         "password": "TempPassword123!",
     })
     assert res_login.status_code == 200
-    assert res_login.json()["user"]["role"] == "COLLECTOR"
+    assert res_login.json()["user"]["role"] == "DRIVER"
 
-    # 4. Admin changes role to VIEWER
+    # 4. Admin changes role to ANALYST
     res_role = await client.patch(
         f"/api/v1/users/{user_id}/role",
-        json={"role": "VIEWER"},
+        json={"role": "ANALYST"},
         headers=admin_headers,
     )
     assert res_role.status_code == 200
-    assert res_role.json()["role"] == "VIEWER"
+    assert res_role.json()["role"] == "ANALYST"
 
-    # Next login returns new role VIEWER
+    # Next login returns new role ANALYST
     res_relogin = await client.post("/api/v1/auth/login", json={
-        "email": "test_collector@wastewise.ai",
+        "email": "test_collector@driver.gmail.com",
         "password": "TempPassword123!",
     })
     assert res_relogin.status_code == 200
-    assert res_relogin.json()["user"]["role"] == "VIEWER"
+    assert res_relogin.json()["user"]["role"] == "ANALYST"
 
     # 5. Admin suspends the user
     res_suspend = await client.patch(
@@ -278,7 +278,7 @@ async def test_11_reset_password_success(client: AsyncClient, db_session: AsyncS
         last_name="User",
         email="reset_test@wastewise.ai",
         password_hash=hash_password("OldPassword123!"),
-        role=UserRole.COLLECTOR,
+        role=UserRole.DRIVER,
         status=UserStatus.ACTIVE,
     )
     db_session.add(reset_user)

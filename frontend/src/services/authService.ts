@@ -13,7 +13,7 @@ export interface LoginResponse {
     phone?: string;
     organization?: string;
     department?: string;
-    role: 'ADMIN' | 'COLLECTOR' | 'VIEWER';
+    role: 'ADMIN' | 'DRIVER' | 'ANALYST';
     status: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';
     created_at: string;
     last_login?: string;
@@ -105,11 +105,11 @@ export const authService = {
     if (normalized === 'admin@gmail.com' && pass === 'admin123') {
       return this.makeMockResponse('System', 'Admin', normalized, 'ADMIN', 'ACTIVE');
     }
-    if (normalized === 'collector@gmail.com' && pass === 'collector123') {
-      return this.makeMockResponse('Fleet', 'Collector', normalized, 'COLLECTOR', 'ACTIVE');
+    if ((normalized === 'rahul@driver.gmail.com' || normalized === 'collector@gmail.com') && (pass === 'collector123' || pass === 'driver123')) {
+      return this.makeMockResponse('Rahul', 'Patel', normalized, 'DRIVER', 'ACTIVE');
     }
-    if (normalized === 'xyz@gmail.com' && pass === 'viewer123') {
-      return this.makeMockResponse('EcoTrack', 'Viewer', normalized, 'VIEWER', 'ACTIVE');
+    if ((normalized === 'jay@analyst.gmail.com' || normalized === 'xyz@gmail.com') && (pass === 'viewer123' || pass === 'analyst123')) {
+      return this.makeMockResponse('Jay', 'Patel', normalized, 'ANALYST', 'ACTIVE');
     }
     if (normalized === 'admin@ecotrack.com' && pass === 'admin123') {
       return this.makeMockResponse('Jemit', 'Vaghasiya', normalized, 'ADMIN', 'ACTIVE');
@@ -118,7 +118,7 @@ export const authService = {
     throw new Error('Invalid email or password.');
   },
 
-  makeMockResponse(first: string, last: string, email: string, role: 'ADMIN' | 'COLLECTOR' | 'VIEWER', status: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED'): LoginResponse {
+  makeMockResponse(first: string, last: string, email: string, role: 'ADMIN' | 'DRIVER' | 'ANALYST', status: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED'): LoginResponse {
     const userObj = {
       id: 'mock-' + Date.now(),
       first_name: first,
