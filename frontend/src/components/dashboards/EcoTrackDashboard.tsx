@@ -29,6 +29,7 @@ import { RoutePage } from '../routes/RoutePage';
 import VehiclesPage from '../vehicles/VehiclesPage';
 import AlertsPage from '../alerts/AlertsPage';
 import { BinManagement } from '../admin/bins/BinManagement';
+import AnalyticsPage from '../analytics/AnalyticsPage';
 
 interface EcoTrackDashboardProps {
   user: UserSession;
@@ -215,6 +216,8 @@ export const EcoTrackDashboard: React.FC<EcoTrackDashboardProps> = ({ user, onSi
           <VehiclesPage onNavigateToRoute={() => setActiveTab('Route')} />
         ) : activeTab === 'Alerts' || activeTab === 'Alert' ? (
           <AlertsPage onNavigateTab={(tabName) => setActiveTab(tabName)} />
+        ) : activeTab === 'Analytics' || activeTab === 'Analytic' ? (
+          <AnalyticsPage onNavigateTab={(tabName) => setActiveTab(tabName)} />
         ) : (
           <main className="p-6 flex-1 flex flex-col gap-6 max-w-7xl w-full mx-auto">
 

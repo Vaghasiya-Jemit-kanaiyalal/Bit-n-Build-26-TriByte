@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { CheckCircle2, AlertCircle, Info, AlertTriangle, X } from 'lucide-react';
+import { AlertCircle, AlertTriangle, X } from 'lucide-react';
 
 export interface ToastMessage {
   id: string;
@@ -9,7 +9,7 @@ export interface ToastMessage {
   duration?: number;
 }
 
-// Global helper function to trigger a website toast from anywhere
+// Global helper function to trigger a website toast / center modal popup from anywhere
 export const showWebsiteToast = (
   message: string,
   type: ToastMessage['type'] = 'success',
@@ -42,9 +42,10 @@ export const NotificationToast: React.FC<NotificationToastProps> = ({ toasts: pr
           message: customEv.detail.message,
           type: customEv.detail.type || 'info',
           title: customEv.detail.title,
-          duration: 4000
+          duration: 5000
         };
-        setLocalToasts(prev => [...prev.slice(-3), newToast]);
+        // Replace current modal so latest action pops up cleanly
+        setLocalToasts([newToast]);
       }
     };
 
@@ -65,96 +66,133 @@ export const NotificationToast: React.FC<NotificationToastProps> = ({ toasts: pr
 
   if (!activeToasts || activeToasts.length === 0) return null;
 
+  // Render the top active notification as a modern centered modal popup
+  const currentToast = activeToasts[activeToasts.length - 1];
+
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col space-y-3 max-w-sm w-full pointer-events-none">
-      {activeToasts.map((toast) => (
-        <ToastItem key={toast.id} toast={toast} onDismiss={handleDismiss} />
-      ))}
-    </div>
+    <CenterNotificationModal
+      toast={currentToast}
+      onClose={() => handleDismiss(currentToast.id)}
+    />
   );
 };
 
-const ToastItem: React.FC<{ toast: ToastMessage; onDismiss: (id: string) => void }> = ({ toast, onDismiss }) => {
-  const { id, title, message, type = 'success', duration = 4000 } = toast;
-  const [progress, setProgress] = useState(100);
+interface CenterNotificationModalProps {
+  toast: ToastMessage;
+  onClose: () => void;
+}
 
-  useEffect(() => {
-    const startTime = Date.now();
-    const interval = setInterval(() => {
-      const elapsed = Date.now() - startTime;
-      const remaining = Math.max(0, 100 - (elapsed / duration) * 100);
-      setProgress(remaining);
-      if (remaining <= 0) {
-        clearInterval(interval);
-        onDismiss(id);
-      }
-    }, 40);
+const CenterNotificationModal: React.FC<CenterNotificationModalProps> = ({ toast, onClose }) => {
+  const { title, message, type = 'success' } = toast;
 
-    return () => clearInterval(interval);
-  }, [id, duration, onDismiss]);
-
+  // Configuration for modal styling based on type
   const config = {
     success: {
-      icon: <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />,
-      border: 'border-emerald-500/30',
-      progressBg: 'bg-emerald-500',
-      badgeBg: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-      defaultTitle: 'Success'
+      badgeText: 'SUCCESS',
+      bgRing: 'ring-[#dcfce7]',
+      circleBg: 'bg-[#ecfdf5]',
+      iconColor: 'text-[#059669]',
+      defaultTitle: 'Notification Received!',
+      primaryBtnText: 'Go to dashboard',
+      primaryBtnBg: 'bg-slate-900 hover:bg-slate-800 text-white',
+      illustration: (
+        <div className="relative flex items-center justify-center">
+          {/* Peace Sign Hand Vector Graphic */}
+          <div className="w-16 h-16 rounded-full bg-[#bbf7d0] border-2 border-emerald-500/40 flex items-center justify-center shadow-xs">
+            <span className="text-3xl select-none">✌️</span>
+          </div>
+        </div>
+      )
     },
     error: {
-      icon: <AlertCircle className="w-5 h-5 text-red-400 shrink-0" />,
-      border: 'border-red-500/30',
-      progressBg: 'bg-red-500',
-      badgeBg: 'bg-red-500/10 text-red-400 border-red-500/20',
-      defaultTitle: 'Action Required'
+      badgeText: 'CRITICAL ALERT',
+      bgRing: 'ring-red-100',
+      circleBg: 'bg-red-50',
+      iconColor: 'text-red-600',
+      defaultTitle: 'Attention Required!',
+      primaryBtnText: 'Review Incident',
+      primaryBtnBg: 'bg-red-600 hover:bg-red-700 text-white',
+      illustration: (
+        <div className="w-16 h-16 rounded-full bg-red-100 border-2 border-red-300 flex items-center justify-center text-red-600 shadow-xs">
+          <AlertCircle className="w-9 h-9" />
+        </div>
+      )
     },
     warning: {
-      icon: <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0" />,
-      border: 'border-amber-500/30',
-      progressBg: 'bg-amber-500',
-      badgeBg: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
-      defaultTitle: 'Attention'
+      badgeText: 'WARNING',
+      bgRing: 'ring-amber-100',
+      circleBg: 'bg-amber-50',
+      iconColor: 'text-amber-600',
+      defaultTitle: 'System Notice',
+      primaryBtnText: 'Acknowledge',
+      primaryBtnBg: 'bg-slate-900 hover:bg-slate-800 text-white',
+      illustration: (
+        <div className="w-16 h-16 rounded-full bg-amber-100 border-2 border-amber-300 flex items-center justify-center text-amber-600 shadow-xs">
+          <AlertTriangle className="w-9 h-9" />
+        </div>
+      )
     },
     info: {
-      icon: <Info className="w-5 h-5 text-sky-400 shrink-0" />,
-      border: 'border-sky-500/30',
-      progressBg: 'bg-sky-500',
-      badgeBg: 'bg-sky-500/10 text-sky-400 border-sky-500/20',
-      defaultTitle: 'Website Notification'
+      badgeText: 'INFORMATION',
+      bgRing: 'ring-emerald-100',
+      circleBg: 'bg-emerald-50',
+      iconColor: 'text-[#047857]',
+      defaultTitle: 'Notifications are on!',
+      primaryBtnText: 'Go to dashboard',
+      primaryBtnBg: 'bg-slate-900 hover:bg-slate-800 text-white',
+      illustration: (
+        <div className="relative flex items-center justify-center">
+          <div className="w-16 h-16 rounded-full bg-[#bbf7d0] border-2 border-emerald-500/40 flex items-center justify-center shadow-xs">
+            <span className="text-3xl select-none">✌️</span>
+          </div>
+        </div>
+      )
     }
   }[type];
 
   return (
-    <div className={`pointer-events-auto relative overflow-hidden bg-slate-900/95 backdrop-blur-md text-white p-4 rounded-xl shadow-2xl border ${config.border} flex items-start space-x-3.5 animate-in slide-in-from-bottom-5 fade-in duration-200`}>
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-in fade-in duration-200">
       
-      {/* Icon */}
-      <div className="pt-0.5">{config.icon}</div>
+      {/* Click outside backdrop to dismiss */}
+      <div className="absolute inset-0" onClick={onClose} />
 
-      {/* Content */}
-      <div className="flex-1 min-w-0 pr-4">
-        <div className="flex items-center space-x-2 mb-0.5">
-          <span className="text-xs font-semibold text-white tracking-tight">{title || config.defaultTitle}</span>
-          <span className={`text-[9px] font-mono uppercase px-1.5 py-0.2 rounded border ${config.badgeBg}`}>
-            {type}
-          </span>
+      {/* Main Center Modal Card */}
+      <div className="relative z-10 w-full max-w-sm sm:max-w-md bg-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-100 flex flex-col items-center text-center animate-in zoom-in-95 duration-200">
+        
+        {/* Close Button Top Right */}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 p-1.5 text-slate-400 hover:text-slate-700 rounded-full hover:bg-slate-100 transition-colors cursor-pointer border-none bg-transparent"
+          title="Close notification"
+        >
+          <X className="w-5 h-5" />
+        </button>
+
+        {/* Top Centered Illustration / Circle Graphic */}
+        <div className={`mb-5 p-3 rounded-full ${config.circleBg} ring-8 ${config.bgRing} transition-all duration-300`}>
+          {config.illustration}
         </div>
-        <p className="text-xs text-slate-300 leading-snug">{message}</p>
-      </div>
 
-      {/* Dismiss X button */}
-      <button
-        onClick={() => onDismiss(id)}
-        className="p-1 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors"
-      >
-        <X className="w-4 h-4" />
-      </button>
+        {/* Modal Title */}
+        <h3 className="text-xl font-bold text-slate-900 mb-2 leading-tight tracking-tight">
+          {title || config.defaultTitle}
+        </h3>
 
-      {/* Timer Progress Bar */}
-      <div className="absolute bottom-0 inset-x-0 h-0.5 bg-slate-800">
-        <div
-          className={`h-full ${config.progressBg} transition-all duration-75`}
-          style={{ width: `${progress}%` }}
-        />
+        {/* Modal Subtitle / Message */}
+        <p className="text-xs sm:text-sm text-slate-500 font-medium leading-relaxed max-w-xs mb-7">
+          {message}
+        </p>
+
+        {/* Single Bottom Dismiss Action Button */}
+        <div className="w-full">
+          <button
+            onClick={onClose}
+            className="w-full px-6 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-md transition-all cursor-pointer border-none"
+          >
+            Dismiss
+          </button>
+        </div>
+
       </div>
     </div>
   );
