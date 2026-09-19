@@ -14,6 +14,7 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import type { UserSession } from '../../types/auth';
+import faviconImg from '../../assets/favicon.png';
 
 interface DriverSidebarProps {
   activeTab: string;
@@ -48,6 +49,7 @@ export const DriverSidebar: React.FC<DriverSidebarProps> = ({
   return (
     <aside className="w-52 bg-white border-r border-slate-200 flex flex-col justify-between p-3 shrink-0 shadow-xs z-20">
       <div>
+<<<<<<< HEAD
         {/* Brand Header */}
         <div className="flex items-center gap-2 px-1 py-1 mb-3">
           <div className="w-8 h-8 rounded-lg bg-emerald-700 flex items-center justify-center shadow-md">
@@ -60,6 +62,20 @@ export const DriverSidebar: React.FC<DriverSidebarProps> = ({
             </span>
           </div>
         </div>
+=======
+        {/* Brand Header — Clickable Favicon Logo to Dashboard */}
+        <button
+          type="button"
+          onClick={() => onNavigateTab('Dashboard')}
+          className="flex flex-col gap-1 px-2 py-2 mb-4 cursor-pointer bg-transparent border-none text-left hover:opacity-85 transition-opacity"
+          title="Go to Dashboard"
+        >
+          <img src={faviconImg} alt="EcoTrack Favicon" className="h-11 w-auto object-contain max-w-[200px]" />
+          <span className="text-[10px] font-bold text-emerald-700 leading-none flex items-center gap-1">
+            <ShieldCheck className="w-3 h-3" /> Field Driver App
+          </span>
+        </button>
+>>>>>>> e05bea7aef8ef434e2efc3228d4368b0a9f9e4e4
 
         {/* Driver Profile Summary Card */}
         <div className="mx-0 mb-4 p-2 rounded-lg bg-emerald-50/70 border border-emerald-100 flex items-center gap-2">

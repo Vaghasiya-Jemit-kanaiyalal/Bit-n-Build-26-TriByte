@@ -67,7 +67,7 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({ isOpen, onClose, onAd
             </div>
             <div>
               <h3 className="text-base font-semibold text-white">Add New Vehicle</h3>
-              <p className="text-xs text-slate-400">Register a collection truck into WasteWise fleet</p>
+              <p className="text-xs text-slate-400">Register a collection truck into EcoTrack fleet</p>
             </div>
           </div>
           <button onClick={onClose} className="p-1 rounded bg-slate-800 text-slate-400 hover:text-white">

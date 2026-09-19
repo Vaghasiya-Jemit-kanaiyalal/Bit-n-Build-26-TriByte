@@ -541,7 +541,7 @@ export const MOCK_CLASSIFICATION_INSIGHTS: ClassificationInsight[] = [
 ];
 
 export const MOCK_MODEL_INFORMATION: ClassificationModel = {
-  name: 'WasteWise AI Material Classifier',
+  name: 'EcoTrack AI Material Classifier',
   version: 'v2.4-simulated',
   status: 'ACTIVE',
   lastUpdated: '18 Sep 2026',

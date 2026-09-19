@@ -672,14 +672,14 @@ async def test_29_analytics_and_collection_summary(client: AsyncClient, db_sessi
 
 @pytest.mark.asyncio
 async def test_30_admin_authorization(client: AsyncClient, db_session: AsyncSession):
-    """30. Test that non-admin roles (DRIVER/VIEWER) receive 403 Forbidden on admin endpoints."""
+    """30. Test that non-admin roles (DRIVER/ANALYST) receive 403 Forbidden on admin endpoints."""
     driver = await create_test_user(db_session, role=UserRole.DRIVER)
-    viewer = await create_test_user(db_session, role=UserRole.VIEWER)
+    analyst = await create_test_user(db_session, role=UserRole.ANALYST)
 
     # DRIVER blocked from creating bin
     res_d = await client.post("/api/v1/admin/bins", json={"capacity_kg": 100.0, "zone": "Zone A"}, headers=auth_header(driver))
     assert res_d.status_code == 403
 
-    # VIEWER blocked from deleting sensor or updating status
-    res_v = await client.get("/api/v1/admin/bins/summary", headers=auth_header(viewer))
+    # ANALYST blocked from admin bins endpoints
+    res_v = await client.get("/api/v1/admin/bins/summary", headers=auth_header(analyst))
     assert res_v.status_code == 403

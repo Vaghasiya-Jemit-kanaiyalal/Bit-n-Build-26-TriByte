@@ -44,7 +44,7 @@ export const QuickDemoRoleSelector: React.FC<QuickDemoRoleSelectorProps> = ({
         <button
           type="button"
           className="btn btn-secondary"
-          onClick={() => onSelectRole('Waste Manager', 'admin.manager@wastewise.ai')}
+          onClick={() => onSelectRole('Waste Manager', 'admin.manager@ecotrack.ai')}
           style={{ height: '26px', fontSize: '0.725rem', padding: '0 0.5rem' }}
         >
           <UserCheck size={12} style={{ color: 'var(--accent-olive)' }} />
@@ -54,7 +54,7 @@ export const QuickDemoRoleSelector: React.FC<QuickDemoRoleSelectorProps> = ({
         <button
           type="button"
           className="btn btn-secondary"
-          onClick={() => onSelectRole('Driver / Field Worker', 'driver.field@wastewise.ai')}
+          onClick={() => onSelectRole('Driver / Field Worker', 'driver.field@ecotrack.ai')}
           style={{ height: '26px', fontSize: '0.725rem', padding: '0 0.5rem' }}
         >
           <UserCheck size={12} style={{ color: 'var(--accent-sand)' }} />
@@ -64,7 +64,7 @@ export const QuickDemoRoleSelector: React.FC<QuickDemoRoleSelectorProps> = ({
         <button
           type="button"
           className="btn btn-secondary"
-          onClick={() => onSelectRole('Analyst / Supervisor', 'analyst.supervisor@wastewise.ai')}
+          onClick={() => onSelectRole('Analyst / Supervisor', 'analyst.supervisor@ecotrack.ai')}
           style={{ height: '26px', fontSize: '0.725rem', padding: '0 0.5rem' }}
         >
           <UserCheck size={12} style={{ color: 'var(--accent-amber)' }} />

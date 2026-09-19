@@ -18,11 +18,16 @@ from app.models.bin_collection import BinCollectionHistory
 from app.models.bin_activity import BinActivity
 from app.models.route import Route, RoutePriority, RouteStatus
 from app.models.route_stop import RouteStop, StopPriority, StopStatus
+<<<<<<< HEAD
 from app.models.collection_plan import CollectionPlan, PlanStatus, PlanHorizon, PlanStrategy
 from app.models.collection_plan_item import CollectionPlanItem, CollectionPlanVehicle, PlanItemAssignmentStatus
 from app.models.planning_conflict import PlanningConflict, ConflictType, ConflictSeverity
 from app.models.planning_constraints import PlanningConstraint, CollectionWindow
 from app.models.planning_route_proposal import PlanningRouteProposal, PlanningRouteProposalStop
+=======
+from app.models.waste_classification import WasteClassification, ClassificationSource
+from app.models.alert import Alert, AlertActivity
+>>>>>>> e05bea7aef8ef434e2efc3228d4368b0a9f9e4e4
 
 __all__ = [
     "User",
@@ -53,6 +58,7 @@ __all__ = [
     "RouteStop",
     "StopPriority",
     "StopStatus",
+<<<<<<< HEAD
     "CollectionPlan",
     "PlanStatus",
     "PlanHorizon",
@@ -67,4 +73,10 @@ __all__ = [
     "CollectionWindow",
     "PlanningRouteProposal",
     "PlanningRouteProposalStop",
+=======
+    "WasteClassification",
+    "ClassificationSource",
+    "Alert",
+    "AlertActivity",
+>>>>>>> e05bea7aef8ef434e2efc3228d4368b0a9f9e4e4
 ]

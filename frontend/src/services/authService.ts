@@ -20,7 +20,31 @@ export interface LoginResponse {
   };
 }
 
+export const redirectUserByRole = (role?: string, email?: string): string => {
+  const cleanEmail = (email || '').toLowerCase().trim();
+  if (cleanEmail.endsWith('@driver.gmail.com')) {
+    return '/driver/dashboard';
+  }
+  if (cleanEmail.endsWith('@analyst.gmail.com')) {
+    return '/analyst/dashboard';
+  }
+  const normalizedRole = (role || '').toUpperCase();
+  if (normalizedRole === 'ADMIN') {
+    return '/admin/dashboard';
+  }
+  if (normalizedRole === 'DRIVER') {
+    return '/driver/dashboard';
+  }
+  if (normalizedRole === 'ANALYST') {
+    return '/analyst/dashboard';
+  }
+  console.warn(`Unknown user role received: "${role}". Redirecting to /login safe state.`);
+  return '/login';
+};
+
 export const authService = {
+  redirectUserByRole,
+
   async login(email: string, password: string): Promise<LoginResponse> {
     try {
       const response = await fetch(`${API_BASE_URL}/auth/login`, {
@@ -35,9 +59,9 @@ export const authService = {
       }
 
       const data: LoginResponse = await response.json();
-      localStorage.setItem('wastewise_token', data.access_token);
-      localStorage.setItem('wastewise_refresh_token', data.refresh_token);
-      localStorage.setItem('wastewise_user', JSON.stringify(data.user));
+      localStorage.setItem('ecotrack_token', data.access_token);
+      localStorage.setItem('ecotrack_refresh_token', data.refresh_token);
+      localStorage.setItem('ecotrack_user', JSON.stringify(data.user));
       return data;
     } catch (err: any) {
       // If backend server is unreachable or offline, provide graceful fallback for demo accounts
@@ -76,11 +100,11 @@ export const authService = {
   },
 
   getToken(): string | null {
-    return localStorage.getItem('wastewise_token');
+    return localStorage.getItem('ecotrack_token') || localStorage.getItem('wastewise_token');
   },
 
   getSavedUser(): any | null {
-    const raw = localStorage.getItem('wastewise_user');
+    const raw = localStorage.getItem('ecotrack_user') || localStorage.getItem('wastewise_user');
     if (!raw) return null;
     try {
       return JSON.parse(raw);
@@ -89,7 +113,37 @@ export const authService = {
     }
   },
 
+  async refreshToken(): Promise<string | null> {
+    const refreshToken = localStorage.getItem('ecotrack_refresh_token') || localStorage.getItem('wastewise_refresh_token');
+    if (!refreshToken) return null;
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refresh_token: refreshToken }),
+      });
+
+      if (!response.ok) {
+        return null;
+      }
+
+      const data: LoginResponse = await response.json();
+      localStorage.setItem('ecotrack_token', data.access_token);
+      localStorage.setItem('ecotrack_refresh_token', data.refresh_token);
+      if (data.user) {
+        localStorage.setItem('ecotrack_user', JSON.stringify(data.user));
+      }
+      return data.access_token;
+    } catch {
+      return null;
+    }
+  },
+
   logout(): void {
+    localStorage.removeItem('ecotrack_token');
+    localStorage.removeItem('ecotrack_refresh_token');
+    localStorage.removeItem('ecotrack_user');
     localStorage.removeItem('wastewise_token');
     localStorage.removeItem('wastewise_refresh_token');
     localStorage.removeItem('wastewise_user');
@@ -105,14 +159,26 @@ export const authService = {
     if (normalized === 'admin@gmail.com' && pass === 'admin123') {
       return this.makeMockResponse('System', 'Admin', normalized, 'ADMIN', 'ACTIVE');
     }
-    if ((normalized === 'rahul@driver.gmail.com' || normalized === 'collector@gmail.com') && (pass === 'collector123' || pass === 'driver123')) {
+    if (normalized === 'rahul@driver.gmail.com' && pass === 'driver123') {
       return this.makeMockResponse('Rahul', 'Patel', normalized, 'DRIVER', 'ACTIVE');
     }
-    if ((normalized === 'jay@analyst.gmail.com' || normalized === 'xyz@gmail.com') && (pass === 'viewer123' || pass === 'analyst123')) {
+    if (normalized === 'jay@analyst.gmail.com' && pass === 'analyst123') {
       return this.makeMockResponse('Jay', 'Patel', normalized, 'ANALYST', 'ACTIVE');
     }
     if (normalized === 'admin@ecotrack.com' && pass === 'admin123') {
       return this.makeMockResponse('Jemit', 'Vaghasiya', normalized, 'ADMIN', 'ACTIVE');
+    }
+
+    // Dynamic driver & analyst resolution
+    if (normalized.endsWith('@driver.gmail.com')) {
+      const namePart = normalized.split('@')[0];
+      const capitalized = namePart.charAt(0).toUpperCase() + namePart.slice(1);
+      return this.makeMockResponse(capitalized, 'Driver', normalized, 'DRIVER', 'ACTIVE');
+    }
+    if (normalized.endsWith('@analyst.gmail.com')) {
+      const namePart = normalized.split('@')[0];
+      const capitalized = namePart.charAt(0).toUpperCase() + namePart.slice(1);
+      return this.makeMockResponse(capitalized, 'Analyst', normalized, 'ANALYST', 'ACTIVE');
     }
 
     throw new Error('Invalid email or password.');
@@ -127,7 +193,7 @@ export const authService = {
       email,
       role,
       status,
-      organization: 'EcoTrack WasteWise AI',
+      organization: 'EcoTrack AI Waste Management',
       department: 'Operations',
       created_at: new Date().toISOString(),
     };

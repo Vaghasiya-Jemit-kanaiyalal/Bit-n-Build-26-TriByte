@@ -181,9 +181,9 @@ async def test_02_driver_cannot_access_monitoring(client: AsyncClient, db_sessio
 
 @pytest.mark.asyncio
 async def test_03_viewer_analyst_cannot_access_monitoring(client: AsyncClient, db_session: AsyncSession):
-    """3. Test that VIEWER role is forbidden from admin monitoring."""
-    viewer = await create_test_user(db_session, role=UserRole.VIEWER)
-    res = await client.get("/api/v1/admin/monitoring/summary", headers=auth_header(viewer))
+    """3. Test that ANALYST role is forbidden from admin monitoring."""
+    analyst = await create_test_user(db_session, role=UserRole.ANALYST)
+    res = await client.get("/api/v1/admin/monitoring/summary", headers=auth_header(analyst))
     assert res.status_code == 403
 
 

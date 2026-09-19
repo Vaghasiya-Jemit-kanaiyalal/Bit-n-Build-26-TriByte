@@ -32,7 +32,7 @@ export const DriverDashboardPreview: React.FC<DashboardProps> = ({ user, onSignO
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <div style={{ fontWeight: '700', fontSize: '1.1rem' }}>
-            WasteWise <span style={{ color: 'var(--accent-sand)' }}>FIELD</span>
+            EcoTrack <span style={{ color: 'var(--accent-sand)' }}>FIELD</span>
           </div>
           <span className="badge badge-normal" style={{ fontSize: '0.7rem' }}>TRUCK-04 ACTIVE</span>
         </div>

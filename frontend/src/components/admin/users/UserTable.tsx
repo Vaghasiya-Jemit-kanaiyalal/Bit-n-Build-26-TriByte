@@ -106,8 +106,10 @@ export const UserTable: React.FC<UserTableProps> = ({
                 onClick={() => onSortChange('fullName')}
                 className="px-3 py-3 cursor-pointer hover:text-slate-900 transition-colors"
               >
-                User {renderSortIcon('fullName')}
+                Name {renderSortIcon('fullName')}
               </th>
+
+              <th className="px-3 py-3">Email</th>
 
               <th
                 onClick={() => onSortChange('role')}
@@ -116,10 +118,6 @@ export const UserTable: React.FC<UserTableProps> = ({
                 Role {renderSortIcon('role')}
               </th>
 
-              <th className="px-3 py-3">Zone</th>
-
-              <th className="px-3 py-3">Assignment / Access</th>
-
               <th
                 onClick={() => onSortChange('status')}
                 className="px-3 py-3 cursor-pointer hover:text-slate-900 transition-colors"
@@ -127,20 +125,22 @@ export const UserTable: React.FC<UserTableProps> = ({
                 Status {renderSortIcon('status')}
               </th>
 
-              <th className="px-3 py-3">Contact</th>
+              <th className="px-3 py-3">Assigned Vehicle</th>
+
+              <th className="px-3 py-3">Assigned Zone</th>
 
               <th
                 onClick={() => onSortChange('lastActiveAt')}
                 className="px-3 py-3 cursor-pointer hover:text-slate-900 transition-colors"
               >
-                Last Active {renderSortIcon('lastActiveAt')}
+                Last Login {renderSortIcon('lastActiveAt')}
               </th>
 
               <th
                 onClick={() => onSortChange('joinedAt')}
                 className="px-3 py-3 cursor-pointer hover:text-slate-900 transition-colors"
               >
-                Joined {renderSortIcon('joinedAt')}
+                Created At {renderSortIcon('joinedAt')}
               </th>
 
               <th className="pr-4 pl-2 py-3 text-right">Actions</th>

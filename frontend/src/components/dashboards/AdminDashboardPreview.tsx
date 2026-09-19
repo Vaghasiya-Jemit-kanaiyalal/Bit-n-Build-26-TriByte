@@ -24,7 +24,7 @@ export const AdminDashboardPreview: React.FC<DashboardProps> = ({ user, onSignOu
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <div style={{ fontWeight: '700', fontSize: '1.1rem', letterSpacing: '-0.02em' }}>
-            WasteWise <span style={{ color: 'var(--accent-olive)' }}>AI</span>
+            EcoTrack <span style={{ color: 'var(--accent-olive)' }}>AI</span>
           </div>
           <span style={{ color: 'var(--border-medium)', height: '16px', borderRight: '1px solid currentColor' }} />
           <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>

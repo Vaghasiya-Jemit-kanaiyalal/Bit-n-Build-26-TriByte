@@ -5,7 +5,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    PROJECT_NAME: str = "WasteWise AI"
+    PROJECT_NAME: str = "EcoTrack AI"
     API_V1_STR: str = "/api/v1"
     ENVIRONMENT: str = "development"
 
@@ -16,8 +16,8 @@ class Settings(BaseSettings):
     # JWT Settings
     JWT_SECRET_KEY: str = "change-this-in-production-minimum-32-chars-long"
     JWT_ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
-    REFRESH_TOKEN_EXPIRE_DAYS: int = 7
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 10080
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 30
     PASSWORD_RESET_TOKEN_EXPIRE_MINUTES: int = 30
 
     # Role Security
@@ -26,6 +26,11 @@ class Settings(BaseSettings):
     # Monitoring Telemetry Freshness Thresholds
     MONITORING_TELEMETRY_ONLINE_SECONDS: int = 300   # 5 minutes
     MONITORING_TELEMETRY_STALE_SECONDS: int = 1800   # 30 minutes
+
+    # Waste Classification Configuration
+    CLASSIFICATION_LOW_CONFIDENCE_THRESHOLD: float = 0.70
+    CLASSIFICATION_DEFAULT_MODEL_NAME: str = "ecotrack-vision-classifier"
+    CLASSIFICATION_DEFAULT_MODEL_VERSION: str = "1.0.0"
 
     # CORS
     FRONTEND_URL: str = "http://localhost:5173"
