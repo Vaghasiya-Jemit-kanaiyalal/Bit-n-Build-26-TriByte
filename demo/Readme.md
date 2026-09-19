@@ -4,7 +4,7 @@
 
 ## AI-Powered Waste Management & Recycling Optimizer
 
-EchoTrack AI  is an intelligent waste management platform designed to optimize waste collection, monitor smart bins, predict waste levels, dynamically plan collection routes, and improve recycling operations.
+EchoTrack AI (WasteWise AI) is an intelligent waste management platform designed to optimize waste collection, monitor smart bins, predict waste levels, dynamically plan collection routes, and improve recycling operations.
 
 ---
 
@@ -12,9 +12,10 @@ EchoTrack AI  is an intelligent waste management platform designed to optimize w
 
 | Field | Value |
 | :--- | :--- |
-| **Team Name** | **TriByte** |
-| **Team Lead** | **Jemit Vaghasiya** — [jemitvaghasiya07@gmail.com](mailto:jemitvaghasiya07@gmail.com) |
-| **Members** | **Jay Sohaliya**, **Yug Bhensadaiya** |
+| **Team Name** | **Zenbytes** |
+| **Track** | **Open Track** |
+| **Team Lead** | **Jemit Vaghasiya** — [24dcs145@charusat.edu.in](mailto:24dcs145@charusat.edu.in) |
+| **Members** | **Jay Sohaliya**, **Yug Bhensadaiya**, **Yug Bhungaliya** |
 
 ---
 
@@ -42,6 +43,7 @@ The platform automatically generates distance-optimized collection routes for fi
 - **Smart Bin Management** – Real-time IoT monitoring of fill levels, battery status, temperature, and GPS locations.
 - **Real-Time Waste Monitoring** – Live telemetry tracking and active bin health monitoring across urban sectors.
 - **Fill-Level Prediction** – ML forecasting algorithms predicting bin overflow timelines and daily fill rates.
+- **Waste Classification** – AI/CV inference categorizing waste (Organic, Recyclable, Hazardous, E-Waste) with confidence scoring.
 - **Collection Priority Management** – Dynamic urgency scoring prioritizing overflowing and high-risk bins.
 - **Collection Planning** – Automated generation of pickup manifests and optimized driver dispatch schedules.
 - **Route Optimization** – Distance and time optimized routes for collection trucks to reduce fuel consumption and carbon footprint.

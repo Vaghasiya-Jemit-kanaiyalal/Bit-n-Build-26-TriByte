@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import {
   Leaf,
   LayoutDashboard,
@@ -15,7 +15,9 @@ import {
   Activity,
   Cpu,
   BrainCircuit,
-  CalendarCheck
+  CalendarCheck,
+  Clock,
+  FileText,
 } from 'lucide-react';
 import type { UserSession } from '../../types/auth';
 import { RoutePage } from '../routes/RoutePage';
@@ -30,6 +32,100 @@ import { AdminPlanningPage } from '../admin/planning/AdminPlanningPage';
 import { MonitoringPage } from '../admin/monitoring/MonitoringPage';
 import { PredictionPage } from '../admin/predictions/PredictionPage';
 import { AdminDashboardPage } from '../admin/dashboard/AdminDashboardPage';
+import { DriverDashboardPreview } from './DriverDashboardPreview';
+import { AnalystDashboardPreview } from './AnalystDashboardPreview';
+import { ErrorBoundary } from '../common/ErrorBoundary';
+
+const getTabFromPath = (path: string, role: string): string => {
+  const p = (path || '').toLowerCase();
+  if (role === 'ADMIN') {
+    if (p.startsWith('/admin/users')) return 'Users';
+    if (p.startsWith('/admin/bins')) return 'Bins';
+    if (p.startsWith('/admin/monitoring')) return 'Monitoring';
+    if (p.startsWith('/admin/classification')) return 'Classification';
+    if (p.startsWith('/admin/predictions')) return 'Predictions';
+    if (p.startsWith('/admin/planning')) return 'Planning';
+    if (p.startsWith('/admin/routes') || p.startsWith('/admin/route')) return 'Routes';
+    if (p.startsWith('/admin/vehicles') || p.startsWith('/admin/vehicle')) return 'Vehicles';
+    if (p.startsWith('/admin/alerts') || p.startsWith('/admin/alert')) return 'Alerts';
+    if (p.startsWith('/admin/analytics') || p.startsWith('/admin/analytic')) return 'Analytics';
+    if (p.startsWith('/admin/settings') || p.startsWith('/admin/profile')) return 'Settings';
+    return 'Dashboard';
+  }
+  if (role === 'DRIVER') {
+    if (p.startsWith('/driver/route') || p.startsWith('/driver/my-route')) return 'My Route';
+    if (p.startsWith('/driver/bins')) return 'Bins';
+    if (p.startsWith('/driver/collection')) return 'Collection';
+    if (p.startsWith('/driver/vehicle')) return 'Vehicle';
+    if (p.startsWith('/driver/history')) return 'History';
+    if (p.startsWith('/driver/notifications') || p.startsWith('/driver/alerts')) return 'Notifications';
+    if (p.startsWith('/driver/profile')) return 'Profile';
+    if (p.startsWith('/driver/settings')) return 'Settings';
+    return 'Dashboard';
+  }
+  if (role === 'ANALYST') {
+    if (p.startsWith('/analyst/waste-analytics')) return 'Waste Analytics';
+    if (p.startsWith('/analyst/prediction-analytics')) return 'Prediction Analytics';
+    if (p.startsWith('/analyst/collection-analytics')) return 'Collection Analytics';
+    if (p.startsWith('/analyst/area-analysis')) return 'Area Analysis';
+    if (p.startsWith('/analyst/recycling-analytics')) return 'Recycling Analytics';
+    if (p.startsWith('/analyst/reports')) return 'Reports';
+    if (p.startsWith('/analyst/analytics')) return 'Analytics';
+    if (p.startsWith('/analyst/notifications') || p.startsWith('/analyst/alerts')) return 'Notifications';
+    if (p.startsWith('/analyst/profile')) return 'Profile';
+    if (p.startsWith('/analyst/settings')) return 'Settings';
+    return 'Dashboard';
+  }
+  return 'Dashboard';
+};
+
+const getPathFromTab = (tab: string, role: string): string => {
+  if (role === 'ADMIN') {
+    switch (tab) {
+      case 'Users': case 'User Management': return '/admin/users';
+      case 'Bins': case 'Bin Management': return '/admin/bins';
+      case 'Monitoring': case 'Live Operations': return '/admin/monitoring';
+      case 'Classification': case 'Classifications': return '/admin/classification';
+      case 'Predictions': case 'Prediction': return '/admin/predictions';
+      case 'Planning': case 'Collection Planning': return '/admin/planning';
+      case 'Routes': case 'Route': return '/admin/routes';
+      case 'Vehicles': case 'Vehicle': return '/admin/vehicles';
+      case 'Alerts': case 'Alert': return '/admin/alerts';
+      case 'Analytics': case 'Analytic': return '/admin/analytics';
+      case 'Settings': case 'Setting': case 'Profile': return '/admin/settings';
+      default: return '/admin/dashboard';
+    }
+  }
+  if (role === 'DRIVER') {
+    switch (tab) {
+      case 'My Route': case 'Route': return '/driver/my-route';
+      case 'Bins': case 'Bin Management': return '/driver/bins';
+      case 'Collection': case 'Collections': return '/driver/collection';
+      case 'Vehicle': case 'Vehicles': case 'My Vehicle': return '/driver/vehicle';
+      case 'History': return '/driver/history';
+      case 'Notifications': case 'Alerts': return '/driver/notifications';
+      case 'Profile': return '/driver/profile';
+      case 'Settings': return '/driver/settings';
+      default: return '/driver/dashboard';
+    }
+  }
+  if (role === 'ANALYST') {
+    switch (tab) {
+      case 'Analytics': return '/analyst/analytics';
+      case 'Waste Analytics': return '/analyst/waste-analytics';
+      case 'Prediction Analytics': return '/analyst/prediction-analytics';
+      case 'Collection Analytics': return '/analyst/collection-analytics';
+      case 'Area Analysis': return '/analyst/area-analysis';
+      case 'Recycling Analytics': return '/analyst/recycling-analytics';
+      case 'Reports': return '/analyst/reports';
+      case 'Notifications': case 'Alerts': return '/analyst/notifications';
+      case 'Profile': return '/analyst/profile';
+      case 'Settings': return '/analyst/settings';
+      default: return '/analyst/dashboard';
+    }
+  }
+  return '/';
+};
 
 import { DriverPortal } from '../driver/DriverPortal';
 import logoImg from '../../assets/logo.png';
@@ -41,31 +137,120 @@ interface EcoTrackDashboardProps {
 }
 
 export const EcoTrackDashboard: React.FC<EcoTrackDashboardProps> = ({ user, onSignOut }) => {
-  const [activeTab, setActiveTab] = useState<string>('Dashboard');
+  // Derive normalized role with email domain priority
+  const cleanEmail = (user.email || '').toLowerCase().trim();
+  const userRole: 'ADMIN' | 'DRIVER' | 'ANALYST' = cleanEmail.endsWith('@driver.gmail.com')
+    ? 'DRIVER'
+    : cleanEmail.endsWith('@analyst.gmail.com')
+    ? 'ANALYST'
+    : (user.role || '').toUpperCase().includes('ADMIN') || user.displayRole === 'Waste Manager'
+    ? 'ADMIN'
+    : (user.role || '').toUpperCase().includes('DRIVER') || user.displayRole === 'Collection Driver'
+    ? 'DRIVER'
+    : 'ANALYST';
 
   // Route protection guard: Redirect Collection Driver to DriverPortal
   const rawRole = (user.role || '').toUpperCase();
-  if (rawRole === 'DRIVER' || user.role === 'Collection Driver' || user.displayRole === 'Collection Driver') {
+  if (userRole === 'DRIVER' || rawRole === 'DRIVER' || user.role === 'Collection Driver' || user.displayRole === 'Collection Driver') {
     return <DriverPortal user={user} onSignOut={onSignOut} />;
   }
 
-  const navMain = [
-    { name: 'Dashboard', icon: LayoutDashboard },
-    { name: 'Bin Management', icon: Trash2 },
-    { name: 'Monitoring', icon: MapPin },
-    { name: 'Classification', icon: Cpu },
-    { name: 'Predictions', icon: BrainCircuit },
-    { name: 'Planning', icon: CalendarCheck },
-    { name: 'Route', icon: RouteIcon },
-    { name: 'Vehicles', icon: Truck },
-    { name: 'Alerts', icon: Bell },
-    { name: 'Analytics', icon: BarChart3 },
-  ];
+  const roleLabel =
+    userRole === 'ADMIN'
+      ? 'Waste Manager'
+      : (userRole as any) === 'DRIVER'
+      ? 'Collection Driver'
+      : 'Operations Analyst';
 
-  const navAdmin = [
-    { name: 'Users', icon: Users },
-    { name: 'Settings', icon: Settings },
-  ];
+  const initialPath = typeof window !== 'undefined' ? window.location.pathname : '/';
+  const [activeTab, setActiveTab] = useState<string>(() => getTabFromPath(initialPath, userRole));
+  const [showProfileMenu, setShowProfileMenu] = useState<boolean>(false);
+
+  const handleSelectTab = (tabName: string) => {
+    // Canonicalize tabName so that sidebar active item is always perfectly highlighted
+    const canonicalTab = (() => {
+      if (userRole === 'ADMIN') {
+        switch (tabName) {
+          case 'Bin Management': return 'Bins';
+          case 'Route': return 'Routes';
+          case 'Vehicle': return 'Vehicles';
+          case 'Alert': return 'Alerts';
+          case 'Analytic': return 'Analytics';
+          case 'Classifications': return 'Classification';
+          case 'User Management': return 'Users';
+          case 'Collection Planning': return 'Planning';
+          case 'Live Operations': return 'Monitoring';
+          case 'Prediction': return 'Predictions';
+          case 'Setting': return 'Settings';
+          default: return tabName;
+        }
+      }
+      return tabName;
+    })();
+
+    setActiveTab(canonicalTab);
+    const newPath = getPathFromTab(canonicalTab, userRole);
+    if (typeof window !== 'undefined' && window.location.pathname !== newPath) {
+      window.history.pushState(null, '', newPath);
+    }
+  };
+
+  useEffect(() => {
+    const handlePopState = () => {
+      const currentTab = getTabFromPath(window.location.pathname, userRole);
+      setActiveTab(currentTab);
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [userRole]);
+
+  // Role-based sidebar configurations
+  const navMain =
+    userRole === 'ADMIN'
+      ? [
+          { name: 'Dashboard', icon: LayoutDashboard },
+          { name: 'Bins', icon: Trash2 },
+          { name: 'Monitoring', icon: MapPin },
+          { name: 'Classification', icon: Cpu },
+          { name: 'Predictions', icon: BrainCircuit },
+          { name: 'Planning', icon: CalendarCheck },
+          { name: 'Routes', icon: RouteIcon },
+          { name: 'Vehicles', icon: Truck },
+          { name: 'Alerts', icon: Bell },
+          { name: 'Analytics', icon: BarChart3 },
+        ]
+      : (userRole as any) === 'DRIVER'
+      ? [
+          { name: 'Dashboard', icon: LayoutDashboard },
+          { name: 'My Route', icon: RouteIcon },
+          { name: 'Bins', icon: Trash2 },
+          { name: 'Collection', icon: CalendarCheck },
+          { name: 'Vehicle', icon: Truck },
+          { name: 'History', icon: Clock },
+          { name: 'Notifications', icon: Bell },
+        ]
+      : [
+          { name: 'Dashboard', icon: LayoutDashboard },
+          { name: 'Analytics', icon: BarChart3 },
+          { name: 'Waste Analytics', icon: Trash2 },
+          { name: 'Prediction Analytics', icon: BrainCircuit },
+          { name: 'Collection Analytics', icon: Activity },
+          { name: 'Area Analysis', icon: MapPin },
+          { name: 'Recycling Analytics', icon: Leaf },
+          { name: 'Reports', icon: FileText },
+          { name: 'Notifications', icon: Bell },
+        ];
+
+  const navAdmin =
+    userRole === 'ADMIN'
+      ? [
+          { name: 'Users', icon: Users },
+          { name: 'Settings', icon: Settings },
+        ]
+      : [
+          { name: 'Profile', icon: Users },
+          { name: 'Settings', icon: Settings },
+        ];
 
   return (
     <div className="min-h-screen bg-[#f8fafc] text-slate-800 font-sans flex flex-row overflow-x-hidden">
@@ -89,7 +274,8 @@ export const EcoTrackDashboard: React.FC<EcoTrackDashboardProps> = ({ user, onSi
                 return (
                   <button
                     key={item.name}
-                    onClick={() => setActiveTab(item.name)}
+                    type="button"
+                    onClick={() => handleSelectTab(item.name)}
                     className={`flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer border-none ${isActive
                         ? 'bg-emerald-50 text-[#047857]'
                         : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
@@ -113,7 +299,8 @@ export const EcoTrackDashboard: React.FC<EcoTrackDashboardProps> = ({ user, onSi
                 return (
                   <button
                     key={item.name}
-                    onClick={() => setActiveTab(item.name)}
+                    type="button"
+                    onClick={() => handleSelectTab(item.name)}
                     className={`flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer border-none ${isActive
                         ? 'bg-emerald-50 text-[#047857]'
                         : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
@@ -175,15 +362,47 @@ export const EcoTrackDashboard: React.FC<EcoTrackDashboardProps> = ({ user, onSi
               </span>
             </button>
 
-            {/* User Profile Pill */}
-            <div className="flex items-center gap-3 pl-3 border-l border-slate-200">
-              <div className="w-9 h-9 rounded-full bg-[#064e3b] text-white font-bold text-xs flex items-center justify-center shadow-sm">
-                {user.name ? user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : 'JV'}
-              </div>
-              <div className="hidden sm:flex flex-col text-left">
-                <span className="text-xs font-bold text-slate-900 leading-tight">{user.name || 'Jemit Vaghasiya'}</span>
-                <span className="text-[10px] text-slate-500 font-semibold leading-tight">{user.role || 'Waste Manager'}</span>
-              </div>
+            {/* User Profile Pill & Dropdown Menu */}
+            <div className="relative flex items-center gap-3 pl-3 border-l border-slate-200">
+              <button
+                type="button"
+                onClick={() => setShowProfileMenu(!showProfileMenu)}
+                className="flex items-center gap-2 text-left p-1 rounded-xl hover:bg-slate-100 transition-colors border-none bg-transparent cursor-pointer"
+              >
+                <div className="w-9 h-9 rounded-full bg-[#064e3b] text-white font-bold text-xs flex items-center justify-center shadow-sm">
+                  {user.name ? user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : 'WM'}
+                </div>
+                <div className="hidden sm:flex flex-col">
+                  <span className="text-xs font-bold text-slate-900 leading-tight">{user.name}</span>
+                  <span className="text-[10px] text-emerald-700 font-bold leading-tight">{roleLabel}</span>
+                </div>
+              </button>
+
+              {/* Profile Dropdown Menu */}
+              {showProfileMenu && (
+                <div className="absolute right-0 top-12 mt-1 w-64 bg-white border border-slate-200 rounded-xl shadow-xl p-3 z-50 animate-in fade-in zoom-in-95 duration-150">
+                  <div className="pb-2.5 border-b border-slate-100">
+                    <p className="text-xs font-bold text-slate-900 leading-snug">{user.name}</p>
+                    <p className="text-[11px] text-slate-500 font-mono truncate">{user.email}</p>
+                  </div>
+                  <div className="pt-2 pb-1">
+                    <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Assigned Role</span>
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold bg-emerald-50 text-[#047857] border border-emerald-200">
+                      {roleLabel}
+                    </span>
+                  </div>
+                  <div className="pt-2 border-t border-slate-100 mt-2 flex justify-between items-center">
+                    <span className="text-[10px] text-slate-400 font-medium">Status: Active</span>
+                    <button
+                      onClick={onSignOut}
+                      className="text-[11px] font-bold text-red-600 hover:text-red-700 hover:underline border-none bg-transparent cursor-pointer"
+                    >
+                      Sign Out
+                    </button>
+                  </div>
+                </div>
+              )}
+
               <button
                 onClick={onSignOut}
                 title="Sign Out"
@@ -195,32 +414,78 @@ export const EcoTrackDashboard: React.FC<EcoTrackDashboardProps> = ({ user, onSi
           </div>
         </header>
 
-        {/* DASHBOARD BODY */}
-        {activeTab === 'Bin Management' || activeTab === 'Bins' ? (
-          <BinManagement onNavigateTab={(tab) => setActiveTab(tab)} />
-        ) : activeTab === 'Route' || activeTab === 'Routes' ? (
-          <RoutePage />
-        ) : activeTab === 'Vehicles' || activeTab === 'Vehicle' ? (
-          <VehiclesPage onNavigateToRoute={() => setActiveTab('Route')} />
-        ) : activeTab === 'Alerts' || activeTab === 'Alert' ? (
-          <AlertsPage onNavigateTab={(tabName) => setActiveTab(tabName)} />
-        ) : activeTab === 'Analytics' || activeTab === 'Analytic' ? (
-          <AnalyticsPage onNavigateTab={(tabName) => setActiveTab(tabName)} />
-        ) : activeTab === 'Classification' || activeTab === 'Classifications' ? (
-          <ClassificationPage onNavigateTab={(tabName) => setActiveTab(tabName)} />
-        ) : activeTab === 'Users' || activeTab === 'User Management' ? (
-          <UsersPage />
-        ) : activeTab === 'Settings' || activeTab === 'Setting' ? (
-          <AdminSettingsPage onNavigateTab={(tabName) => setActiveTab(tabName)} />
-        ) : activeTab === 'Planning' || activeTab === 'Collection Planning' ? (
-          <AdminPlanningPage onNavigate={(tabName) => setActiveTab(tabName)} />
-        ) : activeTab === 'Monitoring' || activeTab === 'Live Operations' ? (
-          <MonitoringPage onNavigateTab={(tabName) => setActiveTab(tabName)} />
-        ) : activeTab === 'Predictions' || activeTab === 'Prediction' ? (
-          <PredictionPage onNavigateTab={(tabName) => setActiveTab(tabName)} />
-        ) : (
-          <AdminDashboardPage user={user} onNavigateTab={(tab) => setActiveTab(tab)} />
-        )}
+        {/* DASHBOARD BODY WITH ROLE-BASED ACCESS GUARDS & ERROR SHIELD */}
+        <ErrorBoundary>
+          <Suspense
+            fallback={
+              <div className="flex-1 flex items-center justify-center p-12 min-h-[400px]">
+                <div className="flex flex-col items-center gap-3">
+                  <div className="w-8 h-8 border-3 border-emerald-600 border-t-transparent rounded-full animate-spin" />
+                  <span className="text-xs font-semibold text-slate-500">Loading module...</span>
+                </div>
+              </div>
+            }
+          >
+            {(userRole as any) === 'DRIVER' ? (
+              activeTab === 'My Route' ? (
+                <RoutePage />
+              ) : activeTab === 'Bins' || activeTab === 'Collection' || activeTab === 'History' ? (
+                <BinManagement onNavigateTab={(tab) => handleSelectTab(tab)} />
+              ) : activeTab === 'Vehicle' ? (
+                <VehiclesPage onNavigateToRoute={() => handleSelectTab('My Route')} />
+              ) : activeTab === 'Notifications' ? (
+                <AlertsPage onNavigateTab={(tabName) => handleSelectTab(tabName)} />
+              ) : activeTab === 'Profile' || activeTab === 'Settings' ? (
+                <AdminSettingsPage onNavigateTab={(tabName) => handleSelectTab(tabName)} />
+              ) : (
+                <DriverDashboardPreview user={user as any} onSignOut={onSignOut} />
+              )
+            ) : userRole === 'ANALYST' ? (
+              activeTab === 'Analytics' ||
+              activeTab === 'Waste Analytics' ||
+              activeTab === 'Prediction Analytics' ||
+              activeTab === 'Collection Analytics' ||
+              activeTab === 'Area Analysis' ||
+              activeTab === 'Recycling Analytics' ||
+              activeTab === 'Reports' ? (
+                <AnalyticsPage onNavigateTab={(tabName) => handleSelectTab(tabName)} />
+              ) : activeTab === 'Notifications' ? (
+                <AlertsPage onNavigateTab={(tabName) => handleSelectTab(tabName)} />
+              ) : activeTab === 'Profile' || activeTab === 'Settings' ? (
+                <AdminSettingsPage onNavigateTab={(tabName) => handleSelectTab(tabName)} />
+              ) : (
+                <AnalystDashboardPreview user={user as any} onSignOut={onSignOut} />
+              )
+            ) : (
+              /* ADMIN / WASTE MANAGER */
+              activeTab === 'Bin Management' || activeTab === 'Bins' ? (
+                <BinManagement onNavigateTab={(tab) => handleSelectTab(tab)} />
+              ) : activeTab === 'Route' || activeTab === 'Routes' ? (
+                <RoutePage />
+              ) : activeTab === 'Vehicles' || activeTab === 'Vehicle' ? (
+                <VehiclesPage onNavigateToRoute={() => handleSelectTab('Route')} />
+              ) : activeTab === 'Alerts' || activeTab === 'Alert' ? (
+                <AlertsPage onNavigateTab={(tabName) => handleSelectTab(tabName)} />
+              ) : activeTab === 'Analytics' || activeTab === 'Analytic' ? (
+                <AnalyticsPage onNavigateTab={(tabName) => handleSelectTab(tabName)} />
+              ) : activeTab === 'Classification' || activeTab === 'Classifications' ? (
+                <ClassificationPage onNavigateTab={(tabName) => handleSelectTab(tabName)} />
+              ) : activeTab === 'Users' || activeTab === 'User Management' ? (
+                <UsersPage />
+              ) : activeTab === 'Settings' || activeTab === 'Setting' ? (
+                <AdminSettingsPage onNavigateTab={(tabName) => handleSelectTab(tabName)} />
+              ) : activeTab === 'Planning' || activeTab === 'Collection Planning' ? (
+                <AdminPlanningPage onNavigate={(tabName) => handleSelectTab(tabName)} />
+              ) : activeTab === 'Monitoring' || activeTab === 'Live Operations' ? (
+                <MonitoringPage onNavigateTab={(tabName) => handleSelectTab(tabName)} />
+              ) : activeTab === 'Predictions' || activeTab === 'Prediction' ? (
+                <PredictionPage onNavigateTab={(tabName) => handleSelectTab(tabName)} />
+              ) : (
+                <AdminDashboardPage user={user} onNavigateTab={(tab) => handleSelectTab(tab)} />
+              )
+            )}
+          </Suspense>
+        </ErrorBoundary>
       </div>
     </div>
   );

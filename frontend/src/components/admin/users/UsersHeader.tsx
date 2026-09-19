@@ -67,6 +67,8 @@ export const UsersHeader: React.FC<UsersHeaderProps> = ({
 
         {onAddUser && (
           <button
+            type="button"
+            id="add-user-btn"
             onClick={onAddUser}
             className="px-4 py-2 bg-[#047857] hover:bg-[#064e3b] text-white rounded-xl text-xs font-bold shadow-sm hover:shadow-md transition-all flex items-center gap-2 border-none cursor-pointer"
           >
