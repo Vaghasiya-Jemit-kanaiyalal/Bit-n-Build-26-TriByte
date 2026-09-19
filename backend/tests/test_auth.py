@@ -17,21 +17,21 @@ from app.models.user import User, UserRole, UserStatus
 
 @pytest.mark.asyncio
 async def test_01_register_user_default_viewer(client: AsyncClient):
-    """1. Test public registration automatically assigns VIEWER role without role selection."""
+    """1. Test public registration automatically assigns ANALYST role without role selection."""
     payload = {
-        "full_name": "Public Viewer",
-        "email": "public_viewer@wastewise.ai",
+        "full_name": "Public Analyst",
+        "email": "public_analyst@wastewise.ai",
         "password": "SecurePassword123!",
     }
     response = await client.post("/api/v1/auth/register", json=payload)
     assert response.status_code == 201
     data = response.json()
     assert data["message"] == "Account created successfully."
-    assert data["user"]["email"] == "public_viewer@wastewise.ai"
-    assert data["user"]["role"] == "VIEWER"
+    assert data["user"]["email"] == "public_analyst@wastewise.ai"
+    assert data["user"]["role"] == "ANALYST"
     assert data["user"]["status"] == "ACTIVE"
     assert data["user"]["first_name"] == "Public"
-    assert data["user"]["last_name"] == "Viewer"
+    assert data["user"]["last_name"] == "Analyst"
     assert "password" not in data["user"]
     assert "password_hash" not in data["user"]
 
@@ -40,8 +40,8 @@ async def test_01_register_user_default_viewer(client: AsyncClient):
 async def test_02_register_duplicate_email(client: AsyncClient):
     """2. Test duplicate email registration rejection."""
     payload = {
-        "full_name": "Another Viewer",
-        "email": "public_viewer@wastewise.ai",
+        "full_name": "Another Analyst",
+        "email": "public_analyst@wastewise.ai",
         "password": "SecurePassword123!",
     }
     response = await client.post("/api/v1/auth/register", json=payload)
@@ -73,7 +73,7 @@ async def test_03_invalid_registration(client: AsyncClient):
 async def test_04_login_success(client: AsyncClient):
     """4. Test successful login returning JWT token pair and resolving role from DB."""
     login_payload = {
-        "email": "public_viewer@wastewise.ai",
+        "email": "public_analyst@wastewise.ai",
         "password": "SecurePassword123!",
     }
     response = await client.post("/api/v1/auth/login", json=login_payload)
@@ -82,8 +82,8 @@ async def test_04_login_success(client: AsyncClient):
     assert "access_token" in data
     assert "refresh_token" in data
     assert data["token_type"] == "bearer"
-    assert data["user"]["email"] == "public_viewer@wastewise.ai"
-    assert data["user"]["role"] == "VIEWER"
+    assert data["user"]["email"] == "public_analyst@wastewise.ai"
+    assert data["user"]["role"] == "ANALYST"
     assert data["user"]["status"] == "ACTIVE"
 
 
@@ -91,7 +91,7 @@ async def test_04_login_success(client: AsyncClient):
 async def test_05_login_failure(client: AsyncClient):
     """5. Test login failure with incorrect credentials."""
     login_payload = {
-        "email": "public_viewer@wastewise.ai",
+        "email": "public_analyst@wastewise.ai",
         "password": "WrongPassword!",
     }
     response = await client.post("/api/v1/auth/login", json=login_payload)
@@ -116,7 +116,7 @@ async def test_06_jwt_validation_and_tampering(client: AsyncClient):
 async def test_07_auth_me_endpoint(client: AsyncClient):
     """7. Test /api/v1/auth/me returns current authenticated user."""
     login_payload = {
-        "email": "public_viewer@wastewise.ai",
+        "email": "public_analyst@wastewise.ai",
         "password": "SecurePassword123!",
     }
     login_res = await client.post("/api/v1/auth/login", json=login_payload)
@@ -128,8 +128,8 @@ async def test_07_auth_me_endpoint(client: AsyncClient):
     )
     assert response.status_code == 200
     data = response.json()
-    assert data["email"] == "public_viewer@wastewise.ai"
-    assert data["role"] == "VIEWER"
+    assert data["email"] == "public_analyst@wastewise.ai"
+    assert data["role"] == "ANALYST"
 
 
 @pytest.mark.asyncio
@@ -178,18 +178,18 @@ async def test_08_admin_user_management_crud(client: AsyncClient, db_session: As
     assert res_login.status_code == 200
     assert res_login.json()["user"]["role"] == "DRIVER"
 
-    # 4. Admin changes role to ANALYST
-    res_role = await client.patch(
-        f"/api/v1/users/{user_id}/role",
-        json={"role": "ANALYST"},
+    # 4. Admin updates email to analyst convention and changes role to ANALYST
+    res_upd = await client.put(
+        f"/api/v1/users/{user_id}",
+        json={"email": "test_collector@analyst.gmail.com", "role": "ANALYST"},
         headers=admin_headers,
     )
-    assert res_role.status_code == 200
-    assert res_role.json()["role"] == "ANALYST"
+    assert res_upd.status_code == 200
+    assert res_upd.json()["role"] == "ANALYST"
 
     # Next login returns new role ANALYST
     res_relogin = await client.post("/api/v1/auth/login", json={
-        "email": "test_collector@driver.gmail.com",
+        "email": "test_collector@analyst.gmail.com",
         "password": "TempPassword123!",
     })
     assert res_relogin.status_code == 200
@@ -206,7 +206,7 @@ async def test_08_admin_user_management_crud(client: AsyncClient, db_session: As
 
     # Suspended user login MUST be blocked (403 Forbidden)
     res_blocked = await client.post("/api/v1/auth/login", json={
-        "email": "test_collector@wastewise.ai",
+        "email": "test_collector@analyst.gmail.com",
         "password": "TempPassword123!",
     })
     assert res_blocked.status_code == 403
@@ -231,7 +231,7 @@ async def test_08_admin_user_management_crud(client: AsyncClient, db_session: As
 
     # User logs in with new password
     res_pwd_login = await client.post("/api/v1/auth/login", json={
-        "email": "test_collector@wastewise.ai",
+        "email": "test_collector@analyst.gmail.com",
         "password": "NewSecretPassword2026!",
     })
     assert res_pwd_login.status_code == 200
@@ -245,7 +245,7 @@ async def test_08_admin_user_management_crud(client: AsyncClient, db_session: As
 async def test_09_refresh_token_flow(client: AsyncClient):
     """9. Test refreshing access token using refresh token."""
     login_res = await client.post("/api/v1/auth/login", json={
-        "email": "public_viewer@wastewise.ai",
+        "email": "public_analyst@wastewise.ai",
         "password": "SecurePassword123!",
     })
     tokens = login_res.json()
@@ -263,7 +263,7 @@ async def test_10_forgot_password_generic_response(client: AsyncClient):
     """10. Test forgot password generic response."""
     res1 = await client.post(
         "/api/v1/auth/forgot-password",
-        json={"email": "public_viewer@wastewise.ai"}
+        json={"email": "public_analyst@wastewise.ai"}
     )
     assert res1.status_code == 200
     assert "password reset instructions have been sent" in res1.json()["message"].lower()
@@ -276,7 +276,7 @@ async def test_11_reset_password_success(client: AsyncClient, db_session: AsyncS
         uuid=uuid.uuid4(),
         first_name="Reset",
         last_name="User",
-        email="reset_test@wastewise.ai",
+        email="reset_test@driver.gmail.com",
         password_hash=hash_password("OldPassword123!"),
         role=UserRole.DRIVER,
         status=UserStatus.ACTIVE,
@@ -301,7 +301,7 @@ async def test_11_reset_password_success(client: AsyncClient, db_session: AsyncS
     assert res.status_code == 200
 
     login_new = await client.post("/api/v1/auth/login", json={
-        "email": "reset_test@wastewise.ai",
+        "email": "reset_test@driver.gmail.com",
         "password": "BrandNewPassword2026!",
     })
     assert login_new.status_code == 200
@@ -311,7 +311,7 @@ async def test_11_reset_password_success(client: AsyncClient, db_session: AsyncS
 async def test_12_logout_endpoint(client: AsyncClient):
     """12. Test logout endpoint."""
     login_res = await client.post("/api/v1/auth/login", json={
-        "email": "public_viewer@wastewise.ai",
+        "email": "public_analyst@wastewise.ai",
         "password": "SecurePassword123!",
     })
     token = login_res.json()["access_token"]

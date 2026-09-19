@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ZoomIn, ZoomOut, Crosshair, Truck, MapPin, RotateCcw, Activity } from 'lucide-react';
+import { ZoomIn, ZoomOut, Crosshair, Truck, MapPin } from 'lucide-react';
 import type { BinStop } from '../../mock/routeData';
 
 import { showWebsiteToast } from '../common/NotificationToast';

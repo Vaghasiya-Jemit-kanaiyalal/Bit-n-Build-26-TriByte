@@ -227,7 +227,7 @@ export const mockDashboardVehicles: DashboardVehicleItem[] = [
   { id: 'vh-014', vehicleCode: 'VH-014', type: 'Compactor Truck', currentLoadTons: 3.8, capacityTons: 5.0, utilizationPercentage: 76, status: 'On Route', driverName: 'Driver 024', assignedRoute: 'RT-028', coordinates: { x: 28, y: 38 } },
   { id: 'vh-007', vehicleCode: 'VH-007', type: 'Side-Loader', currentLoadTons: 3.9, capacityTons: 5.0, utilizationPercentage: 78, status: 'On Route', driverName: 'Driver 012', assignedRoute: 'RT-024', coordinates: { x: 68, y: 58 } },
   { id: 'vh-019', vehicleCode: 'VH-019', type: 'Compactor Truck', currentLoadTons: 4.2, capacityTons: 5.0, utilizationPercentage: 84, status: 'On Route', driverName: 'Driver 008', assignedRoute: 'RT-031', coordinates: { x: 74, y: 30 } },
-  { id: 'vh-003', vehicleCode: 'VH-003', type: 'Mini Collector', currentLoadTons: 1.2, capacityTons: 2.5, utilizationPercentage: 48, status: 'Available', driverName: 'Driver 005', coordinates: { x: 40, y: 40 } },
+  { id: 'vh-003', vehicleCode: 'VH-003', type: 'Mini Compactor', currentLoadTons: 1.2, capacityTons: 2.5, utilizationPercentage: 48, status: 'Available', driverName: 'Driver 005', coordinates: { x: 40, y: 40 } },
   { id: 'vh-009', vehicleCode: 'VH-009', type: 'Compactor Truck', currentLoadTons: 0.0, capacityTons: 5.0, utilizationPercentage: 0, status: 'Maintenance', driverName: 'Unassigned', coordinates: { x: 10, y: 10 } },
 ];
 

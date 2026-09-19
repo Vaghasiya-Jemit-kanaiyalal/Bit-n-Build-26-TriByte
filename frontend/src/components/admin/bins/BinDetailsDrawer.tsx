@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import type { SmartBin } from '../../../types/bin';
 import { BinFillIndicator } from './BinFillIndicator';
+import { showWebsiteToast } from '../../common/NotificationToast';
 
 interface BinDetailsDrawerProps {
   bin: SmartBin | null;

@@ -51,7 +51,7 @@ DEMO_USERS = [
         "first_name": "Rahul",
         "last_name": "Driver",
         "email": "rahul@driver.gmail.com",
-        "password": "collector123",
+        "password": "driver123",
         "role": UserRole.DRIVER,
         "status": UserStatus.ACTIVE,
         "organization": "Metro Route Fleet #12",
@@ -62,7 +62,7 @@ DEMO_USERS = [
         "first_name": "Jay",
         "last_name": "Analyst",
         "email": "jay@analyst.gmail.com",
-        "password": "viewer123",
+        "password": "analyst123",
         "role": UserRole.ANALYST,
         "status": UserStatus.ACTIVE,
         "organization": "Environmental Oversight Bureau",
@@ -615,10 +615,10 @@ async def seed_all():
         print(f"[+] Bins checked/seeded: {len(bin_map)}")
 
         # 4. Routes
-        arjun = user_map["arjun.patel@wastewise.ai"]
-        rohan = user_map["rohan.shah@wastewise.ai"]
-        neha = user_map["neha.patel@wastewise.ai"]
-        vivek = user_map["vivek.shah@wastewise.ai"]
+        arjun = user_map.get("arjun.patel@driver.gmail.com") or user_map.get("arjun.patel@wastewise.ai") or list(user_map.values())[0]
+        rohan = user_map.get("rohan.shah@driver.gmail.com") or user_map.get("rohan.shah@wastewise.ai") or arjun
+        neha = user_map.get("neha.patel@driver.gmail.com") or user_map.get("neha.patel@wastewise.ai") or arjun
+        vivek = user_map.get("vivek.shah@driver.gmail.com") or user_map.get("vivek.shah@wastewise.ai") or arjun
 
         demo_routes = [
             {

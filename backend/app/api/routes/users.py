@@ -7,6 +7,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.dependencies import (
     get_current_user,
     require_admin,
+    require_driver,
+    require_analyst,
     require_collector,
     require_viewer,
 )
@@ -59,6 +61,24 @@ async def get_my_profile(
     current_user: User = Depends(get_current_user),
 ) -> UserResponse:
     return UserResponse.from_orm_user(current_user)
+
+
+# Zone endpoints for quick role checks
+@router.get("/admin-zone", response_model=MessageResponse, status_code=status.HTTP_200_OK)
+async def admin_zone(admin_user: User = Depends(require_admin)) -> MessageResponse:
+    return MessageResponse(message=f"Welcome Admin {admin_user.full_name}. Access granted.")
+
+
+@router.get("/driver-zone", response_model=MessageResponse, status_code=status.HTTP_200_OK)
+@router.get("/collector-zone", response_model=MessageResponse, status_code=status.HTTP_200_OK, include_in_schema=False)
+async def driver_zone(driver_user: User = Depends(require_driver)) -> MessageResponse:
+    return MessageResponse(message=f"Welcome Collection Driver {driver_user.full_name}. Access granted.")
+
+
+@router.get("/analyst-zone", response_model=MessageResponse, status_code=status.HTTP_200_OK)
+@router.get("/viewer-zone", response_model=MessageResponse, status_code=status.HTTP_200_OK, include_in_schema=False)
+async def analyst_zone(analyst_user: User = Depends(require_analyst)) -> MessageResponse:
+    return MessageResponse(message=f"Welcome Operations Analyst {analyst_user.full_name}. Access granted.")
 
 
 @router.get(
@@ -175,14 +195,32 @@ async def admin_update_user(
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
 
+    target_role = data.role if data.role is not None else user.role
+    target_email = data.email.lower().strip() if data.email is not None else user.email.lower().strip()
+
+    if target_role == UserRole.DRIVER and not target_email.endswith("@driver.gmail.com"):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Collection Driver accounts must use an @driver.gmail.com email.",
+        )
+    if target_role == UserRole.ANALYST and not target_email.endswith("@analyst.gmail.com"):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Operations Analyst accounts must use an @analyst.gmail.com email.",
+        )
+
     if data.first_name is not None:
         user.first_name = data.first_name.strip()
     if data.last_name is not None:
         user.last_name = data.last_name.strip()
     if data.email is not None:
-        user.email = data.email.lower().strip()
+        user.email = target_email
     if data.phone is not None:
         user.phone = data.phone.strip()
+    if data.role is not None:
+        user.role = data.role
+    if data.status is not None:
+        user.status = data.status
     if data.organization is not None:
         user.organization = data.organization.strip()
     if data.department is not None:
@@ -209,6 +247,18 @@ async def admin_change_role(
     user = await find_user_by_id_or_uuid(db, user_id)
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
+
+    target_email = user.email.lower().strip()
+    if data.role == UserRole.DRIVER and not target_email.endswith("@driver.gmail.com"):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Collection Driver accounts must use an @driver.gmail.com email.",
+        )
+    if data.role == UserRole.ANALYST and not target_email.endswith("@analyst.gmail.com"):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Operations Analyst accounts must use an @analyst.gmail.com email.",
+        )
 
     user.role = data.role
     await db.commit()
@@ -283,17 +333,3 @@ async def admin_delete_user(
     return MessageResponse(message=f"User {user.email} deleted successfully.")
 
 
-# Zone endpoints for quick role checks
-@router.get("/admin-zone", response_model=MessageResponse, status_code=status.HTTP_200_OK)
-async def admin_zone(admin_user: User = Depends(require_admin)) -> MessageResponse:
-    return MessageResponse(message=f"Welcome Admin {admin_user.full_name}. Access granted.")
-
-
-@router.get("/collector-zone", response_model=MessageResponse, status_code=status.HTTP_200_OK)
-async def collector_zone(collector_user: User = Depends(require_collector)) -> MessageResponse:
-    return MessageResponse(message=f"Welcome Collector {collector_user.full_name}. Access granted.")
-
-
-@router.get("/viewer-zone", response_model=MessageResponse, status_code=status.HTTP_200_OK)
-async def viewer_zone(viewer_user: User = Depends(require_viewer)) -> MessageResponse:
-    return MessageResponse(message=f"Welcome Viewer {viewer_user.full_name}. Access granted.")

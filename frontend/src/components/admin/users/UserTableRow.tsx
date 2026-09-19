@@ -56,51 +56,6 @@ export const UserTableRow: React.FC<UserTableRowProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [menuOpen]);
 
-  // Format Operational Assignment cell content
-  const renderAssignment = () => {
-    if (user.role === 'DRIVER') {
-      const vehicle = user.assignedVehicleId || 'No Vehicle';
-      const route = user.assignedRouteId || 'No Route';
-      return (
-        <div className="text-xs">
-          <div className="flex items-center gap-1.5 font-mono font-medium text-slate-800">
-            <span className="bg-slate-100 px-1.5 py-0.5 rounded text-[11px] border border-slate-200">
-              {vehicle}
-            </span>
-            <span className="text-slate-400">•</span>
-            <span className="bg-emerald-50 text-emerald-800 px-1.5 py-0.5 rounded text-[11px] border border-emerald-200">
-              {route}
-            </span>
-          </div>
-          {user.driverStats && (
-            <p className="text-[10px] text-slate-400 mt-0.5 font-mono">
-              Status: <span className="text-slate-600 font-medium">{user.driverStats.currentDutyStatus}</span>
-            </p>
-          )}
-        </div>
-      );
-    }
-
-    if (user.role === 'ANALYST') {
-      return (
-        <div className="text-xs">
-          <span className="inline-block bg-blue-50 text-blue-800 px-2 py-0.5 rounded font-medium text-[11px] border border-blue-200">
-            {user.analyticsScope === 'All Zones' ? 'All Zones Scope' : 'Assigned Zones Scope'}
-          </span>
-          <p className="text-[10px] text-slate-500 mt-0.5">Operations Analyst Scope</p>
-        </div>
-      );
-    }
-
-    return (
-      <div className="text-xs">
-        <span className="inline-block bg-purple-50 text-purple-800 px-2 py-0.5 rounded font-medium text-[11px] border border-purple-200">
-          Full Platform Access
-        </span>
-        <p className="text-[10px] text-slate-500 mt-0.5">Admin Operations</p>
-      </div>
-    );
-  };
 
   return (
     <tr
@@ -118,9 +73,9 @@ export const UserTableRow: React.FC<UserTableRowProps> = ({
         />
       </td>
 
-      {/* User Info (Avatar + Name + Email + User ID) */}
+      {/* Name (Avatar + Full Name + User ID) */}
       <td className="px-3 py-3">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
           <UserAvatar
             initials={user.avatarInitials}
             bgColor={user.avatarBgColor}
@@ -131,7 +86,7 @@ export const UserTableRow: React.FC<UserTableRowProps> = ({
             <div className="flex items-center gap-1.5">
               <button
                 onClick={() => onViewDetails(user)}
-                className="text-xs font-semibold text-slate-900 hover:text-emerald-700 transition-colors truncate text-left"
+                className="text-xs font-semibold text-slate-900 hover:text-emerald-700 transition-colors truncate text-left cursor-pointer border-none bg-transparent p-0"
               >
                 {user.fullName}
               </button>
@@ -139,11 +94,21 @@ export const UserTableRow: React.FC<UserTableRowProps> = ({
                 {user.userCode}
               </span>
             </div>
-            <div className="flex items-center gap-1 text-[11px] text-slate-500 truncate">
-              <Mail className="w-3 h-3 text-slate-400 shrink-0" />
-              <span className="truncate">{user.email}</span>
-            </div>
+            {user.phone && (
+              <div className="flex items-center gap-1 text-[10px] text-slate-400 font-mono mt-0.5">
+                <Phone className="w-2.5 h-2.5" />
+                <span>{user.phone}</span>
+              </div>
+            )}
           </div>
+        </div>
+      </td>
+
+      {/* Email */}
+      <td className="px-3 py-3">
+        <div className="flex items-center gap-1.5 text-xs text-slate-700 font-mono">
+          <Mail className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+          <span className="truncate max-w-[180px]">{user.email}</span>
         </div>
       </td>
 
@@ -152,40 +117,40 @@ export const UserTableRow: React.FC<UserTableRowProps> = ({
         <RoleBadge role={user.role} />
       </td>
 
-      {/* Zone */}
-      <td className="px-3 py-3">
-        <span className="text-xs font-medium text-slate-700">
-          {user.zone}
-        </span>
-      </td>
-
-      {/* Operational Assignment */}
-      <td className="px-3 py-3">{renderAssignment()}</td>
-
       {/* Status */}
       <td className="px-3 py-3">
         <UserStatusBadge status={user.status} />
       </td>
 
-      {/* Contact */}
+      {/* Assigned Vehicle */}
       <td className="px-3 py-3">
-        <div className="flex items-center gap-1 text-xs text-slate-600 font-mono">
-          <Phone className="w-3 h-3 text-slate-400 shrink-0" />
-          <span>{user.phone || '—'}</span>
-        </div>
+        {user.role === 'DRIVER' ? (
+          <span className="inline-block font-mono text-xs bg-slate-100 text-slate-800 px-2 py-0.5 rounded border border-slate-200">
+            {user.assignedVehicleId || 'Unassigned'}
+          </span>
+        ) : (
+          <span className="text-xs text-slate-400">—</span>
+        )}
       </td>
 
-      {/* Last Active */}
+      {/* Assigned Zone */}
       <td className="px-3 py-3">
-        <span className="text-xs text-slate-600 font-mono">
-          {user.lastActiveAt || 'Never'}
+        <span className="text-xs font-medium text-slate-700">
+          {user.zone || 'Central Zone'}
         </span>
       </td>
 
-      {/* Joined Date */}
+      {/* Last Login */}
+      <td className="px-3 py-3">
+        <span className="text-xs text-slate-600 font-mono">
+          {user.lastActiveAt || user.loginSession?.lastLoginAt || 'Never'}
+        </span>
+      </td>
+
+      {/* Created At */}
       <td className="px-3 py-3">
         <span className="text-xs text-slate-500 font-mono">
-          {user.joinedAt || '—'}
+          {user.createdAt ? user.createdAt.split('T')[0] : user.joinedAt || '—'}
         </span>
       </td>
 

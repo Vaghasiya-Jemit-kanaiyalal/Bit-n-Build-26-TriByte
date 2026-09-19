@@ -44,10 +44,8 @@ export const UsersPage: React.FC = () => {
     activeUsers: 78,
     activePercent: 90.7,
     driverCount: 52,
-    collectorCount: 52,
     activeDriverCount: 46,
     analystCount: 21,
-    viewerCount: 21,
     adminCount: 13,
     inactiveCount: 6,
     pendingCount: 2,
@@ -113,6 +111,13 @@ export const UsersPage: React.FC = () => {
 
   useEffect(() => {
     fetchUsers();
+
+    // Check deep-link paths for Add User modal
+    const path = window.location.pathname;
+    if (['/admin/users/create', '/admin/users/new', '/admin/users/add'].includes(path)) {
+      setEditUser(null);
+      setIsAddEditModalOpen(true);
+    }
   }, [fetchUsers]);
 
   const showToast = (text: string, type: 'success' | 'info' | 'warning' = 'success') => {
@@ -211,7 +216,6 @@ export const UsersPage: React.FC = () => {
   const handleAddUserSubmit = async (input: any) => {
     const newUser = await userService.createUser(input);
     await fetchUsers();
-    setIsAddEditModalOpen(false);
     showToast(`User ${newUser.firstName} ${newUser.lastName} created successfully.`);
   };
 
@@ -504,9 +508,15 @@ export const UsersPage: React.FC = () => {
       />
 
       <AddEditUserModal
+        open={isAddEditModalOpen}
         isOpen={isAddEditModalOpen}
         userToEdit={editUser}
-        onClose={() => setIsAddEditModalOpen(false)}
+        onClose={() => {
+          setIsAddEditModalOpen(false);
+          if (['/admin/users/create', '/admin/users/new', '/admin/users/add'].includes(window.location.pathname)) {
+            window.history.pushState(null, '', '/admin/users');
+          }
+        }}
         onSubmitAdd={handleAddUserSubmit}
         onSubmitEdit={handleEditUserSubmit}
       />

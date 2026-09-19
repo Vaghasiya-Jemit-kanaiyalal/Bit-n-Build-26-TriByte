@@ -14,7 +14,46 @@ export const App: React.FC = () => {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [pendingUser, setPendingUser] = useState<UserSession | null>(null);
 
-  // Global override for native window.alert -> Website UI Toast
+  const [, setCurrentPath] = useState<string>(
+    typeof window !== 'undefined' ? window.location.pathname : '/'
+  );
+
+  // Helper to enforce role guards with email domain priority
+  const checkRouteGuard = (user: UserSession | null, path: string): string => {
+    if (!user) {
+      if (path.startsWith('/admin') || path.startsWith('/driver') || path.startsWith('/analyst')) {
+        return '/login';
+      }
+      return path;
+    }
+
+    const cleanEmail = (user.email || '').toLowerCase().trim();
+    let roleKey: 'ADMIN' | 'DRIVER' | 'ANALYST';
+    if (cleanEmail.endsWith('@driver.gmail.com')) {
+      roleKey = 'DRIVER';
+    } else if (cleanEmail.endsWith('@analyst.gmail.com')) {
+      roleKey = 'ANALYST';
+    } else {
+      const rawRole = (user.role || '').toUpperCase();
+      roleKey = rawRole.includes('ADMIN') ? 'ADMIN' : rawRole.includes('DRIVER') ? 'DRIVER' : 'ANALYST';
+    }
+
+    if (path.startsWith('/admin') && roleKey !== 'ADMIN') {
+      return authService.redirectUserByRole(roleKey);
+    }
+    if (path.startsWith('/driver') && roleKey !== 'DRIVER') {
+      return authService.redirectUserByRole(roleKey);
+    }
+    if (path.startsWith('/analyst') && roleKey !== 'ANALYST') {
+      return authService.redirectUserByRole(roleKey);
+    }
+    if (path === '/' || path === '/login' || path === '') {
+      return authService.redirectUserByRole(roleKey);
+    }
+    return path;
+  };
+
+  // Global override for native window.alert -> Website UI Toast & session restore
   useEffect(() => {
     if (typeof window !== 'undefined') {
       window.alert = (message?: any) => {
@@ -27,11 +66,21 @@ export const App: React.FC = () => {
     const savedUser = authService.getSavedUser();
     const token = authService.getToken();
     if (savedUser && token) {
-      const roleStr = (savedUser.role || 'ANALYST').toUpperCase();
+      const cleanEmail = (savedUser.email || '').toLowerCase().trim();
+      let roleKey: 'ADMIN' | 'DRIVER' | 'ANALYST';
+      if (cleanEmail.endsWith('@driver.gmail.com')) {
+        roleKey = 'DRIVER';
+      } else if (cleanEmail.endsWith('@analyst.gmail.com')) {
+        roleKey = 'ANALYST';
+      } else {
+        const rawRole = (savedUser.role || 'ANALYST').toUpperCase();
+        roleKey = rawRole === 'ADMIN' ? 'ADMIN' : rawRole === 'DRIVER' ? 'DRIVER' : 'ANALYST';
+      }
+
       const displayRole =
-        roleStr === 'ADMIN'
+        roleKey === 'ADMIN'
           ? 'Waste Manager'
-          : roleStr === 'DRIVER' || roleStr === 'COLLECTOR'
+          : roleKey === 'DRIVER'
           ? 'Collection Driver'
           : 'Operations Analyst';
 
@@ -39,29 +88,63 @@ export const App: React.FC = () => {
         id: savedUser.id,
         name: savedUser.full_name || savedUser.name || savedUser.email.split('@')[0],
         email: savedUser.email,
-        role: displayRole,
+        role: roleKey,
         displayRole: displayRole,
         status: savedUser.status || 'ACTIVE',
         organization: savedUser.organization || 'EcoTrack AI Waste Management',
         department: savedUser.department || 'Operations',
       };
       setCurrentUser(userSession);
+
+      // Route guard on reload
+      const guarded = checkRouteGuard(userSession, window.location.pathname);
+      if (guarded !== window.location.pathname) {
+        window.history.replaceState(null, '', guarded);
+        setCurrentPath(guarded);
+      }
+    } else {
+      // Unauthenticated access guard
+      const guarded = checkRouteGuard(null, window.location.pathname);
+      if (guarded !== window.location.pathname) {
+        window.history.replaceState(null, '', guarded);
+        setCurrentPath(guarded);
+      }
     }
-  }, []);
+
+    // Popstate listener for browser back/forward navigation
+    const handlePopState = () => {
+      const activeUser = authService.getSavedUser();
+      const path = window.location.pathname;
+      const guarded = checkRouteGuard(activeUser ? (currentUser || null) : null, path);
+      if (guarded !== path) {
+        window.history.replaceState(null, '', guarded);
+      }
+      setCurrentPath(guarded);
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [currentUser]);
 
   const handleSignInSuccess = (role: string, email: string, userRecord?: any) => {
-    // Role strictly comes from the database record!
-    const dbRole = (userRecord?.role || role || 'ANALYST').toUpperCase();
-
-    // Map to display representation for dashboard while keeping raw database role
-    let mappedDisplayRole: string = 'Operations Analyst';
-    if (dbRole === 'ADMIN') {
-      mappedDisplayRole = 'Waste Manager';
-    } else if (dbRole === 'DRIVER' || dbRole === 'COLLECTOR') {
-      mappedDisplayRole = 'Collection Driver';
-    } else if (dbRole === 'ANALYST' || dbRole === 'VIEWER') {
-      mappedDisplayRole = 'Operations Analyst';
+    // Role comes from email domain or database record
+    const cleanEmail = (email || '').toLowerCase().trim();
+    let dbRole: 'ADMIN' | 'DRIVER' | 'ANALYST';
+    if (cleanEmail.endsWith('@driver.gmail.com')) {
+      dbRole = 'DRIVER';
+    } else if (cleanEmail.endsWith('@analyst.gmail.com')) {
+      dbRole = 'ANALYST';
+    } else {
+      const rawRole = (userRecord?.role || role || 'ANALYST').toUpperCase();
+      dbRole = rawRole === 'ADMIN' ? 'ADMIN' : rawRole === 'DRIVER' ? 'DRIVER' : 'ANALYST';
     }
+
+    const mappedDisplayRole =
+      dbRole === 'ADMIN'
+        ? 'Waste Manager'
+        : dbRole === 'DRIVER'
+        ? 'Collection Driver'
+        : 'Operations Analyst';
 
     const displayName =
       userRecord?.full_name ||
@@ -72,12 +155,15 @@ export const App: React.FC = () => {
       id: userRecord?.id,
       name: displayName,
       email: email,
-      role: mappedDisplayRole, // Passes display role expected by existing EcoTrackDashboard component
+      role: dbRole,
       displayRole: mappedDisplayRole,
       status: userRecord?.status || 'ACTIVE',
       organization: userRecord?.organization || 'EcoTrack AI Waste Management',
       department: userRecord?.department || 'Operations',
     };
+
+    // Calculate role-based dashboard destination
+    const destinationPath = authService.redirectUserByRole(dbRole);
 
     setPendingUser(userSession);
     setIsTransitioning(true);
@@ -86,12 +172,16 @@ export const App: React.FC = () => {
       setCurrentUser(userSession);
       setIsTransitioning(false);
       setPendingUser(null);
+      window.history.pushState(null, '', destinationPath);
+      setCurrentPath(destinationPath);
     }, 800);
   };
 
   const handleSignOut = () => {
     authService.logout();
     setCurrentUser(null);
+    window.history.pushState(null, '', '/login');
+    setCurrentPath('/login');
     showWebsiteToast('You have been signed out.', 'info', 'Session Ended');
   };
 

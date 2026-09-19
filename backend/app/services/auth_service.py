@@ -40,7 +40,7 @@ async def get_user_by_uuid(db: AsyncSession, user_uuid: uuid.UUID) -> Optional[U
 async def register_user(db: AsyncSession, data: RegisterRequest) -> User:
     """
     Public registration endpoint.
-    Users cannot choose their role - assigned VIEWER by default with ACTIVE status.
+    Users cannot choose their role - assigned ANALYST by default with ACTIVE status.
     """
     normalized_email = data.email.lower().strip()
 
@@ -67,7 +67,7 @@ async def register_user(db: AsyncSession, data: RegisterRequest) -> User:
         email=normalized_email,
         password_hash=hashed_pwd,
         organization=data.organization.strip() if data.organization else "EcoTrack AI",
-        role=UserRole.VIEWER,
+        role=UserRole.ANALYST,
         status=UserStatus.ACTIVE,
     )
 

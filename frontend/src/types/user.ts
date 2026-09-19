@@ -1,3 +1,15 @@
+export const USER_ROLES = {
+  ADMIN: 'ADMIN',
+  DRIVER: 'DRIVER',
+  ANALYST: 'ANALYST',
+} as const;
+
+export const ROLE_LABELS = {
+  ADMIN: 'Waste Manager',
+  DRIVER: 'Collection Driver',
+  ANALYST: 'Operations Analyst',
+} as const;
+
 export type UserRole = 'ADMIN' | 'DRIVER' | 'ANALYST';
 
 export type UserStatus = 'ACTIVE' | 'INACTIVE' | 'PENDING' | 'SUSPENDED';
@@ -63,9 +75,9 @@ export interface PlatformUser {
   organization: string;
   department: string;
   zone: ZoneName;
-  assignedVehicleId?: string; // e.g. TRK-021 (for Collectors/Drivers)
-  assignedRouteId?: string; // e.g. R-104 (for Collectors/Drivers)
-  analyticsScope?: 'All Zones' | 'Assigned Zones'; // (for Viewers/Analysts)
+  assignedVehicleId?: string; // e.g. TRK-021 (for Collection Drivers)
+  assignedRouteId?: string; // e.g. R-104 (for Collection Drivers)
+  analyticsScope?: 'All Zones' | 'Assigned Zones'; // (for Operations Analysts)
   accessScope?: 'Full Platform' | 'Operational Only' | 'Analytics Only';
   avatarInitials: string;
   avatarBgColor?: string;
@@ -119,11 +131,9 @@ export interface UserKpiSummary {
   totalUsers: number;
   activeUsers: number;
   activePercent: number;
-  driverCount: number; // Legacy alias for collector
-  collectorCount: number;
+  driverCount: number;
   activeDriverCount: number;
-  analystCount: number; // Legacy alias for viewer
-  viewerCount: number;
+  analystCount: number;
   adminCount: number;
   inactiveCount: number;
   pendingCount: number;

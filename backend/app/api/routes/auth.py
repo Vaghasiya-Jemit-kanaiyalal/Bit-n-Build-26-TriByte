@@ -32,7 +32,7 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
     response_model=RegisterResponse,
     status_code=status.HTTP_201_CREATED,
     summary="Register a new user account",
-    description="Registers a new user account with default VIEWER role and ACTIVE status.",
+    description="Registers a new user account with default ANALYST role and ACTIVE status.",
 )
 async def register(
     data: RegisterRequest,

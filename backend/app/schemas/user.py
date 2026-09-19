@@ -1,7 +1,7 @@
 import enum
 from datetime import datetime
-from typing import Optional
-from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator
+from typing import Optional, Any
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, field_validator, model_validator
 
 from app.core.security import validate_password_strength
 from app.models.user import UserRole, UserStatus
@@ -23,6 +23,7 @@ class UserResponse(BaseModel):
     first_name: str
     last_name: str
     full_name: str
+    name: str
     email: EmailStr
     phone: Optional[str] = None
     organization: Optional[str] = None
@@ -43,6 +44,7 @@ class UserResponse(BaseModel):
             first_name=user.first_name,
             last_name=user.last_name or "",
             full_name=user.full_name,
+            name=user.full_name,
             email=user.email,
             phone=user.phone,
             organization=user.organization,
@@ -67,6 +69,20 @@ class AdminCreateUserRequest(BaseModel):
     department: Optional[str] = Field(None, max_length=150, description="Department")
     temporary_password: str = Field(..., min_length=6, description="Temporary or initial password")
 
+    @model_validator(mode="before")
+    @classmethod
+    def handle_field_aliases(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            # Support 'password' as an alias for 'temporary_password'
+            if "temporary_password" not in data and "password" in data:
+                data["temporary_password"] = data["password"]
+            # Support 'name' or 'full_name' as alias for first_name / last_name
+            if "first_name" not in data and "name" in data:
+                parts = str(data["name"]).strip().split(" ", 1)
+                data["first_name"] = parts[0]
+                data["last_name"] = parts[1] if len(parts) > 1 else ""
+        return data
+
     @field_validator("email", mode="before")
     @classmethod
     def normalize_email(cls, v: str) -> str:
@@ -81,16 +97,14 @@ class AdminCreateUserRequest(BaseModel):
             raise ValueError("Password must be at least 6 characters.")
         return v
 
-    @field_validator("email")
-    @classmethod
-    def validate_role_email_convention(cls, email: str, info) -> str:
-        role = info.data.get("role")
-        email_str = email.strip().lower()
-        if role == UserRole.DRIVER and not email_str.endswith("@driver.gmail.com"):
+    @model_validator(mode="after")
+    def validate_role_email_convention(self) -> "AdminCreateUserRequest":
+        email_str = str(self.email).strip().lower()
+        if self.role == UserRole.DRIVER and not email_str.endswith("@driver.gmail.com"):
             raise ValueError("Collection Driver accounts must use an @driver.gmail.com email.")
-        if role == UserRole.ANALYST and not email_str.endswith("@analyst.gmail.com"):
+        if self.role == UserRole.ANALYST and not email_str.endswith("@analyst.gmail.com"):
             raise ValueError("Operations Analyst accounts must use an @analyst.gmail.com email.")
-        return email_str
+        return self
 
 
 class AdminUpdateUserRequest(BaseModel):
@@ -98,6 +112,8 @@ class AdminUpdateUserRequest(BaseModel):
     last_name: Optional[str] = Field(None, max_length=100)
     email: Optional[EmailStr] = None
     phone: Optional[str] = Field(None, max_length=50)
+    role: Optional[UserRole] = None
+    status: Optional[UserStatus] = None
     organization: Optional[str] = Field(None, max_length=150)
     department: Optional[str] = Field(None, max_length=150)
 
