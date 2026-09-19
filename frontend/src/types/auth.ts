@@ -1,5 +1,6 @@
 export type PlatformRole = 'ADMIN' | 'COLLECTOR' | 'VIEWER';
 export type DisplayRole = 'Waste Manager' | 'Driver / Field Worker' | 'Analyst / Supervisor' | 'Waste Collector' | 'Platform Viewer';
+export type UserRole = PlatformRole | string;
 
 export interface UserSession {
   id?: string;
@@ -11,3 +12,4 @@ export interface UserSession {
   organization: string;
   department?: string;
 }
+
