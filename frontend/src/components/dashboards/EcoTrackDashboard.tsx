@@ -27,6 +27,7 @@ import {
 import type { UserSession } from '../../types/auth';
 import { RoutePage } from '../routes/RoutePage';
 import VehiclesPage from '../vehicles/VehiclesPage';
+import AlertsPage from '../alerts/AlertsPage';
 
 interface EcoTrackDashboardProps {
   user: UserSession;
@@ -209,8 +210,10 @@ export const EcoTrackDashboard: React.FC<EcoTrackDashboardProps> = ({ user, onSi
         {/* DASHBOARD BODY */}
         {activeTab === 'Route' || activeTab === 'Routes' ? (
           <RoutePage />
-        ) : activeTab === 'Vehicles' ? (
+        ) : activeTab === 'Vehicles' || activeTab === 'Vehicle' ? (
           <VehiclesPage onNavigateToRoute={() => setActiveTab('Route')} />
+        ) : activeTab === 'Alerts' || activeTab === 'Alert' ? (
+          <AlertsPage onNavigateTab={(tabName) => setActiveTab(tabName)} />
         ) : (
           <main className="p-6 flex-1 flex flex-col gap-6 max-w-7xl w-full mx-auto">
           
