@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import { SignIn1 } from './components/ui/modern-stunning-sign-in';
 import type { UserSession } from './types/auth';
-import { AdminDashboardPreview } from './components/dashboards/AdminDashboardPreview';
-import { DriverDashboardPreview } from './components/dashboards/DriverDashboardPreview';
-import { AnalystDashboardPreview } from './components/dashboards/AnalystDashboardPreview';
+import { EcoTrackDashboard } from './components/dashboards/EcoTrackDashboard';
 import { ShieldCheck } from 'lucide-react';
 
 export const App: React.FC = () => {
@@ -20,7 +18,7 @@ export const App: React.FC = () => {
     }
 
     const userSession: UserSession = {
-      name: email.split('@')[0] || 'Authorized Personnel',
+      name: email === 'admin@ecotrack.com' ? 'Jemit Vaghasiya' : (email.split('@')[0] || 'Authorized Personnel'),
       email: email,
       role: mappedRole,
       organization: 'EcoTrack AI Waste Management',
@@ -33,85 +31,40 @@ export const App: React.FC = () => {
       setCurrentUser(userSession);
       setIsTransitioning(false);
       setPendingUser(null);
-    }, 1200);
+    }, 1000);
   };
 
   const handleSignOut = () => {
     setCurrentUser(null);
   };
 
-  // If user is authenticated, render the appropriate role dashboard
+  // If user is authenticated, render the EcoTrack Dashboard
   if (currentUser) {
-    if (currentUser.role === 'Waste Manager') {
-      return <AdminDashboardPreview user={currentUser} onSignOut={handleSignOut} />;
-    }
-    if (currentUser.role === 'Driver / Field Worker') {
-      return <DriverDashboardPreview user={currentUser} onSignOut={handleSignOut} />;
-    }
-    if (currentUser.role === 'Analyst / Supervisor') {
-      return <AnalystDashboardPreview user={currentUser} onSignOut={handleSignOut} />;
-    }
+    return <EcoTrackDashboard user={currentUser} onSignOut={handleSignOut} />;
   }
 
   // Intermittent role redirection transition animation
   if (isTransitioning && pendingUser) {
     return (
-      <div
-        style={{
-          minHeight: '100vh',
-          backgroundColor: 'var(--bg-canvas)',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '2rem',
-          textAlign: 'center',
-        }}
-      >
-        <div className="card card-elevated animate-fade-in" style={{ maxWidth: '420px', width: '100%', padding: '2.5rem 2rem' }}>
-          <div
-            style={{
-              width: '48px',
-              height: '48px',
-              borderRadius: '50%',
-              backgroundColor: 'var(--accent-olive-muted)',
-              border: '1px solid var(--accent-olive)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'var(--accent-olive)',
-              margin: '0 auto 1.25rem',
-            }}
-          >
-            <ShieldCheck size={26} />
+      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6 text-center text-white">
+        <div className="bg-slate-900 border border-slate-800 p-8 rounded-2xl max-w-sm w-full shadow-2xl flex flex-col items-center">
+          <div className="w-12 h-12 rounded-full bg-emerald-500/20 border border-emerald-500 flex items-center justify-center text-emerald-400 mb-4">
+            <ShieldCheck className="w-6 h-6" />
           </div>
 
-          <h3 style={{ fontSize: '1.25rem', fontWeight: '700', marginBottom: '0.4rem' }}>
-            Authentication Successful
-          </h3>
-          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
+          <h3 className="text-lg font-bold mb-1">Authentication Successful</h3>
+          <p className="text-xs text-slate-400 mb-4">
             Redirecting {pendingUser.name} to authorized portal...
           </p>
 
-          <div
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              padding: '0.4rem 0.85rem',
-              borderRadius: 'var(--radius-sm)',
-              backgroundColor: 'rgba(245, 244, 239, 0.05)',
-              border: '1px solid var(--border-medium)',
-              marginBottom: '1.5rem',
-            }}
-          >
-            <span className="mono" style={{ fontSize: '0.75rem', color: 'var(--accent-sand)', textTransform: 'uppercase' }}>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-white/5 border border-white/10 mb-6">
+            <span className="text-xs font-mono text-emerald-300 uppercase tracking-wider">
               ROLE: {pendingUser.role}
             </span>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', color: 'var(--text-muted)', fontSize: '0.8rem' }}>
-            <span className="spinner" style={{ width: '14px', height: '14px' }} />
+          <div className="flex items-center justify-center gap-2 text-slate-400 text-xs">
+            <span className="w-4 h-4 rounded-full border-2 border-emerald-500 border-t-transparent animate-spin" />
             <span>Loading workspace telemetry...</span>
           </div>
         </div>
