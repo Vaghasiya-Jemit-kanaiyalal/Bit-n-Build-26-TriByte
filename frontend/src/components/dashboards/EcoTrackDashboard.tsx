@@ -31,6 +31,8 @@ import { MonitoringPage } from '../admin/monitoring/MonitoringPage';
 import { PredictionPage } from '../admin/predictions/PredictionPage';
 import { AdminDashboardPage } from '../admin/dashboard/AdminDashboardPage';
 
+import { DriverPortal } from '../driver/DriverPortal';
+
 interface EcoTrackDashboardProps {
   user: UserSession;
   onSignOut: () => void;
@@ -38,6 +40,12 @@ interface EcoTrackDashboardProps {
 
 export const EcoTrackDashboard: React.FC<EcoTrackDashboardProps> = ({ user, onSignOut }) => {
   const [activeTab, setActiveTab] = useState<string>('Dashboard');
+
+  // Route protection guard: Redirect Collection Driver to DriverPortal
+  const rawRole = (user.role || '').toUpperCase();
+  if (rawRole === 'DRIVER' || user.role === 'Collection Driver' || user.displayRole === 'Collection Driver') {
+    return <DriverPortal user={user} onSignOut={onSignOut} />;
+  }
 
   const navMain = [
     { name: 'Dashboard', icon: LayoutDashboard },

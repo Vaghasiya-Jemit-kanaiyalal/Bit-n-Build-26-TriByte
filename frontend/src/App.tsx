@@ -7,6 +7,8 @@ import NotificationToast, { showWebsiteToast } from './components/common/Notific
 import ScrollToTopButton from './components/common/ScrollToTopButton';
 import { authService } from './services/authService';
 
+import { DriverPortal } from './components/driver/DriverPortal';
+
 export const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<UserSession | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -93,6 +95,8 @@ export const App: React.FC = () => {
     showWebsiteToast('You have been signed out.', 'info', 'Session Ended');
   };
 
+  const isDriverRole = currentUser?.role === 'Collection Driver' || currentUser?.role === 'DRIVER' || currentUser?.displayRole === 'Collection Driver';
+
   return (
     <>
       {/* Global In-Website Notification Toast Container */}
@@ -102,7 +106,11 @@ export const App: React.FC = () => {
       <ScrollToTopButton />
 
       {currentUser ? (
-        <EcoTrackDashboard user={currentUser} onSignOut={handleSignOut} />
+        isDriverRole ? (
+          <DriverPortal user={currentUser} onSignOut={handleSignOut} />
+        ) : (
+          <EcoTrackDashboard user={currentUser} onSignOut={handleSignOut} />
+        )
       ) : isTransitioning && pendingUser ? (
         <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6 text-center text-white">
           <div className="bg-slate-900 border border-slate-800 p-8 rounded-2xl max-w-sm w-full shadow-2xl flex flex-col items-center">

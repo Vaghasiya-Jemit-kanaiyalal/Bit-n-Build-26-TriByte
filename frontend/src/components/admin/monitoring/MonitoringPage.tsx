@@ -8,7 +8,6 @@ import type {
   MonitoringKpiSummary,
   ZoneStatusSummary,
   MonitoringFilterState,
-  ZoneName,
 } from '../../../types/monitoring';
 import { monitoringService } from '../../../services/monitoringService';
 
@@ -34,7 +33,7 @@ export const MonitoringPage: React.FC<MonitoringPageProps> = ({ onNavigateTab })
   // View & Drawer States
   const [viewMode, setViewMode] = useState<'map' | 'list'>('map');
   const [isFullscreenMap, setIsFullscreenMap] = useState<boolean>(false);
-  const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState<boolean>(false);
+  const [_isFilterDrawerOpen, setIsFilterDrawerOpen] = useState<boolean>(false);
 
   // Filter & Search State
   const [filters, setFilters] = useState<MonitoringFilterState>({
@@ -70,9 +69,9 @@ export const MonitoringPage: React.FC<MonitoringPageProps> = ({ onNavigateTab })
   const [bins, setBins] = useState<MonitoredBin[]>([]);
   const [vehicles, setVehicles] = useState<MonitoredVehicle[]>([]);
   const [routes, setRoutes] = useState<MonitoredRoute[]>([]);
-  const [sensors, setSensors] = useState<MonitoredSensor[]>([]);
-  const [activities, setActivities] = useState<LiveActivityEvent[]>([]);
-  const [zoneStatuses, setZoneStatuses] = useState<ZoneStatusSummary[]>([]);
+  const [_sensors, setSensors] = useState<MonitoredSensor[]>([]);
+  const [_activities, setActivities] = useState<LiveActivityEvent[]>([]);
+  const [_zoneStatuses, setZoneStatuses] = useState<ZoneStatusSummary[]>([]);
 
   // Telemetry Refresh Function
   const refreshTelemetryData = useCallback(() => {
