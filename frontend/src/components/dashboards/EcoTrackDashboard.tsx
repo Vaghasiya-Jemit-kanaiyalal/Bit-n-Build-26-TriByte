@@ -5,25 +5,27 @@ import {
   Trash2,
   MapPin,
   Truck,
-  Route,
+  Route as RouteIcon,
   Recycle,
   BarChart3,
   Bell,
   Users,
-  Grid,
   Settings,
   Search,
   AlertTriangle,
-  Layers,
   ChevronDown,
   LogOut,
   Sparkles,
   Clock,
   CheckCircle2,
   AlertCircle,
-  Activity
+  Activity,
+  Cpu,
+  BrainCircuit,
+  CalendarCheck
 } from 'lucide-react';
 import type { UserSession } from '../../types/auth';
+import { RoutePage } from '../routes/RoutePage';
 
 interface EcoTrackDashboardProps {
   user: UserSession;
@@ -31,26 +33,25 @@ interface EcoTrackDashboardProps {
 }
 
 export const EcoTrackDashboard: React.FC<EcoTrackDashboardProps> = ({ user, onSignOut }) => {
-  const [activeTab, setActiveTab] = useState<string>('Dashboard');
+  const [activeTab, setActiveTab] = useState<string>('Route');
   const [mapType, setMapType] = useState<'map' | 'satellite'>('map');
-  const [timeFilter, setTimeFilter] = useState<'This Week' | 'This Month'>('This Week');
+  const [timeFilter] = useState<'This Week' | 'This Month'>('This Week');
 
   const navMain = [
     { name: 'Dashboard', icon: LayoutDashboard },
-    { name: 'Bins', icon: Trash2 },
-    { name: 'Bin Map', icon: MapPin },
-    { name: 'Collections', icon: Truck },
-    { name: 'Routes', icon: Route },
-    { name: 'Fleet', icon: Truck },
-    { name: 'Recycling', icon: Recycle },
-    { name: 'Analytics', icon: BarChart3 },
+    { name: 'Bin Management', icon: Trash2 },
+    { name: 'Monitoring', icon: MapPin },
+    { name: 'Classification', icon: Cpu },
+    { name: 'Predictions', icon: BrainCircuit },
+    { name: 'Planning', icon: CalendarCheck },
+    { name: 'Route', icon: RouteIcon },
+    { name: 'Vehicles', icon: Truck },
     { name: 'Alerts', icon: Bell },
+    { name: 'Analytics', icon: BarChart3 },
   ];
 
   const navAdmin = [
     { name: 'Users', icon: Users },
-    { name: 'Areas & Zones', icon: Grid },
-    { name: 'Waste Categories', icon: Layers },
     { name: 'Settings', icon: Settings },
   ];
 
@@ -205,7 +206,10 @@ export const EcoTrackDashboard: React.FC<EcoTrackDashboardProps> = ({ user, onSi
         </header>
 
         {/* DASHBOARD BODY */}
-        <main className="p-6 flex-1 flex flex-col gap-6 max-w-7xl w-full mx-auto">
+        {activeTab === 'Route' || activeTab === 'Routes' ? (
+          <RoutePage />
+        ) : (
+          <main className="p-6 flex-1 flex flex-col gap-6 max-w-7xl w-full mx-auto">
           
           {/* Header Title */}
           <div>
@@ -659,6 +663,7 @@ export const EcoTrackDashboard: React.FC<EcoTrackDashboardProps> = ({ user, onSi
           </div>
 
         </main>
+        )}
       </div>
     </div>
   );
