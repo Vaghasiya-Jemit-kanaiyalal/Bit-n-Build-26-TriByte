@@ -113,7 +113,6 @@ const getPathFromTab = (tab: string, role: string): string => {
 };
 
 import { DriverPortal } from '../driver/DriverPortal';
-import faviconImg from '../../assets/favicon.png';
 import logoImg from '../../assets/logo.png';
 import logoTextImg from '../../assets/logo_text.png';
 
@@ -223,23 +222,16 @@ export const EcoTrackDashboard: React.FC<EcoTrackDashboardProps> = ({ user, onSi
       {/* LEFT SIDEBAR */}
       <aside className="w-52 bg-white border-r border-slate-200 flex flex-col justify-between p-3 shrink-0 shadow-xs z-20">
         <div>
-<<<<<<< HEAD
-          {/* Logo */}
-          <div className="flex items-center gap-1.5 px-1 py-1 mb-4">
-            <img src={logoImg} alt="EcoTrack Logo" className="h-7 w-auto object-contain" />
-            <img src={logoTextImg} alt="EcoTrack Brand" className="h-5 w-auto object-contain" />
-          </div>
-=======
-          {/* Clickable Favicon Logo to Dashboard */}
+          {/* Clickable Brand Logo to Dashboard */}
           <button
             type="button"
             onClick={() => handleSelectTab('Dashboard')}
-            className="flex items-center px-2 py-2 mb-6 cursor-pointer bg-transparent border-none text-left hover:opacity-85 transition-opacity"
+            className="flex items-center gap-1.5 px-1 py-1 mb-4 cursor-pointer bg-transparent border-none text-left hover:opacity-85 transition-opacity"
             title="Go to Dashboard"
           >
-            <img src={faviconImg} alt="EcoTrack Favicon" className="h-12 w-auto object-contain max-w-[200px]" />
+            <img src={logoImg} alt="EcoTrack Logo" className="h-7 w-auto object-contain" />
+            <img src={logoTextImg} alt="EcoTrack Brand" className="h-5 w-auto object-contain" />
           </button>
->>>>>>> e05bea7aef8ef434e2efc3228d4368b0a9f9e4e4
 
           {/* MAIN Navigation */}
           <div className="mb-5">
@@ -251,14 +243,9 @@ export const EcoTrackDashboard: React.FC<EcoTrackDashboardProps> = ({ user, onSi
                 return (
                   <button
                     key={item.name}
-<<<<<<< HEAD
-                    onClick={() => setActiveTab(item.name)}
-                    className={`flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer border-none ${isActive
-=======
                     type="button"
                     onClick={() => handleSelectTab(item.name)}
-                    className={`flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer border-none ${isActive
->>>>>>> e05bea7aef8ef434e2efc3228d4368b0a9f9e4e4
+                    className={`flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer border-none ${isActive
                         ? 'bg-emerald-50 text-[#047857]'
                         : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                       }`}
@@ -281,14 +268,9 @@ export const EcoTrackDashboard: React.FC<EcoTrackDashboardProps> = ({ user, onSi
                 return (
                   <button
                     key={item.name}
-<<<<<<< HEAD
-                    onClick={() => setActiveTab(item.name)}
-                    className={`flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer border-none ${isActive
-=======
                     type="button"
                     onClick={() => handleSelectTab(item.name)}
-                    className={`flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer border-none ${isActive
->>>>>>> e05bea7aef8ef434e2efc3228d4368b0a9f9e4e4
+                    className={`flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer border-none ${isActive
                         ? 'bg-emerald-50 text-[#047857]'
                         : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                       }`}
