@@ -14,7 +14,7 @@ class UserBase(BaseModel):
     phone: Optional[str] = Field(None, max_length=50)
     organization: Optional[str] = Field(None, max_length=150)
     department: Optional[str] = Field(None, max_length=150)
-    role: UserRole = Field(default=UserRole.VIEWER)
+    role: UserRole = Field(default=UserRole.ANALYST)
     status: UserStatus = Field(default=UserStatus.ACTIVE)
 
 
@@ -61,7 +61,7 @@ class AdminCreateUserRequest(BaseModel):
     last_name: str = Field(default="", max_length=100, description="Last Name")
     email: EmailStr = Field(..., description="User Email")
     phone: Optional[str] = Field(None, max_length=50, description="Phone Number")
-    role: UserRole = Field(default=UserRole.VIEWER, description="Platform Role (ADMIN, COLLECTOR, VIEWER)")
+    role: UserRole = Field(default=UserRole.DRIVER, description="Platform Role (ADMIN, DRIVER, ANALYST)")
     status: UserStatus = Field(default=UserStatus.ACTIVE, description="Account Status (ACTIVE, INACTIVE, SUSPENDED)")
     organization: Optional[str] = Field(None, max_length=150, description="Organization")
     department: Optional[str] = Field(None, max_length=150, description="Department")
@@ -81,6 +81,17 @@ class AdminCreateUserRequest(BaseModel):
             raise ValueError("Password must be at least 6 characters.")
         return v
 
+    @field_validator("email")
+    @classmethod
+    def validate_role_email_convention(cls, email: str, info) -> str:
+        role = info.data.get("role")
+        email_str = email.strip().lower()
+        if role == UserRole.DRIVER and not email_str.endswith("@driver.gmail.com"):
+            raise ValueError("Collection Driver accounts must use an @driver.gmail.com email.")
+        if role == UserRole.ANALYST and not email_str.endswith("@analyst.gmail.com"):
+            raise ValueError("Operations Analyst accounts must use an @analyst.gmail.com email.")
+        return email_str
+
 
 class AdminUpdateUserRequest(BaseModel):
     first_name: Optional[str] = Field(None, min_length=1, max_length=100)
@@ -92,7 +103,7 @@ class AdminUpdateUserRequest(BaseModel):
 
 
 class ChangeRoleRequest(BaseModel):
-    role: UserRole = Field(..., description="New role: ADMIN, COLLECTOR, or VIEWER")
+    role: UserRole = Field(..., description="New role: ADMIN, DRIVER, or ANALYST")
 
 
 class ChangeStatusRequest(BaseModel):

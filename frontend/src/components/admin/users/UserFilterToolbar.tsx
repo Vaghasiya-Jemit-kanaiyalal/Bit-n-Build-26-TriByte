@@ -62,10 +62,10 @@ export const UserFilterToolbar: React.FC<UserFilterToolbarProps> = ({
             onChange={(e) => onFilterChange({ role: e.target.value as UserRole | 'All' })}
             className="w-full px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-md text-slate-700 font-medium focus:bg-white focus:outline-none focus:ring-1 focus:ring-slate-400"
           >
-            <option value="All">Role: All Roles</option>
-            <option value="COLLECTOR">Collector</option>
-            <option value="VIEWER">Viewer</option>
-            <option value="ADMIN">Waste Manager (Admin)</option>
+            <option value="All">All Roles</option>
+            <option value="ADMIN">Waste Manager</option>
+            <option value="DRIVER">Collection Driver</option>
+            <option value="ANALYST">Operations Analyst</option>
           </select>
         </div>
 

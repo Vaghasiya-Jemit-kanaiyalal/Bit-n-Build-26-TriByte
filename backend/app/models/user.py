@@ -17,9 +17,8 @@ from app.db.base_class import Base
 
 class UserRole(str, enum.Enum):
     ADMIN = "ADMIN"
-    COLLECTOR = "COLLECTOR"
-    VIEWER = "VIEWER"
     DRIVER = "DRIVER"
+    ANALYST = "ANALYST"
 
 
 class UserStatus(str, enum.Enum):
@@ -54,7 +53,7 @@ class User(Base):
     
     role: Mapped[UserRole] = mapped_column(
         SQLEnum(UserRole, name="platform_user_role", native_enum=False),
-        default=UserRole.VIEWER,
+        default=UserRole.ANALYST,
         nullable=False,
         index=True,
     )
