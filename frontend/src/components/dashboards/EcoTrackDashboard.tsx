@@ -32,6 +32,7 @@ import { BinManagement } from '../admin/bins/BinManagement';
 import AnalyticsPage from '../analytics/AnalyticsPage';
 import { UsersPage } from '../admin/users/UsersPage';
 import { AdminSettingsPage } from '../admin/settings/AdminSettingsPage';
+import { AdminPlanningPage } from '../admin/planning/AdminPlanningPage';
 
 interface EcoTrackDashboardProps {
   user: UserSession;
@@ -224,6 +225,8 @@ export const EcoTrackDashboard: React.FC<EcoTrackDashboardProps> = ({ user, onSi
           <UsersPage />
         ) : activeTab === 'Settings' || activeTab === 'Setting' ? (
           <AdminSettingsPage onNavigateTab={(tabName) => setActiveTab(tabName)} />
+        ) : activeTab === 'Planning' || activeTab === 'Collection Planning' ? (
+          <AdminPlanningPage onNavigate={(tabName) => setActiveTab(tabName)} />
         ) : (
           <main className="p-6 flex-1 flex flex-col gap-6 max-w-7xl w-full mx-auto">
 
