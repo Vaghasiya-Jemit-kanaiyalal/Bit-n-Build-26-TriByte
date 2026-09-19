@@ -4,7 +4,7 @@
 
 ## AI-Powered Waste Management & Recycling Optimizer
 
-EchoTrack AI (WasteWise AI) is an intelligent waste management platform designed to optimize waste collection, monitor smart bins, predict waste levels, dynamically plan collection routes, and improve recycling operations.
+EchoTrack AI  is an intelligent waste management platform designed to optimize waste collection, monitor smart bins, predict waste levels, dynamically plan collection routes, and improve recycling operations.
 
 ---
 
