@@ -38,8 +38,8 @@ export const AnalyticsSubNav: React.FC<AnalyticsSubNavProps> = ({ activeTab, onT
   ];
 
   return (
-    <div className="bg-white border-b border-[#e5e7eb] px-6 mb-6 overflow-x-auto scrollbar-none">
-      <div className="flex items-center space-x-1 min-w-max">
+    <div className="bg-slate-100/70 p-1.5 rounded-2xl border border-slate-200/80 mb-6 overflow-x-auto scrollbar-none max-w-7xl mx-auto shadow-2xs">
+      <div className="flex items-center space-x-1.5 min-w-max">
         {tabs.map((tab) => {
           const IconComp = tab.icon;
           const isActive = activeTab === tab.id;
@@ -47,13 +47,13 @@ export const AnalyticsSubNav: React.FC<AnalyticsSubNavProps> = ({ activeTab, onT
             <button
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
-              className={`flex items-center space-x-2 py-3 px-3.5 border-b-2 text-xs font-bold transition-all cursor-pointer bg-transparent border-none ${
+              className={`flex items-center space-x-2 py-2 px-3.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer border-none ${
                 isActive
-                  ? 'border-[#047857] text-[#047857]'
-                  : 'border-transparent text-slate-600 hover:text-slate-900 hover:border-slate-300'
+                  ? 'bg-emerald-700 text-white shadow-xs'
+                  : 'bg-transparent text-slate-600 hover:text-slate-900 hover:bg-white/80'
               }`}
             >
-              <IconComp className={`w-4 h-4 ${isActive ? 'text-[#047857]' : 'text-slate-400'}`} />
+              <IconComp className={`w-4 h-4 ${isActive ? 'text-emerald-200' : 'text-slate-400'}`} />
               <span>{tab.label}</span>
             </button>
           );

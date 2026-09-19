@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ZoomIn, ZoomOut, Crosshair, Truck, MapPin } from 'lucide-react';
+import { ZoomIn, ZoomOut, Crosshair, Truck, MapPin, RotateCcw, Activity } from 'lucide-react';
 import type { BinStop } from '../../mock/routeData';
 
 import { showWebsiteToast } from '../common/NotificationToast';
@@ -35,29 +35,38 @@ export const RouteMap: React.FC<RouteMapProps> = ({
   ];
 
   return (
-    <div className="bg-white rounded-md border border-[#e5e7eb] shadow-xs flex flex-col overflow-hidden h-full">
-      {/* Map Control Toolbar */}
-      <div className="p-3 bg-[#f9fafb] border-b border-[#e5e7eb] flex items-center justify-between gap-3 text-xs">
+    <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs flex flex-col overflow-hidden h-full">
+      {/* Map Control Toolbar - Monitoring Map Style */}
+      <div className="p-3.5 bg-slate-50 border-b border-slate-200/80 flex flex-wrap items-center justify-between gap-3 text-xs">
         <div className="flex items-center gap-2">
-          <MapPin className="w-4 h-4 text-[#738a62]" />
+          <span className="p-1 bg-emerald-50 rounded-lg border border-emerald-200 text-emerald-700">
+            <MapPin className="w-4 h-4" />
+          </span>
+          <span className="font-extrabold text-slate-900 text-xs flex items-center gap-1.5">
+            Route Execution Map
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800 border border-emerald-300">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse mr-1" />
+              LIVE GPS
+            </span>
+          </span>
           {/* 2-View Mode Switcher Tabs */}
-          <div className="bg-slate-200/80 p-0.5 rounded-lg flex items-center gap-1 border border-slate-300/60">
+          <div className="bg-slate-200/80 p-0.5 rounded-xl flex items-center gap-1 border border-slate-300/60 ml-2">
             <button
               onClick={() => setMapMode('vector')}
-              className={`px-2.5 py-1 rounded-md text-[11px] font-extrabold transition-all cursor-pointer ${
+              className={`px-3 py-1 rounded-lg text-[11px] font-extrabold transition-all cursor-pointer border-none ${
                 mapMode === 'vector'
-                  ? 'bg-white text-slate-900 shadow-2xs'
-                  : 'text-slate-600 hover:text-slate-900'
+                  ? 'bg-emerald-700 text-white shadow-2xs'
+                  : 'text-slate-600 hover:text-slate-900 bg-transparent'
               }`}
             >
               Vector Grid
             </button>
             <button
               onClick={() => setMapMode('satellite')}
-              className={`px-2.5 py-1 rounded-md text-[11px] font-extrabold transition-all cursor-pointer ${
+              className={`px-3 py-1 rounded-lg text-[11px] font-extrabold transition-all cursor-pointer border-none ${
                 mapMode === 'satellite'
                   ? 'bg-slate-900 text-white shadow-2xs'
-                  : 'text-slate-600 hover:text-slate-900'
+                  : 'text-slate-600 hover:text-slate-900 bg-transparent'
               }`}
             >
               Realistic Satellite
@@ -66,22 +75,22 @@ export const RouteMap: React.FC<RouteMapProps> = ({
         </div>
 
         {/* Map Action Controls */}
-        <div className="flex items-center gap-1.5">
-          <div className="flex items-center border border-[#d1d5db] rounded bg-white overflow-hidden">
+        <div className="flex items-center gap-2">
+          <div className="flex items-center border border-slate-300/80 rounded-xl bg-white overflow-hidden p-0.5">
             <button
               onClick={() => setZoomLevel((z) => Math.min(z + 0.2, 1.6))}
               title="Zoom In"
-              className="p-1.5 hover:bg-[#f3f4f6] text-[#374151] cursor-pointer border-none bg-transparent"
+              className="p-1.5 hover:bg-slate-100 text-slate-700 cursor-pointer border-none bg-transparent transition-colors"
             >
               <ZoomIn className="w-3.5 h-3.5" />
             </button>
-            <span className="text-[10px] px-1 font-mono text-[#6b7280]">
+            <span className="text-[10px] px-1 font-mono text-slate-600 font-bold">
               {Math.round(zoomLevel * 100)}%
             </span>
             <button
               onClick={() => setZoomLevel((z) => Math.max(z - 0.2, 0.8))}
               title="Zoom Out"
-              className="p-1.5 hover:bg-[#f3f4f6] text-[#374151] cursor-pointer border-none bg-transparent"
+              className="p-1.5 hover:bg-slate-100 text-slate-700 cursor-pointer border-none bg-transparent transition-colors"
             >
               <ZoomOut className="w-3.5 h-3.5" />
             </button>
@@ -89,15 +98,15 @@ export const RouteMap: React.FC<RouteMapProps> = ({
 
           <button
             onClick={() => setZoomLevel(1)}
-            className="px-2 py-1 text-[11px] font-medium text-[#374151] bg-white border border-[#d1d5db] hover:bg-[#f3f4f6] rounded cursor-pointer"
+            className="px-2.5 py-1.5 text-[11px] font-bold text-slate-700 bg-white border border-slate-300/80 hover:bg-slate-100 rounded-xl cursor-pointer shadow-2xs transition-all"
           >
             Fit Route
           </button>
           <button
             onClick={() => showWebsiteToast('Centered map focus on vehicle TRK-04.', 'info', 'Map View')}
-            className="px-2 py-1 text-[11px] font-medium text-[#374151] bg-white border border-[#d1d5db] hover:bg-[#f3f4f6] rounded cursor-pointer flex items-center gap-1"
+            className="px-2.5 py-1.5 text-[11px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 rounded-xl cursor-pointer flex items-center gap-1 shadow-2xs transition-all"
           >
-            <Crosshair className="w-3 h-3 text-[#738a62]" />
+            <Crosshair className="w-3.5 h-3.5 text-emerald-700" />
             <span>Center Vehicle</span>
           </button>
         </div>
@@ -105,7 +114,7 @@ export const RouteMap: React.FC<RouteMapProps> = ({
 
       {/* Map Interactive SVG Canvas */}
       <div className={`relative flex-1 overflow-hidden min-h-[360px] flex items-center justify-center p-2 ${
-        mapMode === 'satellite' ? 'bg-slate-950' : 'bg-[#f3f4f6]'
+        mapMode === 'satellite' ? 'bg-slate-950' : 'bg-slate-900'
       }`}>
         
         {/* Realistic Satellite Background */}
@@ -118,10 +127,10 @@ export const RouteMap: React.FC<RouteMapProps> = ({
           />
         ) : (
           <div
-            className="absolute inset-0 opacity-40 pointer-events-none"
+            className="absolute inset-0 opacity-25 pointer-events-none"
             style={{
-              backgroundImage: `radial-gradient(#9ca3af 1px, transparent 1px)`,
-              backgroundSize: '20px 20px',
+              backgroundImage: `radial-gradient(#38bdf8 1.5px, transparent 1.5px)`,
+              backgroundSize: '24px 24px',
             }}
           />
         )}
@@ -133,27 +142,27 @@ export const RouteMap: React.FC<RouteMapProps> = ({
         >
           <svg width={mapWidth} height={mapHeight} className="overflow-visible">
             {/* Zone Boundaries */}
-            <rect x="30" y="30" width="340" height="380" rx="12" fill="none" stroke="#d1d5db" strokeWidth="1.5" strokeDasharray="4 4" />
-            <text x="45" y="55" fill="#9ca3af" fontSize="11" fontWeight="700" letterSpacing="0.05em">ZONE A (NORTH CAMPUS)</text>
+            <rect x="30" y="30" width="340" height="380" rx="14" fill="rgba(16, 185, 129, 0.05)" stroke="rgba(16, 185, 129, 0.3)" strokeWidth="1.5" strokeDasharray="4 4" />
+            <text x="45" y="55" fill="#10b981" fontSize="11" fontWeight="800" letterSpacing="0.05em">ZONE A (NORTH CAMPUS)</text>
 
-            <rect x="390" y="30" width="300" height="380" rx="12" fill="none" stroke="#d1d5db" strokeWidth="1.5" strokeDasharray="4 4" />
-            <text x="405" y="55" fill="#9ca3af" fontSize="11" fontWeight="700" letterSpacing="0.05em">ZONE B (CENTRAL &amp; EAST)</text>
+            <rect x="390" y="30" width="300" height="380" rx="14" fill="rgba(59, 130, 246, 0.05)" stroke="rgba(59, 130, 246, 0.3)" strokeWidth="1.5" strokeDasharray="4 4" />
+            <text x="405" y="55" fill="#3b82f6" fontSize="11" fontWeight="800" letterSpacing="0.05em">ZONE B (CENTRAL &amp; EAST)</text>
 
-            {/* Completed Path Segment (Green/Olive) */}
+            {/* Completed Path Segment (Emerald Green) */}
             <path
               d="M 70 370 L 180 290 L 310 240 L 500 310 L 580 220"
               fill="none"
-              stroke="#738a62"
+              stroke="#10b981"
               strokeWidth="4"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
 
-            {/* Active Path Segment (Dark Charcoal) */}
+            {/* Active Path Segment (Sky Blue) */}
             <path
               d="M 580 220 L 440 180 L 220 130 L 340 90 L 620 120"
               fill="none"
-              stroke="#1f2937"
+              stroke="#38bdf8"
               strokeWidth="3.5"
               strokeDasharray="6 4"
               strokeLinecap="round"
@@ -162,19 +171,19 @@ export const RouteMap: React.FC<RouteMapProps> = ({
 
             {/* Depot Start Node */}
             <g transform="translate(70, 370)">
-              <circle r="12" fill="#1f2937" stroke="#ffffff" strokeWidth="2" />
-              <text x="0" y="4" fill="#ffffff" fontSize="9" fontWeight="bold" textAnchor="middle">DEPOT</text>
+              <circle r="14" fill="#0f172a" stroke="#ffffff" strokeWidth="2" />
+              <text x="0" y="4" fill="#ffffff" fontSize="9" fontWeight="extrabold" textAnchor="middle">DEPOT</text>
             </g>
 
             {/* Active Vehicle Position (TRK-04) */}
             <g transform="translate(440, 180)" className="cursor-pointer">
-              <circle r="18" fill="#1f2937" fillOpacity="0.2" className="animate-ping" />
-              <circle r="14" fill="#1f2937" stroke="#ffffff" strokeWidth="2" />
+              <circle r="20" fill="#38bdf8" fillOpacity="0.3" className="animate-ping" />
+              <circle r="15" fill="#0284c7" stroke="#ffffff" strokeWidth="2" />
               <foreignObject x="-9" y="-9" width="18" height="18">
                 <Truck className="w-4.5 h-4.5 text-white" />
               </foreignObject>
-              <rect x="-24" y="-32" width="48" height="16" rx="4" fill="#1f2937" />
-              <text x="0" y="-21" fill="#ffffff" fontSize="9" fontWeight="bold" textAnchor="middle">TRK-04</text>
+              <rect x="-26" y="-34" width="52" height="18" rx="6" fill="#0f172a" />
+              <text x="0" y="-21" fill="#38bdf8" fontSize="9" fontWeight="bold" textAnchor="middle">TRK-04</text>
             </g>
 
             {/* Bin Stop Markers */}
@@ -185,10 +194,10 @@ export const RouteMap: React.FC<RouteMapProps> = ({
               const isHigh = pt.status === 'High';
               const isCompleted = pt.status === 'Completed';
 
-              let fillColor = '#6b7280';
-              if (isCritical) fillColor = '#dc2626';
-              else if (isHigh) fillColor = '#d97706';
-              else if (isCompleted) fillColor = '#738a62';
+              let fillColor = '#64748b';
+              if (isCritical) fillColor = '#ef4444';
+              else if (isHigh) fillColor = '#f59e0b';
+              else if (isCompleted) fillColor = '#10b981';
 
               const stopData = stops.find((s) => s.binId === pt.id);
 
@@ -199,14 +208,14 @@ export const RouteMap: React.FC<RouteMapProps> = ({
                   onClick={() => stopData && onSelectBin && onSelectBin(stopData)}
                   className="cursor-pointer hover:opacity-90 transition-opacity"
                 >
-                  <circle r={isSelected ? "14" : "11"} fill={fillColor} stroke="#ffffff" strokeWidth="2" shadow-md="true" />
-                  <text x="0" y="3" fill="#ffffff" fontSize="9" fontWeight="bold" textAnchor="middle">
+                  <circle r={isSelected ? "15" : "12"} fill={fillColor} stroke="#ffffff" strokeWidth="2" />
+                  <text x="0" y="4" fill="#ffffff" fontSize="9" fontWeight="bold" textAnchor="middle">
                     {pt.fill}%
                   </text>
 
                   {/* Label tooltip */}
-                  <rect x="-45" y="-30" width="90" height="16" rx="3" fill="#1f2937" fillOpacity="0.85" />
-                  <text x="0" y="-19" fill="#ffffff" fontSize="8" fontWeight="600" textAnchor="middle">
+                  <rect x="-48" y="-32" width="96" height="18" rx="4" fill="#0f172a" fillOpacity="0.9" />
+                  <text x="0" y="-20" fill="#ffffff" fontSize="8 font-bold" textAnchor="middle">
                     {pt.id} &bull; {pt.fill}%
                   </text>
                 </g>
@@ -216,35 +225,37 @@ export const RouteMap: React.FC<RouteMapProps> = ({
         </div>
       </div>
 
-      {/* Map Legend Footer */}
-      <div className="p-2.5 bg-white border-t border-[#e5e7eb] flex items-center justify-between text-[11px] font-medium text-[#4b5563]">
+      {/* Map Legend Footer - Monitoring Map Style */}
+      <div className="p-3 bg-white border-t border-slate-200 flex flex-wrap items-center justify-between text-[11px] font-bold text-slate-600 gap-2">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#1f2937]" />
-            <span>Active route</span>
+            <span className="w-2.5 h-2.5 rounded-full bg-sky-500" />
+            <span>Active Route Segment</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#738a62]" />
-            <span>Completed stop</span>
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+            <span>Completed Stop</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#d97706]" />
-            <span>Pending / High priority</span>
+            <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
+            <span>Pending Stop</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#dc2626]" />
-            <span>Critical overflow</span>
+            <span className="w-2.5 h-2.5 rounded-full bg-red-500" />
+            <span>Critical Stop</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <Truck className="w-3.5 h-3.5 text-[#1f2937]" />
+            <Truck className="w-3.5 h-3.5 text-sky-600" />
             <span>Vehicle TRK-04</span>
           </div>
         </div>
 
-        <span className="text-[10px] text-[#6b7280]">
-          Updated: Real-time telemetry feed
+        <span className="text-[10px] text-slate-400 font-mono">
+          Live GPS Route Sync &bull; 8 Stops Total
         </span>
       </div>
     </div>
   );
 };
+
+export default RouteMap;

@@ -23,7 +23,7 @@ export const TimeOfDayAnalytics: React.FC<TimeOfDayAnalyticsProps> = ({ timeData
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
       
       {/* Left: Time of Day Activity */}
-      <div className="bg-white rounded-xl border border-[#e5e7eb] shadow-2xs p-5">
+      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs p-6 hover:shadow-xs transition-all h-full">
         <div className="flex items-center justify-between mb-4">
           <div>
             <div className="flex items-center space-x-2">
@@ -62,7 +62,7 @@ export const TimeOfDayAnalytics: React.FC<TimeOfDayAnalyticsProps> = ({ timeData
       </div>
 
       {/* Right: Waste Generation by Weekday */}
-      <div className="bg-white rounded-xl border border-[#e5e7eb] shadow-2xs p-5">
+      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs p-6 hover:shadow-xs transition-all h-full">
         <div className="flex items-center justify-between mb-4">
           <div>
             <div className="flex items-center space-x-2">

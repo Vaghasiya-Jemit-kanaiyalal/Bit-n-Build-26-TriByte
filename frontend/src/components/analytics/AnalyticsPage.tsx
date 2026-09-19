@@ -99,122 +99,124 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ onNavigateTab }) =
           comparePeriod={comparePeriod}
         />
 
-        {/* TAB 1: OVERVIEW TAB (FULL INTELLIGENCE DASHBOARD) */}
-        {(activeTab === 'Overview' || activeTab === 'Waste') && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            
-            {/* Left 7 Cols: Waste Trend Chart */}
-            <div className="lg:col-span-7">
-              <WasteTrendChart data={wasteTrends} />
-            </div>
-
-            {/* Right 5 Cols: Waste by Zone */}
-            <div className="lg:col-span-5">
-              <WasteByZoneChart
-                zones={zones}
-                onSelectZone={handleZoneSelectFromChart}
-              />
-            </div>
-          </div>
-        )}
-
-        {(activeTab === 'Overview' || activeTab === 'Waste' || activeTab === 'Recycling') && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            
-            {/* Left 6 Cols: Waste Composition */}
-            <div className="lg:col-span-6">
-              <WasteCompositionChart
-                composition={composition}
-                onNavigateToClassification={() => onNavigateTab && onNavigateTab('Classification')}
-              />
-            </div>
-
-            {/* Right 6 Cols: Recycling Recovery & Impact */}
-            <div className="lg:col-span-6">
-              <RecyclingAnalyticsCard
-                onNavigateToClassification={() => onNavigateTab && onNavigateTab('Classification')}
-              />
-            </div>
-          </div>
-        )}
-
-        {(activeTab === 'Overview' || activeTab === 'Collections' || activeTab === 'Routes') && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            
-            {/* Left 6 Cols: Collection Performance SLA */}
-            <div className="lg:col-span-6">
-              <CollectionPerformance
-                onNavigateToRoutes={() => onNavigateTab && onNavigateTab('Route')}
-              />
-            </div>
-
-            {/* Right 6 Cols: Bin Overflow Analytics */}
-            <div className="lg:col-span-6">
-              <OverflowAnalyticsCard
-                overflowTrend={overflowTrend}
-                onNavigateToBins={() => onNavigateTab && onNavigateTab('Bin Management')}
-              />
-            </div>
-          </div>
-        )}
-
-        {(activeTab === 'Overview' || activeTab === 'Fleet' || activeTab === 'Routes') && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            
-            {/* Left 6 Cols: Fleet Utilization */}
-            <div className="lg:col-span-6">
-              <FleetUtilizationCard
-                fleet={fleet}
-                onNavigateToVehicles={() => onNavigateTab && onNavigateTab('Vehicles')}
-              />
-            </div>
-
-            {/* Right 6 Cols: Route Execution & Efficiency */}
-            <div className="lg:col-span-6">
-              <RoutePerformanceCard
-                routes={routes}
-                onNavigateToRoutes={() => onNavigateTab && onNavigateTab('Route')}
-              />
-            </div>
-          </div>
-        )}
-
-        {(activeTab === 'Overview' || activeTab === 'Zones') && (
-          <ZonePerformanceTable
-            zones={zones}
-            onSelectZone={(zone) => setSelectedDrawerZone(zone)}
-          />
-        )}
-
-        {(activeTab === 'Overview' || activeTab === 'Predictions') && (
-          <PredictionAnalyticsCard
-            predictionVsActual={predictionVsActual}
-            insights={insights}
-            onNavigateToPredictions={() => onNavigateTab && onNavigateTab('Predictions')}
-          />
-        )}
-
-        {activeTab === 'Overview' && (
-          <>
-            {/* Time of Day & Weekday Activity */}
-            <TimeOfDayAnalytics timeData={timeOfDayData} />
-
+        <div className="space-y-8">
+          {/* TAB 1: OVERVIEW TAB / WASTE GENERATION */}
+          {(activeTab === 'Overview' || activeTab === 'Waste') && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-              {/* Left 6 Cols: Pipeline Conversion Funnel */}
-              <div className="lg:col-span-6">
-                <CollectionFunnel />
+              
+              {/* Left 7 Cols: Waste Trend Chart */}
+              <div className="lg:col-span-7">
+                <WasteTrendChart data={wasteTrends} />
               </div>
 
-              {/* Right 6 Cols: Operational Bottlenecks */}
-              <div className="lg:col-span-6">
-                <OperationalBottlenecks
-                  bottlenecks={bottlenecks}
-                  onNavigateTab={onNavigateTab}
+              {/* Right 5 Cols: Waste by Zone */}
+              <div className="lg:col-span-5">
+                <WasteByZoneChart
+                  zones={zones}
+                  onSelectZone={handleZoneSelectFromChart}
                 />
               </div>
             </div>
-          </>
-        )}
+          )}
+
+          {(activeTab === 'Overview' || activeTab === 'Waste' || activeTab === 'Recycling') && (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              
+              {/* Left 6 Cols: Waste Composition */}
+              <div className="lg:col-span-6">
+                <WasteCompositionChart
+                  composition={composition}
+                  onNavigateToClassification={() => onNavigateTab && onNavigateTab('Classification')}
+                />
+              </div>
+
+              {/* Right 6 Cols: Recycling Recovery & Impact */}
+              <div className="lg:col-span-6">
+                <RecyclingAnalyticsCard
+                  onNavigateToClassification={() => onNavigateTab && onNavigateTab('Classification')}
+                />
+              </div>
+            </div>
+          )}
+
+          {(activeTab === 'Overview' || activeTab === 'Collections' || activeTab === 'Routes') && (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              
+              {/* Left 6 Cols: Collection Performance SLA */}
+              <div className="lg:col-span-6">
+                <CollectionPerformance
+                  onNavigateToRoutes={() => onNavigateTab && onNavigateTab('Route')}
+                />
+              </div>
+
+              {/* Right 6 Cols: Bin Overflow Analytics */}
+              <div className="lg:col-span-6">
+                <OverflowAnalyticsCard
+                  overflowTrend={overflowTrend}
+                  onNavigateToBins={() => onNavigateTab && onNavigateTab('Bin Management')}
+                />
+              </div>
+            </div>
+          )}
+
+          {(activeTab === 'Overview' || activeTab === 'Fleet' || activeTab === 'Routes') && (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              
+              {/* Left 6 Cols: Fleet Utilization */}
+              <div className="lg:col-span-6">
+                <FleetUtilizationCard
+                  fleet={fleet}
+                  onNavigateToVehicles={() => onNavigateTab && onNavigateTab('Vehicles')}
+                />
+              </div>
+
+              {/* Right 6 Cols: Route Execution & Efficiency */}
+              <div className="lg:col-span-6">
+                <RoutePerformanceCard
+                  routes={routes}
+                  onNavigateToRoutes={() => onNavigateTab && onNavigateTab('Route')}
+                />
+              </div>
+            </div>
+          )}
+
+          {(activeTab === 'Overview' || activeTab === 'Zones') && (
+            <ZonePerformanceTable
+              zones={zones}
+              onSelectZone={(zone) => setSelectedDrawerZone(zone)}
+            />
+          )}
+
+          {(activeTab === 'Overview' || activeTab === 'Predictions') && (
+            <PredictionAnalyticsCard
+              predictionVsActual={predictionVsActual}
+              insights={insights}
+              onNavigateToPredictions={() => onNavigateTab && onNavigateTab('Predictions')}
+            />
+          )}
+
+          {activeTab === 'Overview' && (
+            <div className="space-y-8">
+              {/* Time of Day & Weekday Activity */}
+              <TimeOfDayAnalytics timeData={timeOfDayData} />
+
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                {/* Left 6 Cols: Pipeline Conversion Funnel */}
+                <div className="lg:col-span-6">
+                  <CollectionFunnel />
+                </div>
+
+                {/* Right 6 Cols: Operational Bottlenecks */}
+                <div className="lg:col-span-6">
+                  <OperationalBottlenecks
+                    bottlenecks={bottlenecks}
+                    onNavigateTab={onNavigateTab}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
 
       </div>
 

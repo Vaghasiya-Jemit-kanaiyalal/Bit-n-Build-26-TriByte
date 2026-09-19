@@ -50,24 +50,24 @@ export const QuickActions: React.FC<QuickActionsProps> = ({ actions, onNavigateT
         <span className="text-[10px] font-bold text-slate-400">OPERATIONAL SHORTCUTS</span>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 pt-2">
         {actions.map((act) => (
           <button
             key={act.id}
             onClick={() => handleRouteClick(act.route)}
-            className="flex flex-col justify-between p-3 bg-slate-50 hover:bg-emerald-50/60 rounded-xl border border-slate-200/80 hover:border-emerald-200 transition-all cursor-pointer text-left group min-h-[72px]"
+            className="relative flex flex-col justify-between p-3.5 bg-slate-50 hover:bg-emerald-50/70 rounded-xl border border-slate-200/80 hover:border-emerald-300 shadow-2xs transition-all cursor-pointer text-left group min-h-[82px]"
           >
-            <div className="flex items-center justify-between w-full gap-1.5 mb-1.5">
+            {act.badge && (
+              <span className="absolute -top-2.5 right-2.5 bg-emerald-700 text-white shadow-2xs text-[9px] font-black tracking-wider uppercase px-2 py-0.5 rounded-full border border-white z-10 whitespace-nowrap">
+                {act.badge}
+              </span>
+            )}
+            <div className="flex items-center justify-between w-full mb-2">
               <div className="p-1.5 bg-white rounded-lg border border-slate-200 shadow-2xs group-hover:scale-105 transition-transform shrink-0">
                 {getIcon(act.iconName)}
               </div>
-              {act.badge && (
-                <span className="text-[9px] font-extrabold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full shrink-0 whitespace-nowrap">
-                  {act.badge}
-                </span>
-              )}
             </div>
-            <span className="text-xs font-bold text-slate-800 group-hover:text-emerald-950 leading-snug">
+            <span className="text-xs font-bold text-slate-800 group-hover:text-emerald-950 leading-snug block">
               {act.title}
             </span>
           </button>

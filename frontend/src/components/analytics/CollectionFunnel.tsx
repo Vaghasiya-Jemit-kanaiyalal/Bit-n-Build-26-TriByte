@@ -10,7 +10,7 @@ export const CollectionFunnel: React.FC = () => {
   ];
 
   return (
-    <div className="bg-white rounded-xl border border-[#e5e7eb] shadow-2xs p-5 mb-6">
+    <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs p-6 hover:shadow-xs transition-all h-full">
       
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
