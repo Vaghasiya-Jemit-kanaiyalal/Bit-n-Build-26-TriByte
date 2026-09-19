@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { BrandPanel } from './components/brand/BrandPanel';
-import { AuthContainer } from './components/auth/AuthContainer';
+import { SignIn1 } from './components/ui/modern-stunning-sign-in';
 import type { UserSession } from './types/auth';
 import { AdminDashboardPreview } from './components/dashboards/AdminDashboardPreview';
 import { DriverDashboardPreview } from './components/dashboards/DriverDashboardPreview';
@@ -12,16 +11,29 @@ export const App: React.FC = () => {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [pendingUser, setPendingUser] = useState<UserSession | null>(null);
 
-  const handleSuccessAuth = (user: UserSession) => {
-    setPendingUser(user);
+  const handleSignInSuccess = (role: string, email: string) => {
+    let mappedRole: UserSession['role'] = 'Waste Manager';
+    if (role.includes('Collector') || role.includes('Driver') || role === 'Role 2') {
+      mappedRole = 'Driver / Field Worker';
+    } else if (role.includes('Viewer') || role.includes('Analyst') || role === 'Role 3') {
+      mappedRole = 'Analyst / Supervisor';
+    }
+
+    const userSession: UserSession = {
+      name: email.split('@')[0] || 'Authorized Personnel',
+      email: email,
+      role: mappedRole,
+      organization: 'EcoTrack AI Waste Management',
+    };
+
+    setPendingUser(userSession);
     setIsTransitioning(true);
 
-    // Brief role transition message before showing role-based dashboard
     setTimeout(() => {
-      setCurrentUser(user);
+      setCurrentUser(userSession);
       setIsTransitioning(false);
       setPendingUser(null);
-    }, 1400);
+    }, 1200);
   };
 
   const handleSignOut = () => {
@@ -107,49 +119,8 @@ export const App: React.FC = () => {
     );
   }
 
-  // Main Responsive Split-Screen Authentication Experience
-  return (
-    <div
-      style={{
-        minHeight: '100vh',
-        display: 'grid',
-        gridTemplateColumns: 'minmax(0, 45%) minmax(0, 55%)',
-        backgroundColor: 'var(--bg-canvas)',
-      }}
-      className="auth-layout-grid"
-    >
-      {/* LEFT SIDE — BRAND & PRODUCT VISUAL (~45%) */}
-      <div className="auth-brand-side">
-        <BrandPanel />
-      </div>
-
-      {/* RIGHT SIDE — AUTHENTICATION CARD (~55%) */}
-      <div className="auth-card-side">
-        <AuthContainer onSuccessAuth={handleSuccessAuth} />
-      </div>
-
-      {/* CSS Media Queries for Responsive Breakpoints */}
-      <style>{`
-        @media (max-width: 1024px) {
-          .auth-layout-grid {
-            grid-template-columns: minmax(0, 40%) minmax(0, 60%) !important;
-          }
-        }
-
-        @media (max-width: 820px) {
-          .auth-layout-grid {
-            grid-template-columns: 1fr !important;
-          }
-          .auth-brand-side {
-            display: none !important;
-          }
-          .auth-card-side {
-            min-height: 100vh;
-          }
-        }
-      `}</style>
-    </div>
-  );
+  // Render Modern Stunning Sign In Page (EcoTrack Design)
+  return <SignIn1 onSignInSuccess={handleSignInSuccess} bgOpacity={0.55} />;
 };
 
 export default App;

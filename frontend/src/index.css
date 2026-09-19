@@ -1,3 +1,5 @@
+@import "tailwindcss";
+
 /* ==========================================================================
    WASTEWISE AI - DESIGN SYSTEM & CSS TOKENS
    Aesthetic: Classical + Clean + Intelligent + Environmental + Professional
@@ -62,63 +64,51 @@
   --transition-base: 220ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Reset & Base Setup */
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
 
-html,
-body {
-  height: 100%;
-  width: 100%;
-  background-color: var(--bg-canvas);
-  color: var(--text-primary);
-  font-family: var(--font-sans);
-  font-size: 15px;
-  line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
-}
+  html,
+  body {
+    height: 100%;
+    width: 100%;
+    background-color: var(--bg-canvas);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 
-#root {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
+  #root {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
 
-/* Typography Utilities */
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  color: var(--text-primary);
-  font-weight: 600;
-  letter-spacing: -0.02em;
-}
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    color: inherit;
+    letter-spacing: -0.02em;
+  }
 
-p {
-  color: var(--text-secondary);
-}
+  p {
+    color: inherit;
+  }
 
-.mono {
-  font-family: var(--font-mono);
-}
-
-/* Form Controls - Clean & Minimal */
-label {
-  display: block;
-  font-size: 0.8125rem;
-  font-weight: 500;
-  color: var(--text-secondary);
-  margin-bottom: 0.375rem;
-  letter-spacing: 0.01em;
+  label {
+    display: block;
+    font-size: 0.8125rem;
+    font-weight: 500;
+  }
 }
 
 .input-group {
