@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Play, Pause, CheckSquare, SkipForward, AlertCircle, RefreshCw, Truck, User, Clock, MapPin } from 'lucide-react';
 import type { RouteItem } from '../../mock/routeData';
 
+import { showWebsiteToast } from '../common/NotificationToast';
+
 interface SelectedRoutePanelProps {
   route: RouteItem;
   onUpdateRouteStatus?: (status: RouteItem['status']) => void;
@@ -185,7 +187,7 @@ export const SelectedRoutePanel: React.FC<SelectedRoutePanelProps> = ({
           </button>
 
           <button
-            onClick={() => alert('Skipped next scheduled stop (BIN-104). Notified dispatcher.')}
+            onClick={() => showWebsiteToast('Skipped next scheduled stop (BIN-104). Notified dispatcher.', 'warning', 'Stop Skipped')}
             className="px-2.5 py-1.5 text-[11px] font-semibold text-[#4b5563] bg-[#f3f4f6] hover:bg-[#e5e7eb] border border-[#d1d5db] rounded cursor-pointer flex items-center justify-center gap-1"
           >
             <SkipForward className="w-3 h-3" />

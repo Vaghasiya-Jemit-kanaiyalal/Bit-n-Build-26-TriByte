@@ -13,14 +13,14 @@ import EditVehicleModal from './EditVehicleModal';
 import AssignVehicleModal from './AssignVehicleModal';
 import MaintenanceHistoryModal from './MaintenanceHistoryModal';
 import GarbageTruckLoader from '../common/GarbageTruckLoader';
-import { CheckCircle, Info } from 'lucide-react';
+import NotificationToast, { type ToastMessage } from '../common/NotificationToast';
 
 interface VehiclesPageProps {
   onNavigateToRoute?: (routeId: string) => void;
 }
 
 const VehiclesPage: React.FC<VehiclesPageProps> = ({ onNavigateToRoute }) => {
-  // State
+  // Fleet State
   const [vehicles, setVehicles] = useState<VehicleItem[]>(initialVehicles);
   const [attentionItems] = useState(initialVehicleAttentionItems);
   const [isLoading, setIsLoading] = useState(false);
@@ -49,15 +49,21 @@ const VehiclesPage: React.FC<VehiclesPageProps> = ({ onNavigateToRoute }) => {
   const [isMaintModalOpen, setIsMaintModalOpen] = useState(false);
 
   // Notification Toast state
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const [toastType, setToastType] = useState<'success' | 'info'>('success');
+  const [toasts, setToasts] = useState<ToastMessage[]>([]);
 
-  const showToast = (msg: string, type: 'success' | 'info' = 'success') => {
-    setToastMessage(msg);
-    setToastType(type);
-    setTimeout(() => {
-      setToastMessage(null);
-    }, 4000);
+  const addToast = (message: string, type: ToastMessage['type'] = 'success', title?: string) => {
+    const newToast: ToastMessage = {
+      id: Date.now().toString() + Math.random().toString(36).substring(2, 5),
+      message,
+      type,
+      title,
+      duration: 4000
+    };
+    setToasts(prev => [...prev.slice(-3), newToast]); // Keep up to 4 toasts
+  };
+
+  const handleDismissToast = (id: string) => {
+    setToasts(prev => prev.filter(t => t.id !== id));
   };
 
   const handleRefreshFleet = () => {
@@ -66,7 +72,7 @@ const VehiclesPage: React.FC<VehiclesPageProps> = ({ onNavigateToRoute }) => {
     setTimeout(() => {
       setIsLoading(false);
       setIsRefreshing(false);
-      showToast('Fleet telemetry refreshed with real-time IoT signal.', 'info');
+      addToast('Fleet telemetry synced with real-time IoT signal.', 'info', 'Telemetry Synced');
     }, 1200);
   };
 
@@ -118,6 +124,7 @@ const VehiclesPage: React.FC<VehiclesPageProps> = ({ onNavigateToRoute }) => {
     setTypeFilter('All');
     setZoneFilter('All');
     setCapacityFilter('All');
+    addToast('Filters reset to show all fleet vehicles.', 'info', 'Filters Cleared');
   };
 
   const handleOpenDrawer = (v: VehicleItem) => {
@@ -159,7 +166,7 @@ const VehiclesPage: React.FC<VehiclesPageProps> = ({ onNavigateToRoute }) => {
     };
 
     setVehicles(prev => [fullVeh, ...prev]);
-    showToast(`Vehicle ${fullVeh.id} registered and added to fleet pool.`);
+    addToast(`Vehicle ${fullVeh.id} (${fullVeh.name}) registered into fleet.`, 'success', 'Vehicle Added');
   };
 
   const handleOpenEditModal = (v: VehicleItem) => {
@@ -172,7 +179,7 @@ const VehiclesPage: React.FC<VehiclesPageProps> = ({ onNavigateToRoute }) => {
     if (drawerVehicle?.id === updatedVeh.id) {
       setDrawerVehicle(updatedVeh);
     }
-    showToast(`Vehicle ${updatedVeh.id} specifications updated.`);
+    addToast(`Vehicle ${updatedVeh.id} specifications saved successfully.`, 'success', 'Vehicle Updated');
   };
 
   const handleOpenAssignModal = (v?: VehicleItem) => {
@@ -212,7 +219,7 @@ const VehiclesPage: React.FC<VehiclesPageProps> = ({ onNavigateToRoute }) => {
         return v;
       })
     );
-    showToast(`Vehicle ${vehicleId} dispatched to driver ${driver} on route ${route}.`);
+    addToast(`Vehicle ${vehicleId} assigned to driver ${driver} on route ${route}.`, 'success', 'Route Assigned');
   };
 
   const handleOpenMaintenanceModal = (v: VehicleItem) => {
@@ -234,23 +241,15 @@ const VehiclesPage: React.FC<VehiclesPageProps> = ({ onNavigateToRoute }) => {
         return item;
       })
     );
-    showToast(`Vehicle ${v.id} status changed to ${newStatus}.`);
+    const toastType = newStatus === 'Offline' ? 'warning' : 'info';
+    addToast(`Vehicle ${v.id} marked as ${newStatus}.`, toastType, 'Status Changed');
   };
 
   return (
     <div className="min-h-screen bg-[#fcfcfd] text-slate-900 pb-16">
       
-      {/* Toast Notification Container */}
-      {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center space-x-2.5 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl border border-slate-800 animate-in slide-in-from-bottom-5 duration-200">
-          {toastType === 'info' ? (
-            <Info className="w-5 h-5 text-sky-400 shrink-0" />
-          ) : (
-            <CheckCircle className="w-5 h-5 text-[#88a573] shrink-0" />
-          )}
-          <span className="text-xs font-medium">{toastMessage}</span>
-        </div>
-      )}
+      {/* Website Toast Notification Container */}
+      <NotificationToast toasts={toasts} onDismiss={handleDismissToast} />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-6">
         
@@ -259,7 +258,7 @@ const VehiclesPage: React.FC<VehiclesPageProps> = ({ onNavigateToRoute }) => {
           onAddVehicleClick={handleOpenAddModal}
           onAssignVehicleClick={() => handleOpenAssignModal()}
           onRefreshClick={handleRefreshFleet}
-          onExportClick={() => showToast('Fleet report exported to CSV.', 'info')}
+          onExportClick={() => addToast('Exporting fleet telemetry report to CSV manifest...', 'info', 'Export Started')}
           isRefreshing={isRefreshing}
         />
 
@@ -340,7 +339,7 @@ const VehiclesPage: React.FC<VehiclesPageProps> = ({ onNavigateToRoute }) => {
         onAssign={(v) => handleOpenAssignModal(v)}
         onViewMaintenance={handleOpenMaintenanceModal}
         onNavigateToRoute={onNavigateToRoute}
-        onViewDriver={(driver) => showToast(`Viewing profile for driver ${driver}`, 'info')}
+        onViewDriver={(driver) => addToast(`Viewing profile for driver ${driver}`, 'info', 'Driver Profile')}
       />
 
       {/* Add Vehicle Modal */}
