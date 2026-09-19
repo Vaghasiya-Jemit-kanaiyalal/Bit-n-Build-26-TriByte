@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { ZoomIn, ZoomOut, Crosshair, Truck, MapPin } from 'lucide-react';
 import type { BinStop } from '../../mock/routeData';
 
+import { showWebsiteToast } from '../common/NotificationToast';
+
 interface RouteMapProps {
   stops: BinStop[];
   onSelectBin?: (stop: BinStop) => void;
@@ -72,7 +74,7 @@ export const RouteMap: React.FC<RouteMapProps> = ({
             Fit Route
           </button>
           <button
-            onClick={() => alert('Centered map focus on TRK-04.')}
+            onClick={() => showWebsiteToast('Centered map focus on vehicle TRK-04.', 'info', 'Map View')}
             className="px-2 py-1 text-[11px] font-medium text-[#374151] bg-white border border-[#d1d5db] hover:bg-[#f3f4f6] rounded cursor-pointer flex items-center gap-1"
           >
             <Crosshair className="w-3 h-3 text-[#738a62]" />

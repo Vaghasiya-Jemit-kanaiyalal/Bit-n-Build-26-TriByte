@@ -1,6 +1,8 @@
 import React from 'react';
 import { Plus, Download, RefreshCw } from 'lucide-react';
 
+import { showWebsiteToast } from '../common/NotificationToast';
+
 interface RouteHeaderProps {
   onCreateClick: () => void;
   onRefreshClick: () => void;
@@ -43,7 +45,7 @@ export const RouteHeader: React.FC<RouteHeaderProps> = ({
         </button>
 
         <button
-          onClick={() => alert('Import Route feature: Upload CSV/JSON route manifest.')}
+          onClick={() => showWebsiteToast('Import Route feature: Ready to upload CSV/JSON route manifest.', 'info', 'Import Route')}
           className="px-3.5 py-2 text-xs font-semibold text-[#374151] bg-white hover:bg-[#f9fafb] border border-[#d1d5db] rounded-md shadow-xs transition-all cursor-pointer flex items-center gap-1.5"
         >
           <Download className="w-3.5 h-3.5 text-[#6b7280]" />

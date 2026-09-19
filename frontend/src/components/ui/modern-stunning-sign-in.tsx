@@ -5,7 +5,9 @@ import { useState } from "react";
 import { Leaf, Mail, Lock, Eye, EyeOff, Trash2, User, BarChart3, ArrowRight, UserPlus, CheckCircle2 } from "lucide-react";
 import authBgImage from "../../assets/authbg.jpeg";
 
-export interface SignIn1Props {
+import { showWebsiteToast } from "../common/NotificationToast";
+
+interface SignIn1Props {
   onSignInSuccess?: (role: string, email: string) => void;
   bgOpacity?: number;
 }
@@ -97,7 +99,7 @@ const SignIn1: React.FC<SignIn1Props> = ({
       if (onSignInSuccess) {
         onSignInSuccess(selectedRole, email);
       } else {
-        alert(`Signed in as ${selectedRole} (${email})`);
+        showWebsiteToast(`Signed in as ${selectedRole} (${email})`, 'success', 'Authentication Successful');
       }
     }, 500);
   };
