@@ -27,6 +27,7 @@ import {
 import type { UserSession } from '../../types/auth';
 import { RoutePage } from '../routes/RoutePage';
 import VehiclesPage from '../vehicles/VehiclesPage';
+import { BinManagement } from '../admin/bins/BinManagement';
 
 interface EcoTrackDashboardProps {
   user: UserSession;
@@ -34,7 +35,7 @@ interface EcoTrackDashboardProps {
 }
 
 export const EcoTrackDashboard: React.FC<EcoTrackDashboardProps> = ({ user, onSignOut }) => {
-  const [activeTab, setActiveTab] = useState<string>('Route');
+  const [activeTab, setActiveTab] = useState<string>('Bin Management');
   const [mapType, setMapType] = useState<'map' | 'satellite'>('map');
   const [timeFilter] = useState<'This Week' | 'This Month'>('This Week');
 
@@ -207,7 +208,9 @@ export const EcoTrackDashboard: React.FC<EcoTrackDashboardProps> = ({ user, onSi
         </header>
 
         {/* DASHBOARD BODY */}
-        {activeTab === 'Route' || activeTab === 'Routes' ? (
+        {activeTab === 'Bin Management' || activeTab === 'Bins' ? (
+          <BinManagement onNavigateTab={(tab) => setActiveTab(tab)} />
+        ) : activeTab === 'Route' || activeTab === 'Routes' ? (
           <RoutePage />
         ) : activeTab === 'Vehicles' ? (
           <VehiclesPage onNavigateToRoute={() => setActiveTab('Route')} />
