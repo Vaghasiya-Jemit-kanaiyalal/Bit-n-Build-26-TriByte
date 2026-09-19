@@ -14,7 +14,6 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import type { UserSession } from '../../types/auth';
-import homeImg from '../../assets/home.png';
 
 interface DriverSidebarProps {
   activeTab: string;
@@ -49,38 +48,23 @@ export const DriverSidebar: React.FC<DriverSidebarProps> = ({
   return (
     <aside className="w-52 bg-white border-r border-slate-200 flex flex-col justify-between p-3 shrink-0 shadow-xs z-20">
       <div>
-        {/* Brand Header — Clickable Favicon & Home Logo to Dashboard */}
         {/* Brand Header — Clickable to Dashboard */}
         <button
           type="button"
           onClick={() => onNavigateTab('Dashboard')}
-          className="flex items-center gap-2.5 px-1 py-1 mb-3 cursor-pointer bg-transparent border-none text-left hover:opacity-85 transition-opacity"
+          className="flex items-center gap-2 px-1 py-1 mb-3 cursor-pointer bg-transparent border-none text-left hover:opacity-85 transition-opacity"
           title="Go to Dashboard"
         >
-          <div className="flex items-center gap-2">
-            <img src={faviconImg} alt="EcoTrack Favicon" className="h-9 w-auto object-contain shrink-0" />
-            <img src={homeImg} alt="EcoTrack Home" className="h-8 w-auto object-contain max-w-[130px]" />
+          <div className="w-8 h-8 rounded-lg bg-emerald-700 flex items-center justify-center shadow-md shrink-0">
+            <Leaf className="w-4 h-4 text-white" />
           </div>
-          <span className="text-[10px] font-bold text-emerald-700 leading-none flex items-center gap-1">
-            <ShieldCheck className="w-3 h-3" /> Field Driver App
-          </span>
-          {/* Brand Header — Clickable to Dashboard */}
-          <button
-            type="button"
-            onClick={() => onNavigateTab('Dashboard')}
-            className="flex items-center gap-2 px-1 py-1 mb-3 cursor-pointer bg-transparent border-none text-left hover:opacity-85 transition-opacity"
-            title="Go to Dashboard"
-          >
-            <div className="w-8 h-8 rounded-lg bg-emerald-700 flex items-center justify-center shadow-md shrink-0">
-              <Leaf className="w-4 h-4 text-white" />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-base font-extrabold text-emerald-950 leading-tight tracking-tight">EcoTrack</span>
-              <span className="text-[10px] font-bold text-emerald-700 leading-none flex items-center gap-1">
-                <ShieldCheck className="w-3 h-3" /> Field Driver App
-              </span>
-            </div>
-          </button>
+          <div className="flex flex-col">
+            <span className="text-base font-extrabold text-emerald-950 leading-tight tracking-tight">EcoTrack</span>
+            <span className="text-[10px] font-bold text-emerald-700 leading-none flex items-center gap-1">
+              <ShieldCheck className="w-3 h-3" /> Field Driver App
+            </span>
+          </div>
+        </button>
 
           {/* Driver Profile Summary Card */}
           <div className="mx-0 mb-4 p-2 rounded-lg bg-emerald-50/70 border border-emerald-100 flex items-center gap-2">

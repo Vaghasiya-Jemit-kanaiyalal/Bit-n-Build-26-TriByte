@@ -135,7 +135,8 @@ const getPathFromTab = (tab: string, role: string): string => {
 };
 
 import { DriverPortal } from '../driver/DriverPortal';
-import homeImg from '../../assets/home.png';
+import logoImg from '../../assets/logo.png';
+import logoTextImg from '../../assets/logo_text.png';
 
 interface EcoTrackDashboardProps {
   user: UserSession;
