@@ -72,7 +72,7 @@ export const AnalyticsKpiGrid: React.FC<AnalyticsKpiGridProps> = ({ summary, com
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5 mb-6">
       {cards.map((card) => {
         const IconComp = card.icon;
         const isUp = card.trend >= 0;
@@ -82,33 +82,34 @@ export const AnalyticsKpiGrid: React.FC<AnalyticsKpiGridProps> = ({ summary, com
         return (
           <div
             key={card.id}
-            className="bg-white rounded-2xl p-4.5 border border-slate-200/80 shadow-2xs hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 flex flex-col justify-between space-y-3 relative overflow-hidden group"
+            className="bg-white rounded-xl p-3.5 border border-slate-200/80 shadow-2xs hover:shadow-xs hover:border-slate-300 transition-all flex flex-col justify-between h-full relative overflow-hidden group"
           >
             {/* Top Accent Line */}
             <div className={`absolute top-0 left-0 right-0 h-1 ${card.topAccent}`} />
 
-            <div className="flex items-start justify-between">
-              <div>
-                <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block mb-1">
-                  {card.label}
-                </span>
-                <span className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight font-mono">
-                  {card.value}
-                </span>
-              </div>
-              <div className={`p-2.5 rounded-xl border ${card.iconBg} shadow-2xs group-hover:scale-105 transition-transform`}>
-                <IconComp className={`w-4 h-4 ${card.iconColor}`} />
+            <div className="flex items-start justify-between gap-2 pt-1 mb-2">
+              <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider block leading-tight">
+                {card.label}
+              </span>
+              <div className={`p-1.5 rounded-lg border ${card.iconBg} shadow-2xs shrink-0 group-hover:scale-105 transition-transform`}>
+                <IconComp className={`w-3.5 h-3.5 ${card.iconColor}`} />
               </div>
             </div>
 
-            <div className="pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs">
-              <span className={`inline-flex items-center space-x-1 px-2 py-0.5 rounded-lg text-[11px] font-extrabold border ${trendColorClass}`}>
-                {isUp ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3 text-emerald-700" />}
-                <span>{isUp ? `+${card.trend}%` : `${card.trend}%`}</span>
-              </span>
-              <span className="text-[11px] text-slate-500 font-semibold truncate max-w-[110px]">
-                {card.subtext}
-              </span>
+            <div>
+              <div className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight font-mono leading-none">
+                {card.value}
+              </div>
+
+              <div className="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+                <span className={`inline-flex items-center space-x-1 px-1.5 py-0.5 rounded text-[10px] font-bold border ${trendColorClass}`}>
+                  {isUp ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3 text-emerald-700" />}
+                  <span>{isUp ? `+${card.trend}%` : `${card.trend}%`}</span>
+                </span>
+                <span className="text-[10px] text-slate-500 font-semibold truncate max-w-[100px]">
+                  {card.subtext}
+                </span>
+              </div>
             </div>
           </div>
         );

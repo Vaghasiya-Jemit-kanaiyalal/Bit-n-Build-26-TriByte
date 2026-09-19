@@ -30,82 +30,82 @@ export const FleetKpiCards: React.FC<FleetKpiCardsProps> = ({
   return (
     <div className="grid grid-cols-2 md:grid-cols-5 gap-3.5 mb-6">
       {/* Card 1: TOTAL VEHICLES */}
-      <div className="bg-white rounded-md p-3.5 border border-[#e5e7eb] shadow-xs flex flex-col justify-between">
-        <div className="flex items-center justify-between mb-1">
-          <span className="text-[10px] font-bold text-[#6b7280] uppercase tracking-wider">
-            TOTAL VEHICLES
+      <div className="bg-white rounded-xl p-3.5 border border-slate-200/80 shadow-2xs flex flex-col justify-between h-full">
+        <div className="flex items-start justify-between gap-1.5">
+          <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider leading-tight max-w-[calc(100%-2rem)] truncate">
+            Total Vehicles
           </span>
-          <div className="p-1 bg-[#f3f4f6] rounded text-[#4b5563]">
-            <Truck className="w-3.5 h-3.5 text-[#374151]" />
+          <div className="p-1.5 bg-slate-100 rounded-lg text-slate-700 shrink-0">
+            <Truck className="w-3.5 h-3.5 text-slate-600" />
           </div>
         </div>
-        <div>
-          <div className="text-xl font-bold text-[#111827]">{total}</div>
-          <span className="text-[11px] text-[#6b7280] font-medium">Registered fleet</span>
+        <div className="mt-2 flex flex-col justify-end flex-1">
+          <span className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight font-mono leading-none">{total}</span>
+          <span className="text-[10px] font-semibold text-slate-500 mt-1 leading-tight block">Registered fleet</span>
         </div>
       </div>
 
       {/* Card 2: ACTIVE */}
-      <div className="bg-white rounded-md p-3.5 border border-[#e5e7eb] shadow-xs flex flex-col justify-between">
-        <div className="flex items-center justify-between mb-1">
-          <span className="text-[10px] font-bold text-[#6b7280] uppercase tracking-wider">
-            ACTIVE
+      <div className="bg-white rounded-xl p-3.5 border border-slate-200/80 shadow-2xs flex flex-col justify-between h-full">
+        <div className="flex items-start justify-between gap-1.5">
+          <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider leading-tight max-w-[calc(100%-2rem)] truncate">
+            Active
           </span>
-          <div className="p-1 bg-emerald-50 rounded text-emerald-700 border border-emerald-100">
+          <div className="p-1.5 bg-emerald-50 rounded-lg text-emerald-700 border border-emerald-100 shrink-0">
             <CheckCircle2 className="w-3.5 h-3.5" />
           </div>
         </div>
-        <div>
-          <div className="text-xl font-bold text-[#111827]">{active}</div>
-          <span className="text-[11px] text-emerald-700 font-semibold">Currently operational</span>
+        <div className="mt-2 flex flex-col justify-end flex-1">
+          <span className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight font-mono leading-none">{active}</span>
+          <span className="text-[10px] font-semibold text-emerald-700 mt-1 leading-tight block">Currently operational</span>
         </div>
       </div>
 
       {/* Card 3: ON ROUTE */}
-      <div className="bg-white rounded-md p-3.5 border border-[#e5e7eb] shadow-xs flex flex-col justify-between">
-        <div className="flex items-center justify-between mb-1">
-          <span className="text-[10px] font-bold text-[#6b7280] uppercase tracking-wider">
-            ON ROUTE
+      <div className="bg-white rounded-xl p-3.5 border border-slate-200/80 shadow-2xs flex flex-col justify-between h-full">
+        <div className="flex items-start justify-between gap-1.5">
+          <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider leading-tight max-w-[calc(100%-2rem)] truncate">
+            On Route
           </span>
-          <div className="p-1 bg-[#738a62]/10 rounded text-[#738a62] border border-[#738a62]/20">
-            <Play className="w-3.5 h-3.5 fill-[#738a62]" />
+          <div className="p-1.5 bg-emerald-50 rounded-lg text-emerald-700 border border-emerald-100 shrink-0">
+            <Play className="w-3.5 h-3.5 fill-emerald-600 text-emerald-600" />
           </div>
         </div>
-        <div>
-          <div className="text-xl font-bold text-[#111827]">{onRoute}</div>
-          <span className="text-[11px] text-[#738a62] font-semibold">Collecting waste</span>
+        <div className="mt-2 flex flex-col justify-end flex-1">
+          <span className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight font-mono leading-none">{onRoute}</span>
+          <span className="text-[10px] font-semibold text-emerald-700 mt-1 leading-tight block">Collecting waste</span>
         </div>
       </div>
 
       {/* Card 4: AVAILABLE */}
-      <div className="bg-white rounded-md p-3.5 border border-[#e5e7eb] shadow-xs flex flex-col justify-between">
-        <div className="flex items-center justify-between mb-1">
-          <span className="text-[10px] font-bold text-[#6b7280] uppercase tracking-wider">
-            AVAILABLE
+      <div className="bg-white rounded-xl p-3.5 border border-slate-200/80 shadow-2xs flex flex-col justify-between h-full">
+        <div className="flex items-start justify-between gap-1.5">
+          <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider leading-tight max-w-[calc(100%-2rem)] truncate">
+            Available
           </span>
-          <div className="p-1 bg-blue-50 rounded text-blue-700 border border-blue-100">
+          <div className="p-1.5 bg-blue-50 rounded-lg text-blue-700 border border-blue-100 shrink-0">
             <Clock className="w-3.5 h-3.5" />
           </div>
         </div>
-        <div>
-          <div className="text-xl font-bold text-[#111827]">{available}</div>
-          <span className="text-[11px] text-blue-700 font-medium">Ready for assignment</span>
+        <div className="mt-2 flex flex-col justify-end flex-1">
+          <span className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight font-mono leading-none">{available}</span>
+          <span className="text-[10px] font-semibold text-blue-700 mt-1 leading-tight block">Ready for dispatch</span>
         </div>
       </div>
 
       {/* Card 5: MAINTENANCE */}
-      <div className="bg-white rounded-md p-3.5 border border-[#e5e7eb] shadow-xs flex flex-col justify-between">
-        <div className="flex items-center justify-between mb-1">
-          <span className="text-[10px] font-bold text-[#6b7280] uppercase tracking-wider">
-            MAINTENANCE
+      <div className="bg-white rounded-xl p-3.5 border border-slate-200/80 shadow-2xs flex flex-col justify-between h-full">
+        <div className="flex items-start justify-between gap-1.5">
+          <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider leading-tight max-w-[calc(100%-2rem)] truncate">
+            Maintenance
           </span>
-          <div className="p-1 bg-amber-50 rounded text-amber-700 border border-amber-100">
+          <div className="p-1.5 bg-amber-50 rounded-lg text-amber-700 border border-amber-100 shrink-0">
             <Wrench className="w-3.5 h-3.5" />
           </div>
         </div>
-        <div>
-          <div className="text-xl font-bold text-[#111827]">{maintenance}</div>
-          <span className="text-[11px] text-amber-700 font-medium">Currently unavailable</span>
+        <div className="mt-2 flex flex-col justify-end flex-1">
+          <span className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight font-mono leading-none">{maintenance}</span>
+          <span className="text-[10px] font-semibold text-amber-700 mt-1 leading-tight block">Unavailable</span>
         </div>
       </div>
     </div>

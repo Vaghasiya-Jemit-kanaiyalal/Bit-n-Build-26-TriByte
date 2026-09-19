@@ -56,28 +56,30 @@ export const MonitoringKpiGrid: React.FC<MonitoringKpiGridProps> = ({ summary, o
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3.5 mb-6">
       {cards.map((card) => {
         const Icon = card.icon;
         return (
           <div
             key={card.id}
             onClick={() => onFilterClick && onFilterClick(card.id as any)}
-            className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex items-center justify-between cursor-pointer hover:shadow-md transition-all"
+            className="bg-white rounded-xl p-3.5 border border-slate-200/80 shadow-2xs flex flex-col justify-between h-full cursor-pointer hover:border-slate-300 transition-all"
           >
-            <div className="flex items-center gap-3.5">
-              <div className={`w-11 h-11 rounded-xl ${card.bgColor} flex items-center justify-center shrink-0`}>
-                <Icon className={`w-5 h-5 ${card.iconColor}`} />
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">
+                {card.label}
+              </span>
+              <div className={`w-7 h-7 rounded-lg ${card.bgColor} flex items-center justify-center shrink-0`}>
+                <Icon className={`w-3.5 h-3.5 ${card.iconColor}`} />
               </div>
-              <div className="flex flex-col">
-                <span className="text-xl font-extrabold text-slate-900 leading-tight">
+            </div>
+            <div>
+              <div className="flex items-baseline justify-between gap-1">
+                <span className="text-xl sm:text-2xl font-black text-slate-900 leading-none font-mono">
                   {card.value}
                 </span>
-                <span className="text-xs font-semibold text-slate-500 mt-0.5">
-                  {card.label}
-                </span>
                 {card.badge && (
-                  <span className={`inline-block text-[10px] font-bold px-1.5 py-0.5 rounded mt-1 w-max ${card.badgeBg}`}>
+                  <span className={`inline-block text-[10px] font-bold px-1.5 py-0.5 rounded ${card.badgeBg}`}>
                     {card.badge}
                   </span>
                 )}

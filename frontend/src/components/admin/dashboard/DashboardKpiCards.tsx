@@ -16,108 +16,120 @@ interface DashboardKpiCardsProps {
 
 export const DashboardKpiCards: React.FC<DashboardKpiCardsProps> = ({ kpi, onNavigateTab }) => {
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
       {/* 1. Total Bins */}
       <div
         onClick={() => onNavigateTab('Bin Management')}
-        className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex flex-col justify-between hover:border-slate-300 transition-colors cursor-pointer group"
+        className="bg-white rounded-xl p-3.5 border border-slate-200/80 shadow-2xs flex flex-col justify-between hover:border-slate-300 transition-all cursor-pointer group h-full"
       >
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Bins</span>
-          <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+        <div className="flex items-start justify-between gap-1.5">
+          <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider leading-tight max-w-[calc(100%-2.25rem)] truncate">
+            Total Bins
+          </span>
+          <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0 border border-emerald-100 group-hover:scale-105 transition-transform">
             <Trash2 className="w-4 h-4" />
           </div>
         </div>
-        <div className="mt-3">
-          <span className="text-2xl font-extrabold text-slate-900 leading-none">{kpi.totalBins}</span>
-          <span className="text-[10px] font-bold text-slate-500 block mt-1">{kpi.activeBins} Active</span>
+        <div className="mt-2.5 flex flex-col justify-end flex-1">
+          <span className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight font-mono leading-none">{kpi.totalBins}</span>
+          <span className="text-[10px] font-semibold text-slate-500 block mt-1 leading-tight">{kpi.activeBins} Active</span>
         </div>
       </div>
 
-      {/* 2. Bins Needing Collection (Urgent styling) */}
+      {/* 2. Bins Needing Collection */}
       <div
         onClick={() => onNavigateTab('Bin Management')}
-        className="bg-amber-50/70 rounded-2xl p-4 border border-amber-200/80 shadow-xs flex flex-col justify-between hover:border-amber-300 transition-colors cursor-pointer group"
+        className="bg-amber-50/70 rounded-xl p-3.5 border border-amber-200/80 shadow-2xs flex flex-col justify-between hover:border-amber-300 transition-all cursor-pointer group h-full"
       >
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-extrabold text-amber-950 uppercase tracking-wider">Needing Collection</span>
-          <div className="w-8 h-8 rounded-xl bg-amber-600 text-white flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform shadow-xs">
+        <div className="flex items-start justify-between gap-1.5">
+          <span className="text-[10px] font-black text-amber-950 uppercase tracking-wider leading-tight max-w-[calc(100%-2.25rem)] truncate">
+            Needs Pickup
+          </span>
+          <div className="w-8 h-8 rounded-lg bg-amber-600 text-white flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-105 transition-transform">
             <AlertTriangle className="w-4 h-4" />
           </div>
         </div>
-        <div className="mt-3">
-          <span className="text-2xl font-extrabold text-amber-900 leading-none">{kpi.binsNeedingCollection}</span>
-          <span className="text-[10px] font-extrabold text-red-700 block mt-1">{kpi.criticalBins} Critical Overflow</span>
+        <div className="mt-2.5 flex flex-col justify-end flex-1">
+          <span className="text-xl sm:text-2xl font-black text-amber-900 tracking-tight font-mono leading-none">{kpi.binsNeedingCollection}</span>
+          <span className="text-[10px] font-extrabold text-red-700 block mt-1 leading-tight">{kpi.criticalBins} Critical</span>
         </div>
       </div>
 
       {/* 3. Active Vehicles */}
       <div
         onClick={() => onNavigateTab('Vehicles')}
-        className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex flex-col justify-between hover:border-slate-300 transition-colors cursor-pointer group"
+        className="bg-white rounded-xl p-3.5 border border-slate-200/80 shadow-2xs flex flex-col justify-between hover:border-slate-300 transition-all cursor-pointer group h-full"
       >
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Active Vehicles</span>
-          <div className="w-8 h-8 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+        <div className="flex items-start justify-between gap-1.5">
+          <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider leading-tight max-w-[calc(100%-2.25rem)] truncate">
+            Active Fleet
+          </span>
+          <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center shrink-0 border border-blue-100 group-hover:scale-105 transition-transform">
             <Truck className="w-4 h-4" />
           </div>
         </div>
-        <div className="mt-3">
-          <span className="text-2xl font-extrabold text-slate-900 leading-none">
-            {kpi.activeVehicles} <span className="text-sm font-bold text-slate-400">/ {kpi.totalVehicles}</span>
+        <div className="mt-2.5 flex flex-col justify-end flex-1">
+          <span className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight font-mono leading-none">
+            {kpi.activeVehicles} <span className="text-xs font-bold text-slate-400 font-sans">/ {kpi.totalVehicles}</span>
           </span>
-          <span className="text-[10px] font-bold text-blue-600 block mt-1">{kpi.fleetActivePercentage}% Fleet Active</span>
+          <span className="text-[10px] font-semibold text-blue-600 block mt-1 leading-tight">{kpi.fleetActivePercentage}% Active</span>
         </div>
       </div>
 
       {/* 4. Active Routes */}
       <div
         onClick={() => onNavigateTab('Route')}
-        className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex flex-col justify-between hover:border-slate-300 transition-colors cursor-pointer group"
+        className="bg-white rounded-xl p-3.5 border border-slate-200/80 shadow-2xs flex flex-col justify-between hover:border-slate-300 transition-all cursor-pointer group h-full"
       >
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Active Routes</span>
-          <div className="w-8 h-8 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+        <div className="flex items-start justify-between gap-1.5">
+          <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider leading-tight max-w-[calc(100%-2.25rem)] truncate">
+            Active Routes
+          </span>
+          <div className="w-8 h-8 rounded-lg bg-purple-50 text-purple-700 flex items-center justify-center shrink-0 border border-purple-100 group-hover:scale-105 transition-transform">
             <RouteIcon className="w-4 h-4" />
           </div>
         </div>
-        <div className="mt-3">
-          <span className="text-2xl font-extrabold text-slate-900 leading-none">{kpi.activeRoutes}</span>
-          <span className="text-[10px] font-bold text-purple-600 block mt-1">{kpi.routesInProgress} In Progress</span>
+        <div className="mt-2.5 flex flex-col justify-end flex-1">
+          <span className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight font-mono leading-none">{kpi.activeRoutes}</span>
+          <span className="text-[10px] font-semibold text-purple-600 block mt-1 leading-tight">{kpi.routesInProgress} In Progress</span>
         </div>
       </div>
 
       {/* 5. Today's Collection */}
       <div
         onClick={() => onNavigateTab('Analytics')}
-        className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex flex-col justify-between hover:border-slate-300 transition-colors cursor-pointer group"
+        className="bg-white rounded-xl p-3.5 border border-slate-200/80 shadow-2xs flex flex-col justify-between hover:border-slate-300 transition-all cursor-pointer group h-full"
       >
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Today's Collection</span>
-          <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+        <div className="flex items-start justify-between gap-1.5">
+          <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider leading-tight max-w-[calc(100%-2.25rem)] truncate">
+            Today's Tonnage
+          </span>
+          <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0 border border-emerald-100 group-hover:scale-105 transition-transform">
             <Weight className="w-4 h-4" />
           </div>
         </div>
-        <div className="mt-3">
-          <span className="text-2xl font-extrabold text-slate-900 leading-none">{kpi.todayCollectionTons} t</span>
-          <span className="text-[10px] font-bold text-emerald-600 block mt-1">{kpi.collectionTrend}</span>
+        <div className="mt-2.5 flex flex-col justify-end flex-1">
+          <span className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight font-mono leading-none">{kpi.todayCollectionTons} t</span>
+          <span className="text-[10px] font-semibold text-emerald-600 block mt-1 leading-tight">{kpi.collectionTrend}</span>
         </div>
       </div>
 
       {/* 6. Recyclable Waste */}
       <div
         onClick={() => onNavigateTab('Classification')}
-        className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex flex-col justify-between hover:border-slate-300 transition-colors cursor-pointer group"
+        className="bg-white rounded-xl p-3.5 border border-slate-200/80 shadow-2xs flex flex-col justify-between hover:border-slate-300 transition-all cursor-pointer group h-full"
       >
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Recyclable Waste</span>
-          <div className="w-8 h-8 rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+        <div className="flex items-start justify-between gap-1.5">
+          <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider leading-tight max-w-[calc(100%-2.25rem)] truncate">
+            Recyclable %
+          </span>
+          <div className="w-8 h-8 rounded-lg bg-teal-50 text-teal-700 flex items-center justify-center shrink-0 border border-teal-100 group-hover:scale-105 transition-transform">
             <Recycle className="w-4 h-4" />
           </div>
         </div>
-        <div className="mt-3">
-          <span className="text-2xl font-extrabold text-[#047857] leading-none">{kpi.recyclablePercentage}%</span>
-          <span className="text-[10px] font-bold text-teal-600 block mt-1">{kpi.recyclableTons} t today</span>
+        <div className="mt-2.5 flex flex-col justify-end flex-1">
+          <span className="text-xl sm:text-2xl font-black text-emerald-700 tracking-tight font-mono leading-none">{kpi.recyclablePercentage}%</span>
+          <span className="text-[10px] font-semibold text-teal-600 block mt-1 leading-tight">{kpi.recyclableTons} t today</span>
         </div>
       </div>
     </div>

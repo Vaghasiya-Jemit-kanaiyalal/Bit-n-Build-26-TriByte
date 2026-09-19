@@ -4,6 +4,9 @@ import { SignupForm } from './SignupForm';
 import { ForgotPasswordForm } from './ForgotPasswordForm';
 import type { UserRole } from '../../types/auth';
 
+import faviconImg from '../../assets/favicon.png';
+import logoTextImg from '../../assets/logo_text.png';
+
 export type AuthMode = 'login' | 'signup' | 'forgot_password';
 
 interface AuthContainerProps {
@@ -55,33 +58,15 @@ export const AuthContainer: React.FC<AuthContainerProps> = ({ onSuccessAuth }) =
           maxWidth: '460px',
         }}
       >
-        {/* Small Brand Mark (Right Side Header) */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.75rem' }}>
-          <div
-            style={{
-              width: '28px',
-              height: '28px',
-              borderRadius: 'var(--radius-sm)',
-              backgroundColor: 'var(--accent-olive-muted)',
-              border: '1px solid var(--accent-olive)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'var(--accent-olive)',
-            }}
-          >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M3 6h18"/>
-              <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
-              <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
-            </svg>
+        {/* Brand Mark with Favicon & Logo Text underneath */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '0.75rem', marginBottom: '1.75rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+            <img src={faviconImg} alt="EcoTrack Icon" style={{ height: '72px', width: 'auto', objectFit: 'contain' }} />
+            <span className="badge badge-normal" style={{ fontSize: '0.65rem' }}>
+              SECURE PORTAL
+            </span>
           </div>
-          <span style={{ fontSize: '0.9375rem', fontWeight: '700', color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>
-            WasteWise AI
-          </span>
-          <span className="badge badge-normal" style={{ marginLeft: 'auto', fontSize: '0.65rem' }}>
-            SECURE PORTAL
-          </span>
+          <img src={logoTextImg} alt="EcoTrack Brand" style={{ height: '64px', width: 'auto', objectFit: 'contain' }} />
         </div>
 
         {/* Dynamic Heading & Supporting Text */}

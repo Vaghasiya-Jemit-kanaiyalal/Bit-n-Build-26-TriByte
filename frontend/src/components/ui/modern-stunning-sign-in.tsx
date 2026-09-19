@@ -4,6 +4,8 @@ import * as React from "react";
 import { useState } from "react";
 import { Leaf, Mail, Lock, Eye, EyeOff, UserPlus, CheckCircle2 } from "lucide-react";
 import authBgImage from "../../assets/authbg.jpeg";
+import faviconImg from "../../assets/favicon.png";
+import logoTextImg from "../../assets/logo_text.png";
 import { authService } from "../../services/authService";
 import { showWebsiteToast } from "../common/NotificationToast";
 
@@ -136,20 +138,17 @@ const SignIn1: React.FC<SignIn1Props> = ({
       <div className="relative z-10 w-full max-w-sm sm:max-w-md flex flex-col items-center justify-center my-auto">
         
         {/* EcoTrack Brand Header */}
-        <div className="flex flex-col items-center mb-3 sm:mb-4 text-center shrink-0">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#047857] shadow-lg flex items-center justify-center mb-1.5 border border-emerald-400/30">
-            <Leaf className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-          </div>
-          
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-emerald-400 tracking-tight drop-shadow-md m-0 p-0 leading-tight">
-            EcoTrack
-          </h1>
-          <p className="text-xs sm:text-sm font-bold text-white mt-0.5 mb-0 p-0 leading-tight drop-shadow">
-            AI-Powered Waste Management
-          </p>
-          <p className="text-[11px] sm:text-xs font-semibold text-emerald-200/90 mt-0.5 mb-0 p-0 leading-tight drop-shadow">
-            Cleaner Cities &bull; Smarter Collection &bull; Greener Tomorrow
-          </p>
+        <div className="flex flex-col items-center mb-4 sm:mb-5 text-center shrink-0">
+          <img
+            src={faviconImg}
+            alt="EcoTrack Icon"
+            className="w-20 h-20 sm:w-24 sm:h-24 object-contain mb-3 drop-shadow-2xl"
+          />
+          <img
+            src={logoTextImg}
+            alt="EcoTrack"
+            className="h-20 sm:h-26 max-w-full w-auto object-contain drop-shadow-lg"
+          />
         </div>
 
         {/* Card */}

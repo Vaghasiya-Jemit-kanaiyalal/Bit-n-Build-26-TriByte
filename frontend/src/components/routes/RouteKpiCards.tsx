@@ -19,83 +19,93 @@ export const RouteKpiCards: React.FC<RouteKpiCardsProps> = ({
   return (
     <div className="grid grid-cols-2 md:grid-cols-5 gap-3.5 mb-6">
       {/* Card 1: ACTIVE ROUTES */}
-      <div className="bg-white rounded-md p-3.5 border border-[#e5e7eb] shadow-xs flex flex-col justify-between">
-        <div className="flex items-center justify-between mb-1">
-          <span className="text-[10px] font-bold text-[#6b7280] uppercase tracking-wider">
-            ACTIVE ROUTES
+      <div className="bg-white rounded-xl p-3.5 border border-slate-200/80 shadow-2xs flex flex-col justify-between h-full">
+        <div className="flex items-start justify-between gap-1.5">
+          <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider leading-tight max-w-[calc(100%-2rem)] truncate">
+            Active Routes
           </span>
-          <Route className="w-3.5 h-3.5 text-[#738a62]" />
+          <div className="p-1.5 bg-emerald-50 rounded-lg text-emerald-700 border border-emerald-100 shrink-0">
+            <Route className="w-3.5 h-3.5" />
+          </div>
         </div>
-        <div className="flex items-baseline gap-2 mt-0.5">
-          <span className="text-xl font-bold text-[#111827]">{activeCount}</span>
+        <div className="mt-2 flex flex-col justify-end flex-1">
+          <span className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight font-mono leading-none">{activeCount}</span>
+          <span className="text-[10px] font-semibold text-slate-500 mt-1 leading-tight block">
+            8 vehicles active
+          </span>
         </div>
-        <span className="text-[11px] text-[#6b7280] font-medium mt-1">
-          8 vehicles currently active
-        </span>
       </div>
 
       {/* Card 2: PLANNED */}
-      <div className="bg-white rounded-md p-3.5 border border-[#e5e7eb] shadow-xs flex flex-col justify-between">
-        <div className="flex items-center justify-between mb-1">
-          <span className="text-[10px] font-bold text-[#6b7280] uppercase tracking-wider">
-            PLANNED
+      <div className="bg-white rounded-xl p-3.5 border border-slate-200/80 shadow-2xs flex flex-col justify-between h-full">
+        <div className="flex items-start justify-between gap-1.5">
+          <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider leading-tight max-w-[calc(100%-2rem)] truncate">
+            Planned
           </span>
-          <Calendar className="w-3.5 h-3.5 text-[#3b82f6]" />
+          <div className="p-1.5 bg-blue-50 rounded-lg text-blue-700 border border-blue-100 shrink-0">
+            <Calendar className="w-3.5 h-3.5" />
+          </div>
         </div>
-        <div className="flex items-baseline gap-2 mt-0.5">
-          <span className="text-xl font-bold text-[#111827]">{plannedCount}</span>
+        <div className="mt-2 flex flex-col justify-end flex-1">
+          <span className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight font-mono leading-none">{plannedCount}</span>
+          <span className="text-[10px] font-semibold text-slate-500 mt-1 leading-tight block">
+            Scheduled today
+          </span>
         </div>
-        <span className="text-[11px] text-[#6b7280] font-medium mt-1">
-          Scheduled today
-        </span>
       </div>
 
       {/* Card 3: IN PROGRESS */}
-      <div className="bg-white rounded-md p-3.5 border border-[#e5e7eb] shadow-xs flex flex-col justify-between">
-        <div className="flex items-center justify-between mb-1">
-          <span className="text-[10px] font-bold text-[#6b7280] uppercase tracking-wider">
-            IN PROGRESS
+      <div className="bg-white rounded-xl p-3.5 border border-slate-200/80 shadow-2xs flex flex-col justify-between h-full">
+        <div className="flex items-start justify-between gap-1.5">
+          <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider leading-tight max-w-[calc(100%-2rem)] truncate">
+            In Progress
           </span>
-          <Play className="w-3.5 h-3.5 text-[#738a62]" />
+          <div className="p-1.5 bg-emerald-50 rounded-lg text-emerald-700 border border-emerald-100 shrink-0">
+            <Play className="w-3.5 h-3.5 fill-emerald-600 text-emerald-600" />
+          </div>
         </div>
-        <div className="flex items-baseline gap-2 mt-0.5">
-          <span className="text-xl font-bold text-[#111827]">{inProgressCount}</span>
+        <div className="mt-2 flex flex-col justify-end flex-1">
+          <span className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight font-mono leading-none">{inProgressCount}</span>
+          <span className="text-[10px] font-semibold text-slate-500 mt-1 leading-tight block">
+            Collecting now
+          </span>
         </div>
-        <span className="text-[11px] text-[#6b7280] font-medium mt-1">
-          Currently collecting
-        </span>
       </div>
 
       {/* Card 4: COMPLETED */}
-      <div className="bg-white rounded-md p-3.5 border border-[#e5e7eb] shadow-xs flex flex-col justify-between">
-        <div className="flex items-center justify-between mb-1">
-          <span className="text-[10px] font-bold text-[#6b7280] uppercase tracking-wider">
-            COMPLETED
+      <div className="bg-white rounded-xl p-3.5 border border-slate-200/80 shadow-2xs flex flex-col justify-between h-full">
+        <div className="flex items-start justify-between gap-1.5">
+          <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider leading-tight max-w-[calc(100%-2rem)] truncate">
+            Completed
           </span>
-          <CheckCircle2 className="w-3.5 h-3.5 text-[#059669]" />
+          <div className="p-1.5 bg-emerald-50 rounded-lg text-emerald-700 border border-emerald-100 shrink-0">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+          </div>
         </div>
-        <div className="flex items-baseline gap-2 mt-0.5">
-          <span className="text-xl font-bold text-[#111827]">{completedCount}</span>
+        <div className="mt-2 flex flex-col justify-end flex-1">
+          <span className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight font-mono leading-none">{completedCount}</span>
+          <span className="text-[10px] font-semibold text-emerald-600 mt-1 leading-tight block">
+            Today
+          </span>
         </div>
-        <span className="text-[11px] text-[#6b7280] font-medium mt-1">
-          Today
-        </span>
       </div>
 
       {/* Card 5: AT RISK */}
-      <div className="bg-white rounded-md p-3.5 border border-red-200 bg-red-50/20 shadow-xs flex flex-col justify-between col-span-2 md:col-span-1">
-        <div className="flex items-center justify-between mb-1">
-          <span className="text-[10px] font-bold text-red-700 uppercase tracking-wider">
-            AT RISK
+      <div className="bg-red-50/40 rounded-xl p-3.5 border border-red-200 shadow-2xs flex flex-col justify-between h-full col-span-2 md:col-span-1">
+        <div className="flex items-start justify-between gap-1.5">
+          <span className="text-[10px] font-black text-red-800 uppercase tracking-wider leading-tight max-w-[calc(100%-2rem)] truncate">
+            At Risk
           </span>
-          <AlertTriangle className="w-3.5 h-3.5 text-red-600" />
+          <div className="p-1.5 bg-red-100 rounded-lg text-red-700 border border-red-200 shrink-0">
+            <AlertTriangle className="w-3.5 h-3.5 text-red-600" />
+          </div>
         </div>
-        <div className="flex items-baseline gap-2 mt-0.5">
-          <span className="text-xl font-bold text-red-700">{atRiskCount}</span>
+        <div className="mt-2 flex flex-col justify-end flex-1">
+          <span className="text-xl sm:text-2xl font-black text-red-700 tracking-tight font-mono leading-none">{atRiskCount}</span>
+          <span className="text-[10px] font-bold text-red-600 mt-1 leading-tight block">
+            Action required
+          </span>
         </div>
-        <span className="text-[11px] text-red-600 font-medium mt-1">
-          Require attention
-        </span>
       </div>
     </div>
   );

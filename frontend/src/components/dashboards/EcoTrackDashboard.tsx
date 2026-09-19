@@ -32,6 +32,8 @@ import { PredictionPage } from '../admin/predictions/PredictionPage';
 import { AdminDashboardPage } from '../admin/dashboard/AdminDashboardPage';
 
 import { DriverPortal } from '../driver/DriverPortal';
+import logoImg from '../../assets/logo.png';
+import logoTextImg from '../../assets/logo_text.png';
 
 interface EcoTrackDashboardProps {
   user: UserSession;
@@ -72,14 +74,9 @@ export const EcoTrackDashboard: React.FC<EcoTrackDashboardProps> = ({ user, onSi
       <aside className="w-64 bg-white border-r border-slate-200 flex flex-col justify-between p-4 shrink-0 shadow-sm z-20">
         <div>
           {/* Logo */}
-          <div className="flex items-center gap-2.5 px-2 py-2 mb-6">
-            <div className="w-9 h-9 rounded-xl bg-[#047857] flex items-center justify-center shadow-md">
-              <Leaf className="w-5 h-5 text-white" />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-lg font-extrabold text-[#064e3b] leading-tight tracking-tight">EcoTrack</span>
-              <span className="text-[11px] font-semibold text-slate-500 leading-none">Waste Management</span>
-            </div>
+          <div className="flex items-center gap-2 px-2 py-2 mb-6">
+            <img src={logoImg} alt="EcoTrack Logo" className="h-9 w-auto object-contain" />
+            <img src={logoTextImg} alt="EcoTrack Brand" className="h-6 w-auto object-contain" />
           </div>
 
           {/* MAIN Navigation */}
