@@ -58,7 +58,7 @@ export const UserTableRow: React.FC<UserTableRowProps> = ({
 
   // Format Operational Assignment cell content
   const renderAssignment = () => {
-    if (user.role === 'COLLECTOR' || user.role === 'DRIVER') {
+    if (user.role === 'DRIVER') {
       const vehicle = user.assignedVehicleId || 'No Vehicle';
       const route = user.assignedRouteId || 'No Route';
       return (
@@ -81,13 +81,13 @@ export const UserTableRow: React.FC<UserTableRowProps> = ({
       );
     }
 
-    if (user.role === 'VIEWER' || user.role === 'ANALYST') {
+    if (user.role === 'ANALYST') {
       return (
         <div className="text-xs">
           <span className="inline-block bg-blue-50 text-blue-800 px-2 py-0.5 rounded font-medium text-[11px] border border-blue-200">
             {user.analyticsScope === 'All Zones' ? 'All Zones Scope' : 'Assigned Zones Scope'}
           </span>
-          <p className="text-[10px] text-slate-500 mt-0.5">Platform Viewer Scope</p>
+          <p className="text-[10px] text-slate-500 mt-0.5">Operations Analyst Scope</p>
         </div>
       );
     }
@@ -233,7 +233,7 @@ export const UserTableRow: React.FC<UserTableRowProps> = ({
                   <ShieldAlert className="w-3.5 h-3.5 mr-2 text-slate-400 group-hover:text-slate-600" />
                   Change Role
                 </button>
-                {(user.role === 'COLLECTOR' || user.role === 'DRIVER') && (
+                {user.role === 'DRIVER' && (
                   <button
                     onClick={() => {
                       setMenuOpen(false);

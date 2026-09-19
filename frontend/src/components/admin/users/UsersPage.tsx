@@ -134,10 +134,8 @@ export const UsersPage: React.FC = () => {
   const roleCounts = useMemo(() => {
     return {
       ADMIN: users.filter((u) => u.role === 'ADMIN').length,
-      DRIVER: users.filter((u) => u.role === 'DRIVER' || u.role === 'COLLECTOR').length,
-      ANALYST: users.filter((u) => u.role === 'ANALYST' || u.role === 'VIEWER').length,
-      COLLECTOR: users.filter((u) => u.role === 'COLLECTOR' || u.role === 'DRIVER').length,
-      VIEWER: users.filter((u) => u.role === 'VIEWER' || u.role === 'ANALYST').length,
+      DRIVER: users.filter((u) => u.role === 'DRIVER').length,
+      ANALYST: users.filter((u) => u.role === 'ANALYST').length,
     };
   }, [users]);
 

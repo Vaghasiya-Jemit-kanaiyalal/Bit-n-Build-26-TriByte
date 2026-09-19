@@ -24,18 +24,20 @@ export const App: React.FC = () => {
     const savedUser = authService.getSavedUser();
     const token = authService.getToken();
     if (savedUser && token) {
-      const roleStr = savedUser.role || 'VIEWER';
+      const roleStr = (savedUser.role || 'ANALYST').toUpperCase();
+      const displayRole =
+        roleStr === 'ADMIN'
+          ? 'Waste Manager'
+          : roleStr === 'DRIVER' || roleStr === 'COLLECTOR'
+          ? 'Collection Driver'
+          : 'Operations Analyst';
+
       const userSession: UserSession = {
         id: savedUser.id,
         name: savedUser.full_name || savedUser.name || savedUser.email.split('@')[0],
         email: savedUser.email,
-        role: roleStr,
-        displayRole:
-          roleStr === 'ADMIN'
-            ? 'Waste Manager'
-            : roleStr === 'COLLECTOR'
-            ? 'Driver / Field Worker'
-            : 'Analyst / Supervisor',
+        role: displayRole,
+        displayRole: displayRole,
         status: savedUser.status || 'ACTIVE',
         organization: savedUser.organization || 'EcoTrack AI Waste Management',
         department: savedUser.department || 'Operations',
@@ -46,22 +48,22 @@ export const App: React.FC = () => {
 
   const handleSignInSuccess = (role: string, email: string, userRecord?: any) => {
     // Role strictly comes from the database record!
-    const dbRole = (userRecord?.role || role || 'VIEWER').toUpperCase();
+    const dbRole = (userRecord?.role || role || 'ANALYST').toUpperCase();
 
     // Map to display representation for dashboard while keeping raw database role
-    let mappedDisplayRole: string = 'Analyst / Supervisor';
+    let mappedDisplayRole: string = 'Operations Analyst';
     if (dbRole === 'ADMIN') {
       mappedDisplayRole = 'Waste Manager';
-    } else if (dbRole === 'COLLECTOR') {
-      mappedDisplayRole = 'Driver / Field Worker';
-    } else if (dbRole === 'VIEWER') {
-      mappedDisplayRole = 'Analyst / Supervisor';
+    } else if (dbRole === 'DRIVER' || dbRole === 'COLLECTOR') {
+      mappedDisplayRole = 'Collection Driver';
+    } else if (dbRole === 'ANALYST' || dbRole === 'VIEWER') {
+      mappedDisplayRole = 'Operations Analyst';
     }
 
     const displayName =
       userRecord?.full_name ||
       (userRecord?.first_name ? `${userRecord.first_name} ${userRecord.last_name || ''}`.trim() : null) ||
-      (email === 'yug@gmail.com' ? 'Yug Admin' : email.split('@')[0]);
+      (email === 'admin@gmail.com' ? 'Waste Manager' : email.split('@')[0]);
 
     const userSession: UserSession = {
       id: userRecord?.id,

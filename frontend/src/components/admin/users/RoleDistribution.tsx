@@ -16,19 +16,19 @@ export const RoleDistribution: React.FC<RoleDistributionProps> = ({
   onSelectRole,
 }) => {
   const adminCount = counts.ADMIN || 0;
-  const collectorCount = (counts.COLLECTOR || 0) + (counts.DRIVER || 0);
-  const viewerCount = (counts.VIEWER || 0) + (counts.ANALYST || 0);
+  const driverCount = counts.DRIVER || 0;
+  const analystCount = counts.ANALYST || 0;
 
   const adminPct = total > 0 ? Math.round((adminCount / total) * 100) : 0;
-  const collectorPct = total > 0 ? Math.round((collectorCount / total) * 100) : 0;
-  const viewerPct = total > 0 ? Math.round((viewerCount / total) * 100) : 0;
+  const driverPct = total > 0 ? Math.round((driverCount / total) * 100) : 0;
+  const analystPct = total > 0 ? Math.round((analystCount / total) * 100) : 0;
 
   const roleConfig = [
     {
-      role: 'COLLECTOR' as UserRole,
-      label: 'Collectors',
-      count: collectorCount,
-      percentage: collectorPct,
+      role: 'DRIVER' as UserRole,
+      label: 'Collection Drivers',
+      count: driverCount,
+      percentage: driverPct,
       color: 'bg-emerald-500',
       bgColor: 'bg-emerald-50',
       borderColor: 'border-emerald-200',
@@ -36,10 +36,10 @@ export const RoleDistribution: React.FC<RoleDistributionProps> = ({
       icon: Truck,
     },
     {
-      role: 'VIEWER' as UserRole,
-      label: 'Viewers',
-      count: viewerCount,
-      percentage: viewerPct,
+      role: 'ANALYST' as UserRole,
+      label: 'Operations Analysts',
+      count: analystCount,
+      percentage: analystPct,
       color: 'bg-blue-500',
       bgColor: 'bg-blue-50',
       borderColor: 'border-blue-200',
@@ -48,7 +48,7 @@ export const RoleDistribution: React.FC<RoleDistributionProps> = ({
     },
     {
       role: 'ADMIN' as UserRole,
-      label: 'Waste Managers (Admin)',
+      label: 'Waste Managers',
       count: adminCount,
       percentage: adminPct,
       color: 'bg-purple-500',
@@ -72,21 +72,21 @@ export const RoleDistribution: React.FC<RoleDistributionProps> = ({
       {/* Segmented bar */}
       <div className="h-2.5 w-full bg-slate-100 rounded-full overflow-hidden flex mb-4">
         <div
-          style={{ width: `${collectorPct}%` }}
+          style={{ width: `${driverPct}%` }}
           className="bg-emerald-500 transition-all duration-300 hover:opacity-90 cursor-pointer"
-          title={`Collectors: ${collectorCount} (${collectorPct}%)`}
-          onClick={() => onSelectRole(selectedRole === 'COLLECTOR' ? 'All' : 'COLLECTOR')}
+          title={`Collection Drivers: ${driverCount} (${driverPct}%)`}
+          onClick={() => onSelectRole(selectedRole === 'DRIVER' ? 'All' : 'DRIVER')}
         />
         <div
-          style={{ width: `${viewerPct}%` }}
+          style={{ width: `${analystPct}%` }}
           className="bg-blue-500 transition-all duration-300 hover:opacity-90 cursor-pointer"
-          title={`Viewers: ${viewerCount} (${viewerPct}%)`}
-          onClick={() => onSelectRole(selectedRole === 'VIEWER' ? 'All' : 'VIEWER')}
+          title={`Operations Analysts: ${analystCount} (${analystPct}%)`}
+          onClick={() => onSelectRole(selectedRole === 'ANALYST' ? 'All' : 'ANALYST')}
         />
         <div
           style={{ width: `${adminPct}%` }}
           className="bg-purple-500 transition-all duration-300 hover:opacity-90 cursor-pointer"
-          title={`Admins: ${adminCount} (${adminPct}%)`}
+          title={`Waste Managers: ${adminCount} (${adminPct}%)`}
           onClick={() => onSelectRole(selectedRole === 'ADMIN' ? 'All' : 'ADMIN')}
         />
       </div>

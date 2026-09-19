@@ -11,35 +11,35 @@ export const RoleBadge: React.FC<RoleBadgeProps> = ({ role, showSubtitle = false
   if (role === 'ADMIN') {
     return (
       <div className="flex flex-col">
-        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[10px] font-extrabold bg-emerald-50 text-[#047857] border border-emerald-200 tracking-wider uppercase">
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[10px] font-extrabold bg-emerald-50 text-[#047857] border border-emerald-200 tracking-wider">
           <Shield className="w-3 h-3 text-[#047857]" />
-          ADMIN
+          Waste Manager
         </span>
-        {showSubtitle && <span className="text-[10px] font-semibold text-slate-500 mt-0.5">Waste Manager</span>}
+        {showSubtitle && <span className="text-[10px] font-semibold text-slate-500 mt-0.5">ADMIN</span>}
       </div>
     );
   }
 
-  if (role === 'COLLECTOR' || role === 'DRIVER') {
+  if (role === 'DRIVER') {
     return (
       <div className="flex flex-col">
-        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[10px] font-extrabold bg-blue-50 text-blue-700 border border-blue-200 tracking-wider uppercase">
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[10px] font-extrabold bg-blue-50 text-blue-700 border border-blue-200 tracking-wider">
           <Truck className="w-3 h-3 text-blue-600" />
-          COLLECTOR
+          Collection Driver
         </span>
-        {showSubtitle && <span className="text-[10px] font-semibold text-slate-500 mt-0.5 font-sans">Waste Collector</span>}
+        {showSubtitle && <span className="text-[10px] font-semibold text-slate-500 mt-0.5 font-sans">DRIVER</span>}
       </div>
     );
   }
 
-  // VIEWER / ANALYST
+  // ANALYST
   return (
     <div className="flex flex-col">
-      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[10px] font-extrabold bg-purple-50 text-purple-700 border border-purple-200 tracking-wider uppercase">
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[10px] font-extrabold bg-purple-50 text-purple-700 border border-purple-200 tracking-wider">
         <BarChart3 className="w-3 h-3 text-purple-600" />
-        VIEWER
+        Operations Analyst
       </span>
-      {showSubtitle && <span className="text-[10px] font-semibold text-slate-500 mt-0.5 font-sans">Platform Viewer</span>}
+      {showSubtitle && <span className="text-[10px] font-semibold text-slate-500 mt-0.5 font-sans">ANALYST</span>}
     </div>
   );
 };

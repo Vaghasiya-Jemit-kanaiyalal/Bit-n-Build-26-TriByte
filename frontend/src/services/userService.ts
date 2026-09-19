@@ -87,9 +87,9 @@ export const userService = {
     // Compute KPI Summary over full dataset
     const totalUsers = 86; // Display total metric
     const activeUsers = mockUserStore.filter((u) => u.status === 'ACTIVE').length;
-    const collectorCount = mockUserStore.filter((u) => u.role === 'COLLECTOR' || u.role === 'DRIVER').length;
-    const activeDriverCount = mockUserStore.filter((u) => (u.role === 'COLLECTOR' || u.role === 'DRIVER') && u.status === 'ACTIVE').length;
-    const viewerCount = mockUserStore.filter((u) => u.role === 'VIEWER' || u.role === 'ANALYST').length;
+    const driverCount = mockUserStore.filter((u) => u.role === 'DRIVER').length;
+    const activeDriverCount = mockUserStore.filter((u) => u.role === 'DRIVER' && u.status === 'ACTIVE').length;
+    const analystCount = mockUserStore.filter((u) => u.role === 'ANALYST').length;
     const adminCount = mockUserStore.filter((u) => u.role === 'ADMIN').length;
     const inactiveCount = mockUserStore.filter((u) => u.status === 'INACTIVE').length;
     const pendingCount = mockUserStore.filter((u) => u.status === 'PENDING').length;
@@ -99,11 +99,11 @@ export const userService = {
       totalUsers,
       activeUsers: activeUsers > 0 ? activeUsers : 78,
       activePercent: 90.7,
-      driverCount: collectorCount > 0 ? collectorCount : 52,
-      collectorCount: collectorCount > 0 ? collectorCount : 52,
+      driverCount: driverCount > 0 ? driverCount : 52,
+      collectorCount: driverCount > 0 ? driverCount : 52,
       activeDriverCount: activeDriverCount > 0 ? activeDriverCount : 46,
-      analystCount: viewerCount > 0 ? viewerCount : 21,
-      viewerCount: viewerCount > 0 ? viewerCount : 21,
+      analystCount: analystCount > 0 ? analystCount : 21,
+      viewerCount: analystCount > 0 ? analystCount : 21,
       adminCount: adminCount > 0 ? adminCount : 13,
       inactiveCount: inactiveCount > 0 ? inactiveCount : 6,
       pendingCount: pendingCount > 0 ? pendingCount : 2,
@@ -132,6 +132,16 @@ export const userService = {
 
     const fName = userData.firstName || 'New';
     const lName = userData.lastName || 'User';
+    const emailLower = (userData.email || '').toLowerCase().trim();
+    const targetRole = userData.role || 'DRIVER';
+
+    if (targetRole === 'DRIVER' && !emailLower.endsWith('@driver.gmail.com')) {
+      throw new Error('Collection Driver accounts must use an @driver.gmail.com email.');
+    }
+    if (targetRole === 'ANALYST' && !emailLower.endsWith('@analyst.gmail.com')) {
+      throw new Error('Operations Analyst accounts must use an @analyst.gmail.com email.');
+    }
+
     const fullName = `${fName} ${lName}`;
     const initials = `${fName[0]}${lName[0]}`.toUpperCase();
 
@@ -150,7 +160,7 @@ export const userService = {
             last_name: lName,
             email: userData.email,
             phone: userData.phone,
-            role: userData.role || 'COLLECTOR',
+            role: targetRole,
             status: userData.status || 'ACTIVE',
             organization: userData.organization || 'EcoTrack AI Waste Management',
             department: userData.department || 'Operations',
@@ -170,7 +180,7 @@ export const userService = {
       fullName,
       email: userData.email || `user${newNum}@example.com`,
       phone: userData.phone || '+91 98000 00000',
-      role: userData.role || 'COLLECTOR',
+      role: targetRole,
       status: userData.status || 'ACTIVE',
       organization: userData.organization || 'Municipal Waste Operations',
       department: userData.department || 'Operations Team',
@@ -178,9 +188,9 @@ export const userService = {
       assignedVehicleId: userData.assignedVehicleId,
       assignedRouteId: userData.assignedRouteId,
       analyticsScope: userData.analyticsScope,
-      accessScope: userData.role === 'ADMIN' ? 'Full Platform' : userData.role === 'VIEWER' ? 'Analytics Only' : 'Operational Only',
+      accessScope: targetRole === 'ADMIN' ? 'Full Platform' : targetRole === 'ANALYST' ? 'Analytics Only' : 'Operational Only',
       avatarInitials: initials,
-      avatarBgColor: userData.role === 'ADMIN' ? 'bg-[#064e3b] text-white' : userData.role === 'VIEWER' ? 'bg-purple-700 text-white' : 'bg-emerald-600 text-white',
+      avatarBgColor: targetRole === 'ADMIN' ? 'bg-[#064e3b] text-white' : targetRole === 'ANALYST' ? 'bg-purple-700 text-white' : 'bg-emerald-600 text-white',
       lastActiveAt: 'Just now',
       joinedAt: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
       createdAt: new Date().toISOString().split('T')[0],
@@ -264,10 +274,10 @@ export const userService = {
 
     return this.updateUser(id, {
       role: newRole,
-      accessScope: newRole === 'ADMIN' ? 'Full Platform' : newRole === 'VIEWER' ? 'Analytics Only' : 'Operational Only',
-      assignedVehicleId: newRole === 'COLLECTOR' ? user.assignedVehicleId : undefined,
-      assignedRouteId: newRole === 'COLLECTOR' ? user.assignedRouteId : undefined,
-      analyticsScope: newRole === 'VIEWER' ? 'All Zones' : undefined,
+      accessScope: newRole === 'ADMIN' ? 'Full Platform' : newRole === 'ANALYST' ? 'Analytics Only' : 'Operational Only',
+      assignedVehicleId: newRole === 'DRIVER' ? user.assignedVehicleId : undefined,
+      assignedRouteId: newRole === 'DRIVER' ? user.assignedRouteId : undefined,
+      analyticsScope: newRole === 'ANALYST' ? 'All Zones' : undefined,
     });
   },
 

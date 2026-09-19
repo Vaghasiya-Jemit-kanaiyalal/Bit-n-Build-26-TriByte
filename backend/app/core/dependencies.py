@@ -95,9 +95,9 @@ def require_roles(*allowed_roles: UserRole) -> Callable:
 
 # Role dependencies for the 3 platform roles
 require_admin = require_roles(UserRole.ADMIN)
-require_collector = require_roles(UserRole.COLLECTOR)
-require_viewer = require_roles(UserRole.VIEWER)
+require_driver = require_roles(UserRole.DRIVER)
+require_analyst = require_roles(UserRole.ANALYST)
 
 # Backwards-compatibility aliases if needed
-require_driver = require_collector
-require_analyst = require_viewer
+require_collector = require_driver
+require_viewer = require_analyst

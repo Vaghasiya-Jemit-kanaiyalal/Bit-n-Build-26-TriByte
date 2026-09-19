@@ -70,18 +70,18 @@ export const UserKpiGrid: React.FC<UserKpiGridProps> = ({
         </div>
       </div>
 
-      {/* 3. COLLECTORS */}
+      {/* 3. COLLECTION DRIVERS */}
       <div
-        onClick={() => onFilterRole && onFilterRole('COLLECTOR')}
+        onClick={() => onFilterRole && onFilterRole('DRIVER')}
         className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex items-center justify-between cursor-pointer hover:border-blue-300 transition-all"
       >
         <div>
           <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block mb-1">
-            COLLECTORS
+            COLLECTION DRIVERS
           </span>
           <div className="flex items-baseline gap-2">
             <span className="text-2xl font-extrabold text-blue-700 leading-none">
-              {summary.collectorCount || summary.driverCount}
+              {summary.driverCount}
             </span>
             <span className="text-[10px] font-bold text-blue-600">
               {summary.activeDriverCount} active on duty
@@ -96,21 +96,21 @@ export const UserKpiGrid: React.FC<UserKpiGridProps> = ({
         </div>
       </div>
 
-      {/* 4. VIEWERS */}
+      {/* 4. OPERATIONS ANALYSTS */}
       <div
-        onClick={() => onFilterRole && onFilterRole('VIEWER')}
+        onClick={() => onFilterRole && onFilterRole('ANALYST')}
         className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex items-center justify-between cursor-pointer hover:border-purple-300 transition-all"
       >
         <div>
           <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block mb-1">
-            VIEWERS
+            OPERATIONS ANALYSTS
           </span>
           <div className="flex items-baseline gap-2">
             <span className="text-2xl font-extrabold text-purple-700 leading-none">
-              {summary.viewerCount || summary.analystCount}
+              {summary.analystCount}
             </span>
             <span className="text-[10px] font-bold text-slate-500">
-              Platform Viewers
+              Operations Analysts
             </span>
           </div>
           <span className="text-[11px] font-medium text-slate-500 mt-1 block">

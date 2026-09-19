@@ -300,14 +300,14 @@ async def test_12_assign_driver(client: AsyncClient, db_session: AsyncSession):
 # ============================================================================
 @pytest.mark.asyncio
 async def test_13_invalid_driver_role(client: AsyncClient, db_session: AsyncSession):
-    """13. Test rejecting assignment of non-DRIVER users (VIEWER, ADMIN)."""
+    """13. Test rejecting assignment of non-DRIVER users (ANALYST, ADMIN)."""
     admin = await create_test_user(db_session, role=UserRole.ADMIN)
-    viewer = await create_test_user(db_session, role=UserRole.VIEWER)
+    analyst = await create_test_user(db_session, role=UserRole.ANALYST)
     v = await create_test_vehicle(db_session)
 
     res = await client.post(
         f"/api/v1/admin/vehicles/{v.id}/assign-driver",
-        json={"driver_id": viewer.id},
+        json={"driver_id": analyst.id},
         headers=auth_header(admin),
     )
     assert res.status_code == 400
@@ -562,12 +562,12 @@ async def test_26_attention_vehicles(client: AsyncClient, db_session: AsyncSessi
 # ============================================================================
 @pytest.mark.asyncio
 async def test_27_admin_authorization(client: AsyncClient, db_session: AsyncSession):
-    """27. Test that non-admin users (VIEWER, DRIVER) are rejected with 403 Forbidden."""
-    viewer = await create_test_user(db_session, role=UserRole.VIEWER)
+    """27. Test that non-admin users (ANALYST, DRIVER) are rejected with 403 Forbidden."""
+    analyst = await create_test_user(db_session, role=UserRole.ANALYST)
     driver = await create_test_user(db_session, role=UserRole.DRIVER)
 
-    res_viewer = await client.get("/api/v1/admin/vehicles", headers=auth_header(viewer))
-    assert res_viewer.status_code == 403
+    res_analyst = await client.get("/api/v1/admin/vehicles", headers=auth_header(analyst))
+    assert res_analyst.status_code == 403
 
     res_driver = await client.get("/api/v1/admin/vehicles", headers=auth_header(driver))
     assert res_driver.status_code == 403
