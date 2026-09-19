@@ -41,7 +41,7 @@ export const AdminSettingsPage: React.FC<AdminSettingsPageProps> = ({ onNavigate
       setWorkingSettings(updated);
       setIsSaving(false);
       showWebsiteToast(
-        'WasteWise platform configuration settings saved successfully.',
+        'EcoTrack platform configuration settings saved successfully.',
         'success',
         'Settings Saved'
       );

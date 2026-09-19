@@ -18,15 +18,15 @@ logging.basicConfig(
     level=logging.INFO if settings.ENVIRONMENT != "debug" else logging.DEBUG,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
-logger = logging.getLogger("wastewise")
+logger = logging.getLogger("ecotrack")
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """Application lifespan context for startup and shutdown management."""
-    logger.info("Starting up WasteWise AI Backend API...")
+    logger.info("Starting up EcoTrack AI Backend API...")
     yield
-    logger.info("Shutting down WasteWise AI Backend API...")
+    logger.info("Shutting down EcoTrack AI Backend API...")
     await engine.dispose()
 
 
@@ -34,7 +34,7 @@ app = FastAPI(
     title=settings.PROJECT_NAME,
     version="1.0.0",
     description=(
-        "WasteWise AI - AI-Powered Waste Management & Recycling Optimizer.\n\n"
+        "EcoTrack AI - AI-Powered Waste Management & Recycling Optimizer.\n\n"
         "Backend authentication and role-based access control service.\n\n"
         "**Supported Roles:**\n"
         "- `ADMIN`: Waste Manager / System Admin\n"

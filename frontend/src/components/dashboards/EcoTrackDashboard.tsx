@@ -113,6 +113,7 @@ const getPathFromTab = (tab: string, role: string): string => {
 };
 
 import { DriverPortal } from '../driver/DriverPortal';
+import faviconImg from '../../assets/favicon.png';
 import logoImg from '../../assets/logo.png';
 import logoTextImg from '../../assets/logo_text.png';
 
@@ -222,11 +223,15 @@ export const EcoTrackDashboard: React.FC<EcoTrackDashboardProps> = ({ user, onSi
       {/* LEFT SIDEBAR */}
       <aside className="w-64 bg-white border-r border-slate-200 flex flex-col justify-between p-4 shrink-0 shadow-sm z-20">
         <div>
-          {/* Logo */}
-          <div className="flex items-center gap-2 px-2 py-2 mb-6">
-            <img src={logoImg} alt="EcoTrack Logo" className="h-9 w-auto object-contain" />
-            <img src={logoTextImg} alt="EcoTrack Brand" className="h-6 w-auto object-contain" />
-          </div>
+          {/* Clickable Favicon Logo to Dashboard */}
+          <button
+            type="button"
+            onClick={() => handleSelectTab('Dashboard')}
+            className="flex items-center px-2 py-2 mb-6 cursor-pointer bg-transparent border-none text-left hover:opacity-85 transition-opacity"
+            title="Go to Dashboard"
+          >
+            <img src={faviconImg} alt="EcoTrack Favicon" className="h-12 w-auto object-contain max-w-[200px]" />
+          </button>
 
           {/* MAIN Navigation */}
           <div className="mb-6">

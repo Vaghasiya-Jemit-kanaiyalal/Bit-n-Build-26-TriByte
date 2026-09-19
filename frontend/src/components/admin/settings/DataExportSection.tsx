@@ -15,7 +15,7 @@ export const DataExportSection: React.FC<DataExportSectionProps> = ({ data, onCh
 
   const handleDownloadBackup = () => {
     const backupObj = {
-      appName: 'WasteWise AI System Backup',
+      appName: 'EcoTrack AI System Backup',
       backupDate: new Date().toISOString(),
       retentionConfig: data,
     };
@@ -23,13 +23,13 @@ export const DataExportSection: React.FC<DataExportSectionProps> = ({ data, onCh
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `WasteWise_System_Backup_${Date.now()}.json`;
+    link.download = `EcoTrack_System_Backup_${Date.now()}.json`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
 
     showWebsiteToast(
-      'WasteWise system configuration backup package downloaded.',
+      'EcoTrack system configuration backup package downloaded.',
       'success',
       'Backup Downloaded'
     );

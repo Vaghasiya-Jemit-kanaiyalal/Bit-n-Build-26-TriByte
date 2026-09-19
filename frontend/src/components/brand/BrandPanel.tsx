@@ -45,7 +45,7 @@ export const BrandPanel: React.FC = () => {
           </div>
           <div>
             <span style={{ fontSize: '1.25rem', fontWeight: '700', letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>
-              WasteWise <span style={{ color: 'var(--accent-olive)' }}>AI</span>
+              EcoTrack <span style={{ color: 'var(--accent-olive)' }}>AI</span>
             </span>
             <span className="mono" style={{ display: 'block', fontSize: '0.65rem', color: 'var(--text-muted)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
               Operations Platform v2.4

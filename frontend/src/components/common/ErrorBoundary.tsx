@@ -30,7 +30,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
-    console.error('[WasteWise ErrorBoundary Caught]:', error, errorInfo);
+    console.error('[EcoTrack ErrorBoundary Caught]:', error, errorInfo);
     this.setState({ errorInfo });
   }
 

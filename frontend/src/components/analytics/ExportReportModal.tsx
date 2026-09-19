@@ -35,7 +35,7 @@ export const ExportReportModal: React.FC<ExportReportModalProps> = ({ isOpen, on
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.setAttribute('href', url);
-      link.setAttribute('download', `WasteWise_Analytics_${dateRange.replace(/\s+/g, '_')}.csv`);
+      link.setAttribute('download', `EcoTrack_Analytics_${dateRange.replace(/\s+/g, '_')}.csv`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -56,7 +56,7 @@ export const ExportReportModal: React.FC<ExportReportModalProps> = ({ isOpen, on
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.setAttribute('href', url);
-      link.setAttribute('download', `WasteWise_Executive_Report_${dateRange.replace(/\s+/g, '_')}.json`);
+      link.setAttribute('download', `EcoTrack_Executive_Report_${dateRange.replace(/\s+/g, '_')}.json`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);

@@ -59,9 +59,9 @@ export const authService = {
       }
 
       const data: LoginResponse = await response.json();
-      localStorage.setItem('wastewise_token', data.access_token);
-      localStorage.setItem('wastewise_refresh_token', data.refresh_token);
-      localStorage.setItem('wastewise_user', JSON.stringify(data.user));
+      localStorage.setItem('ecotrack_token', data.access_token);
+      localStorage.setItem('ecotrack_refresh_token', data.refresh_token);
+      localStorage.setItem('ecotrack_user', JSON.stringify(data.user));
       return data;
     } catch (err: any) {
       // If backend server is unreachable or offline, provide graceful fallback for demo accounts
@@ -100,11 +100,11 @@ export const authService = {
   },
 
   getToken(): string | null {
-    return localStorage.getItem('wastewise_token');
+    return localStorage.getItem('ecotrack_token') || localStorage.getItem('wastewise_token');
   },
 
   getSavedUser(): any | null {
-    const raw = localStorage.getItem('wastewise_user');
+    const raw = localStorage.getItem('ecotrack_user') || localStorage.getItem('wastewise_user');
     if (!raw) return null;
     try {
       return JSON.parse(raw);
@@ -114,7 +114,7 @@ export const authService = {
   },
 
   async refreshToken(): Promise<string | null> {
-    const refreshToken = localStorage.getItem('wastewise_refresh_token');
+    const refreshToken = localStorage.getItem('ecotrack_refresh_token') || localStorage.getItem('wastewise_refresh_token');
     if (!refreshToken) return null;
 
     try {
@@ -129,10 +129,10 @@ export const authService = {
       }
 
       const data: LoginResponse = await response.json();
-      localStorage.setItem('wastewise_token', data.access_token);
-      localStorage.setItem('wastewise_refresh_token', data.refresh_token);
+      localStorage.setItem('ecotrack_token', data.access_token);
+      localStorage.setItem('ecotrack_refresh_token', data.refresh_token);
       if (data.user) {
-        localStorage.setItem('wastewise_user', JSON.stringify(data.user));
+        localStorage.setItem('ecotrack_user', JSON.stringify(data.user));
       }
       return data.access_token;
     } catch {
@@ -141,6 +141,9 @@ export const authService = {
   },
 
   logout(): void {
+    localStorage.removeItem('ecotrack_token');
+    localStorage.removeItem('ecotrack_refresh_token');
+    localStorage.removeItem('ecotrack_user');
     localStorage.removeItem('wastewise_token');
     localStorage.removeItem('wastewise_refresh_token');
     localStorage.removeItem('wastewise_user');
@@ -190,7 +193,7 @@ export const authService = {
       email,
       role,
       status,
-      organization: 'EcoTrack WasteWise AI',
+      organization: 'EcoTrack AI Waste Management',
       department: 'Operations',
       created_at: new Date().toISOString(),
     };

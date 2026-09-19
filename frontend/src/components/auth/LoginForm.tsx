@@ -15,7 +15,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({
   onSwitchToSignup,
   onSwitchToForgotPassword,
 }) => {
-  const [email, setEmail] = useState('manager.admin@wastewise.ai');
+  const [email, setEmail] = useState('manager.admin@ecotrack.ai');
   const [password, setPassword] = useState('Password123!');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
