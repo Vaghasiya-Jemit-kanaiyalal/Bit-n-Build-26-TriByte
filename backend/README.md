@@ -400,14 +400,14 @@ All administrative route endpoints require the `ADMIN` role. Non-admin users (Co
 The test suite runs against the isolated `wastewise_test` database without affecting development data:
 
 ```bash
-# Run all backend tests (Auth, Routes, Vehicles - 64 tests total)
-python -m pytest tests/test_auth.py tests/test_routes.py tests/test_vehicles.py -v
+# Run all backend tests (Auth, Routes, Vehicles, Bins, Monitoring - 112 tests total)
+python -m pytest tests/test_auth.py tests/test_routes.py tests/test_vehicles.py tests/test_bins.py tests/test_monitoring.py -v
 
-# Run vehicle management tests specifically
-python -m pytest tests/test_vehicles.py -v
+# Run monitoring tests specifically
+python -m pytest tests/test_monitoring.py -v
 ```
 
-Covered test suites (64 tests total):
+Covered test suites (112 tests total):
 - User registration, login, logout, password reset, JWT validation
 - Route CRUD, pagination, filtering, search, and sorting
 - Route stops addition, removal, reordering, completion, and skipping
@@ -785,5 +785,44 @@ All endpoints below are under `/api/v1/admin/bins` and require an `ADMIN` JWT be
 | `GET` | `/api/v1/admin/bins/{bin_id}/telemetry` | Historical sensor readings with date filtering (`from_date`, `to_date`) and limit. |
 | `GET` | `/api/v1/admin/bins/{bin_id}/collections` | Historical collection log with collector, vehicle, collected weight, and notes. |
 | `GET` | `/api/v1/admin/bins/{bin_id}/activity` | Audit log for bin lifecycle events. |
+
+---
+
+## 11. Admin → Monitoring API Reference (Live Operations Center)
+
+The Monitoring module is an aggregation and read-only operational monitoring layer under `/api/v1/admin/monitoring`. All endpoints require an `ADMIN` JWT bearer token (`Bearer <token>`). Non-admins receive `403 Forbidden`.
+
+### 11.1 Live Operations Snapshot & Summary
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/v1/admin/monitoring/live-snapshot` | **Composite polling endpoint (5–10s polling)**: Returns unified payload containing summary KPIs, GIS map data, sensor health, network health, zone statuses, active routes, active vehicles, active collections, recent activity, and active alerts. |
+| `GET` | `/api/v1/admin/monitoring/summary` | Real-time operations summary: `bins_monitored`, `bins_online`, `bins_offline`, `critical_bins`, `warning_bins`, `active_vehicles`, `total_vehicles`, `active_routes`, `active_collections`, `sensor_health_percentage`, `network_health_percentage`, `unacknowledged_alerts`, `critical_alerts`, and `last_updated`. |
+
+### 11.2 Live GIS Map Data
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/v1/admin/monitoring/map-data` | High-performance GIS map payload: smart bins with current fill and waste type, active vehicles with load and GPS coordinates, and in-progress routes with sequenced stop points. Supports filters: `zone`, `bin_status`, `vehicle_status`, `route_status`, `waste_type`, `collection_status`. |
+
+### 11.3 Monitored Entity Feeds
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/v1/admin/monitoring/bins` | Paginated live monitored bins with current fill %, battery %, telemetry timestamp, and assigned active collection route. Supports search, zone/status/priority/waste-type filters, and sorting. |
+| `GET` | `/api/v1/admin/monitoring/vehicles` | Paginated live fleet vehicles with load %, capacity utilization, driver name, current active route code, and last GPS timestamp. |
+| `GET` | `/api/v1/admin/monitoring/routes` | Active and planned collection routes with dynamic progress metrics (`completed_stops / total_stops * 100`), distance, and estimated completion time. |
+| `GET` | `/api/v1/admin/monitoring/routes/{route_id}` | Detailed monitoring snapshot of a route: vehicle, driver, sequenced stops with coordinates, fill level, and pointer to `current_stop`. Returns `404` if not found. |
+
+### 11.4 Health, Operations & Alert Streams
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/v1/admin/monitoring/sensors/health` | Sensor hardware health KPIs: online, offline, degraded, and low battery counts, average battery percentage, and telemetry freshness. |
+| `GET` | `/api/v1/admin/monitoring/network-health` | Network connectivity status: connected, stale, and offline devices, and telemetry freshness string. |
+| `GET` | `/api/v1/admin/monitoring/zones` | Real-time zone operational statuses: bin counts, online/offline, critical bins, average fill %, active vehicles, active routes, collections, and overall status (`Healthy`, `Attention`, `Critical`). |
+| `GET` | `/api/v1/admin/monitoring/collections` | Active collection operations currently scheduled, in progress, or recently completed from `RouteStop` entries. |
+| `GET` | `/api/v1/admin/monitoring/activity` | Unified chronological live activity stream from `BinActivity`, `VehicleActivity`, and `BinCollectionHistory` with severity levels (`INFO`, `WARNING`, `CRITICAL`, `SUCCESS`). |
+| `GET` | `/api/v1/admin/monitoring/alerts` | Live operational alert strip: active derived alerts for critical bin fills, offline sensors, low battery, vehicle overload, and routes at risk. |
 
 
