@@ -737,4 +737,53 @@ All endpoints below require an `ADMIN` JWT bearer token in the `Authorization` h
 - **Query Parameters:** `limit` (default `50`)
 - **Success Response (200 OK):** Chronological audit trail records (`activity_type`, `description`, `created_at`).
 
+---
+
+## 10. Admin → Bin Management API Reference
+
+All endpoints below are under `/api/v1/admin/bins` and require an `ADMIN` JWT bearer token in the `Authorization` header (`Bearer <token>`). Non-admins receive `403 Forbidden`.
+
+### 10.1 Network Summaries & Operational Intelligence
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/v1/admin/bins/summary` | Fleet-wide bin summary: total/active/inactive, status counts, collection needs, priority counts, avg fill, avg battery, online sensor %, predicted overflow count. |
+| `GET` | `/api/v1/admin/bins/network-health` | Network health KPIs: online/offline/degraded sensors, health %, average battery, telemetry freshness string, stale bins, critical bins. |
+| `GET` | `/api/v1/admin/bins/map` | Lightweight map markers (coordinates, status, fill %, priority, zone, waste type, predicted overflow). Accepts `zone`, `status`, `priority`, `waste_type`, `is_active` filters. |
+| `GET` | `/api/v1/admin/bins/analytics` | High-level bin aggregates (average/min/max fill, collection count, overflow events, critical events, waste type distribution, zone distribution). |
+| `GET` | `/api/v1/admin/bins/collection-summary` | Collection state breakdown counts (`NOT_REQUIRED`, `SCHEDULED`, `PRIORITY`, `OVERDUE`, `IN_PROGRESS`, `COLLECTED`), lists of priority & overdue bins, and bins due today. |
+
+### 10.2 Bin CRUD & Search
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/v1/admin/bins` | Paginated bin listing with multidimensional filtering (`status`, `zone`, `waste_type`, `collection_status`, `priority`, `bin_type`, `connectivity_status`, `is_active`, `fill_min`, `fill_max`, `fill_level`), search (`bin_code`, `name`, `address`, `sensor_id`), sorting (`sort_by`, `sort_order`). |
+| `POST` | `/api/v1/admin/bins` | Create bin with auto-generated code (`BIN-XXXX`) or custom code. Validates capacities (`0 < capacity_kg`), initial fill, and uniqueness. Records `CREATED` audit event. |
+| `GET` | `/api/v1/admin/bins/{bin_id}` | Comprehensive bin details drawer data: basic info, location, status, fill, sensor, collection info, prediction info, active route assignment, recent telemetry (10), recent collections (5), recent activities (15), and health summary. |
+| `PATCH` | `/api/v1/admin/bins/{bin_id}` | Update bin fields (`name`, `bin_type`, `capacity_kg`, `waste_type`, `zone`, `address`, `latitude`, `longitude`, `status`, `collection_status`, `priority`, `next_collection_at`). Records `UPDATED` audit event. |
+
+### 10.3 Operational Lifecycle & Bulk Actions
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `PATCH` | `/api/v1/admin/bins/{bin_id}/activate` | Restores inactive bin to `NORMAL` status and `is_active = true`. |
+| `PATCH` | `/api/v1/admin/bins/{bin_id}/deactivate` | Soft-deactivates bin (`is_active = false`, `status = INACTIVE`). Guarded against bins currently in an active route (`409 Conflict`). |
+| `PATCH` | `/api/v1/admin/bins/{bin_id}/status` | Transition operational status (`NORMAL`, `WARNING`, `CRITICAL`, `OFFLINE`, `MAINTENANCE`, `INACTIVE`) with state machine validation. |
+| `PATCH` | `/api/v1/admin/bins/{bin_id}/priority` | Update collection priority (`LOW`, `MEDIUM`, `HIGH`, `CRITICAL`) with source (`MANUAL`, `SYSTEM`, `PREDICTION`) and reason. |
+| `POST` | `/api/v1/admin/bins/{bin_id}/prioritize` | Flags bin for immediate collection (`priority = CRITICAL`, `collection_status = PRIORITY`). |
+| `POST` | `/api/v1/admin/bins/bulk-action` | Batch operations (`ACTIVATE`, `DEACTIVATE`, `SET_PRIORITY`, `SET_STATUS`, `SET_COLLECTION_STATUS`) on list of `bin_ids`. Returns success/failure IDs with detailed error explanations. |
+
+### 10.4 Sensor Management & Telemetry Ingestion
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/v1/admin/bins/{bin_id}/sensor` | Retrieve primary active sensor details for bin. |
+| `POST` | `/api/v1/admin/bins/{bin_id}/sensor` | Attach/pair a hardware sensor (`sensor_id`, `sensor_type`, `battery_percentage`, `firmware_version`). Enforces uniqueness. |
+| `PATCH` | `/api/v1/admin/bins/{bin_id}/sensor` | Update sensor hardware status, battery, firmware, or connectivity. |
+| `DELETE` | `/api/v1/admin/bins/{bin_id}/sensor` | Unpair/detach sensor from bin. |
+| `POST` | `/api/v1/admin/bins/{bin_id}/telemetry` | Ingest IoT sensor reading (`fill_percentage`, `fill_kg`, `battery_percentage`, `temperature_celsius`, `source`). Atomically records historical log, updates current bin fill/battery/connectivity, evaluates status thresholds (`>=90%` -> `CRITICAL`, `>=75%` -> `WARNING`, `<75%` -> `NORMAL`), and triggers audit event on status transition. |
+| `GET` | `/api/v1/admin/bins/{bin_id}/telemetry` | Historical sensor readings with date filtering (`from_date`, `to_date`) and limit. |
+| `GET` | `/api/v1/admin/bins/{bin_id}/collections` | Historical collection log with collector, vehicle, collected weight, and notes. |
+| `GET` | `/api/v1/admin/bins/{bin_id}/activity` | Audit log for bin lifecycle events. |
+
 

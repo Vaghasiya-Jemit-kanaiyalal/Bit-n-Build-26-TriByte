@@ -75,13 +75,18 @@ async def create_test_bin(
         name=f"Bin {unique_str}",
         location_name="Station A",
         zone=zone,
-        waste_type="Mixed",
+        waste_type="ORGANIC",
+        bin_type="STANDARD",
+        capacity_kg=100.0,
+        current_fill_kg=round(fill_level / 100.0 * 100.0, 2),
+        current_fill_percentage=fill_level,
         capacity_liters=240.0,
         fill_level=fill_level,
         priority=priority,
         status="ACTIVE",
         latitude=23.0231,
         longitude=72.5718,
+        is_active=True,
     )
     db.add(bin_obj)
     await db.commit()

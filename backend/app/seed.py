@@ -1,6 +1,6 @@
 import asyncio
 import uuid
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timezone, timedelta
 from sqlalchemy import select, and_
 from app.core.security import hash_password
 from app.db.database import AsyncSessionLocal
@@ -8,7 +8,19 @@ from app.models.user import User, UserRole, UserStatus
 from app.models.vehicle import Vehicle, VehicleType, EnergyType, VehicleStatus
 from app.models.vehicle_maintenance import VehicleMaintenanceRecord, MaintenanceStatus
 from app.models.vehicle_history import VehicleActivity
-from app.models.bin import Bin
+from app.models.bin import (
+    Bin,
+    BinType,
+    WasteType,
+    BinStatus,
+    CollectionStatus,
+    CollectionPriority,
+    ConnectivityStatus,
+)
+from app.models.sensor import Sensor
+from app.models.bin_telemetry import BinTelemetry
+from app.models.bin_collection import BinCollectionHistory
+from app.models.bin_activity import BinActivity
 from app.models.route import Route, RouteStatus, RoutePriority
 from app.models.route_stop import RouteStop, StopStatus, StopPriority
 
@@ -325,20 +337,37 @@ DEMO_VEHICLES = [
 ]
 
 DEMO_BINS = [
-    {"bin_code": "BIN-104", "name": "Cafeteria Primary Bin", "location_name": "Central Cafeteria", "zone": "Zone A", "waste_type": "Mixed", "capacity_liters": 240.0, "fill_level": 96.0, "priority": "CRITICAL", "status": "ACTIVE", "latitude": 23.0231, "longitude": 72.5718},
-    {"bin_code": "BIN-217", "name": "North Gate Bin", "location_name": "North Gate", "zone": "Zone A", "waste_type": "Plastic", "capacity_liters": 120.0, "fill_level": 91.0, "priority": "CRITICAL", "status": "ACTIVE", "latitude": 23.0255, "longitude": 72.5732},
-    {"bin_code": "BIN-083", "name": "Library Plaza Bin", "location_name": "Library Block", "zone": "Zone B", "waste_type": "Paper", "capacity_liters": 180.0, "fill_level": 78.0, "priority": "HIGH", "status": "ACTIVE", "latitude": 23.0270, "longitude": 72.5695},
-    {"bin_code": "BIN-142", "name": "Sports Field Bin", "location_name": "Sports Complex", "zone": "Zone B", "waste_type": "Organic", "capacity_liters": 240.0, "fill_level": 74.0, "priority": "HIGH", "status": "ACTIVE", "latitude": 23.0295, "longitude": 72.5680},
-    {"bin_code": "BIN-099", "name": "Student Center Bin", "location_name": "Student Center", "zone": "Zone A", "waste_type": "Plastic", "capacity_liters": 240.0, "fill_level": 88.0, "priority": "HIGH", "status": "ACTIVE", "latitude": 23.0240, "longitude": 72.5725},
-    {"bin_code": "BIN-112", "name": "Engineering Annex Bin", "location_name": "Engineering Annex", "zone": "Zone A", "waste_type": "Paper", "capacity_liters": 120.0, "fill_level": 65.0, "priority": "NORMAL", "status": "ACTIVE", "latitude": 23.0260, "longitude": 72.5740},
-    {"bin_code": "BIN-401", "name": "Hostel 1 Bin", "location_name": "Hostel Block 1", "zone": "Zone A", "waste_type": "Mixed", "capacity_liters": 240.0, "fill_level": 82.0, "priority": "HIGH", "status": "ACTIVE", "latitude": 23.0210, "longitude": 72.5760},
-    {"bin_code": "BIN-402", "name": "Hostel 2 Bin", "location_name": "Hostel Block 2", "zone": "Zone A", "waste_type": "Organic", "capacity_liters": 240.0, "fill_level": 79.0, "priority": "NORMAL", "status": "ACTIVE", "latitude": 23.0205, "longitude": 72.5775},
-    {"bin_code": "BIN-403", "name": "Faculty Housing Bin", "location_name": "Faculty Housing", "zone": "Zone B", "waste_type": "Paper", "capacity_liters": 120.0, "fill_level": 55.0, "priority": "NORMAL", "status": "ACTIVE", "latitude": 23.0310, "longitude": 72.5660},
-    {"bin_code": "BIN-404", "name": "Admin Quad Bin", "location_name": "Admin Quad", "zone": "Zone A", "waste_type": "Plastic", "capacity_liters": 180.0, "fill_level": 60.0, "priority": "NORMAL", "status": "ACTIVE", "latitude": 23.0245, "longitude": 72.5710},
-    {"bin_code": "BIN-305", "name": "Science Block Bin", "location_name": "Science Building", "zone": "Zone B", "waste_type": "Glass", "capacity_liters": 120.0, "fill_level": 85.0, "priority": "HIGH", "status": "ACTIVE", "latitude": 23.0330, "longitude": 72.5675},
-    {"bin_code": "BIN-308", "name": "Auditorium Bin", "location_name": "Auditorium Rear", "zone": "Zone B", "waste_type": "Mixed", "capacity_liters": 240.0, "fill_level": 68.0, "priority": "NORMAL", "status": "ACTIVE", "latitude": 23.0345, "longitude": 72.5650},
-    {"bin_code": "BIN-312", "name": "Health Center Bin", "location_name": "Health Center", "zone": "Zone B", "waste_type": "Organic", "capacity_liters": 120.0, "fill_level": 72.0, "priority": "NORMAL", "status": "ACTIVE", "latitude": 23.0360, "longitude": 72.5635},
-    {"bin_code": "BIN-319", "name": "Main Gate Bin", "location_name": "Main Gate Exit", "zone": "Zone A", "waste_type": "Metal", "capacity_liters": 180.0, "fill_level": 50.0, "priority": "NORMAL", "status": "ACTIVE", "latitude": 23.0220, "longitude": 72.5700},
+    # Existing Campus Bins
+    {"bin_code": "BIN-104", "name": "Cafeteria Primary Bin", "location_name": "Central Cafeteria", "zone": "Central Zone", "waste_type": WasteType.OTHER, "bin_type": BinType.COMMERCIAL, "capacity_kg": 100.0, "fill_level": 96.0, "priority": CollectionPriority.CRITICAL, "status": BinStatus.CRITICAL, "collection_status": CollectionStatus.PRIORITY, "sensor_id": "SNS-0104", "battery_percentage": 78.0, "latitude": 23.0231, "longitude": 72.5718},
+    {"bin_code": "BIN-217", "name": "North Gate Bin", "location_name": "North Gate", "zone": "North Zone", "waste_type": WasteType.PLASTIC, "bin_type": BinType.RECYCLING, "capacity_kg": 50.0, "fill_level": 91.0, "priority": CollectionPriority.CRITICAL, "status": BinStatus.CRITICAL, "collection_status": CollectionStatus.PRIORITY, "sensor_id": "SNS-0217", "battery_percentage": 85.0, "latitude": 23.0255, "longitude": 72.5732},
+    {"bin_code": "BIN-083", "name": "Library Plaza Bin", "location_name": "Library Block", "zone": "East Zone", "waste_type": WasteType.PAPER, "bin_type": BinType.RECYCLING, "capacity_kg": 75.0, "fill_level": 78.0, "priority": CollectionPriority.HIGH, "status": BinStatus.WARNING, "collection_status": CollectionStatus.SCHEDULED, "sensor_id": "SNS-0083", "battery_percentage": 92.0, "latitude": 23.0270, "longitude": 72.5695},
+    {"bin_code": "BIN-142", "name": "Sports Field Bin", "location_name": "Sports Complex", "zone": "South Zone", "waste_type": WasteType.ORGANIC, "bin_type": BinType.ORGANIC, "capacity_kg": 100.0, "fill_level": 74.0, "priority": CollectionPriority.HIGH, "status": BinStatus.NORMAL, "collection_status": CollectionStatus.SCHEDULED, "sensor_id": "SNS-0142", "battery_percentage": 88.0, "latitude": 23.0295, "longitude": 72.5680},
+    {"bin_code": "BIN-099", "name": "Student Center Bin", "location_name": "Student Center", "zone": "Central Zone", "waste_type": WasteType.PLASTIC, "bin_type": BinType.STANDARD, "capacity_kg": 100.0, "fill_level": 88.0, "priority": CollectionPriority.HIGH, "status": BinStatus.WARNING, "collection_status": CollectionStatus.SCHEDULED, "sensor_id": "SNS-0099", "battery_percentage": 64.0, "latitude": 23.0240, "longitude": 72.5725},
+    {"bin_code": "BIN-112", "name": "Engineering Annex Bin", "location_name": "Engineering Annex", "zone": "North Zone", "waste_type": WasteType.PAPER, "bin_type": BinType.STANDARD, "capacity_kg": 50.0, "fill_level": 65.0, "priority": CollectionPriority.LOW, "status": BinStatus.NORMAL, "collection_status": CollectionStatus.NOT_REQUIRED, "sensor_id": "SNS-0112", "battery_percentage": 95.0, "latitude": 23.0260, "longitude": 72.5740},
+    {"bin_code": "BIN-401", "name": "Hostel 1 Bin", "location_name": "Hostel Block 1", "zone": "Residential Zone", "waste_type": WasteType.OTHER, "bin_type": BinType.STANDARD, "capacity_kg": 100.0, "fill_level": 82.0, "priority": CollectionPriority.HIGH, "status": BinStatus.WARNING, "collection_status": CollectionStatus.SCHEDULED, "sensor_id": "SNS-0401", "battery_percentage": 71.0, "latitude": 23.0210, "longitude": 72.5760},
+    {"bin_code": "BIN-402", "name": "Hostel 2 Bin", "location_name": "Hostel Block 2", "zone": "Residential Zone", "waste_type": WasteType.ORGANIC, "bin_type": BinType.ORGANIC, "capacity_kg": 100.0, "fill_level": 79.0, "priority": CollectionPriority.HIGH, "status": BinStatus.WARNING, "collection_status": CollectionStatus.SCHEDULED, "sensor_id": "SNS-0402", "battery_percentage": 82.0, "latitude": 23.0205, "longitude": 72.5775},
+    {"bin_code": "BIN-403", "name": "Faculty Housing Bin", "location_name": "Faculty Housing", "zone": "Residential Zone", "waste_type": WasteType.PAPER, "bin_type": BinType.STANDARD, "capacity_kg": 50.0, "fill_level": 55.0, "priority": CollectionPriority.LOW, "status": BinStatus.NORMAL, "collection_status": CollectionStatus.NOT_REQUIRED, "sensor_id": "SNS-0403", "battery_percentage": 90.0, "latitude": 23.0310, "longitude": 72.5660},
+    {"bin_code": "BIN-404", "name": "Admin Quad Bin", "location_name": "Admin Quad", "zone": "Central Zone", "waste_type": WasteType.PLASTIC, "bin_type": BinType.RECYCLING, "capacity_kg": 75.0, "fill_level": 60.0, "priority": CollectionPriority.LOW, "status": BinStatus.NORMAL, "collection_status": CollectionStatus.NOT_REQUIRED, "sensor_id": "SNS-0404", "battery_percentage": 94.0, "latitude": 23.0245, "longitude": 72.5710},
+    {"bin_code": "BIN-305", "name": "Science Block Bin", "location_name": "Science Building", "zone": "North Zone", "waste_type": WasteType.GLASS, "bin_type": BinType.RECYCLING, "capacity_kg": 50.0, "fill_level": 85.0, "priority": CollectionPriority.HIGH, "status": BinStatus.WARNING, "collection_status": CollectionStatus.SCHEDULED, "sensor_id": "SNS-0305", "battery_percentage": 69.0, "latitude": 23.0330, "longitude": 72.5675},
+    {"bin_code": "BIN-308", "name": "Auditorium Bin", "location_name": "Auditorium Rear", "zone": "West Zone", "waste_type": WasteType.OTHER, "bin_type": BinType.COMMERCIAL, "capacity_kg": 100.0, "fill_level": 68.0, "priority": CollectionPriority.LOW, "status": BinStatus.NORMAL, "collection_status": CollectionStatus.NOT_REQUIRED, "sensor_id": "SNS-0308", "battery_percentage": 88.0, "latitude": 23.0345, "longitude": 72.5650},
+    {"bin_code": "BIN-312", "name": "Health Center Bin", "location_name": "Health Center", "zone": "West Zone", "waste_type": WasteType.ORGANIC, "bin_type": BinType.ORGANIC, "capacity_kg": 50.0, "fill_level": 72.0, "priority": CollectionPriority.LOW, "status": BinStatus.NORMAL, "collection_status": CollectionStatus.NOT_REQUIRED, "sensor_id": "SNS-0312", "battery_percentage": 91.0, "latitude": 23.0360, "longitude": 72.5635},
+    {"bin_code": "BIN-319", "name": "Main Gate Bin", "location_name": "Main Gate Exit", "zone": "Central Zone", "waste_type": WasteType.METAL, "bin_type": BinType.RECYCLING, "capacity_kg": 75.0, "fill_level": 50.0, "priority": CollectionPriority.LOW, "status": BinStatus.NORMAL, "collection_status": CollectionStatus.NOT_REQUIRED, "sensor_id": "SNS-0319", "battery_percentage": 87.0, "latitude": 23.0220, "longitude": 72.5700},
+
+    # City-wide Smart Fleet Bins (Matching Frontend Mock Data)
+    {"bin_code": "BIN-1087", "name": "Central Market Main Bin", "location_name": "Central Market, Sector 4", "zone": "Central Zone", "waste_type": WasteType.ORGANIC, "bin_type": BinType.SMART, "capacity_kg": 450.0, "fill_level": 92.0, "priority": CollectionPriority.CRITICAL, "status": BinStatus.CRITICAL, "collection_status": CollectionStatus.PRIORITY, "sensor_id": "SNS-1087", "battery_percentage": 82.0, "latitude": 22.3072, "longitude": 73.1812},
+    {"bin_code": "BIN-1201", "name": "Industrial Estate Gate 2", "location_name": "GIDC Phase 1", "zone": "Industrial Zone", "waste_type": WasteType.OTHER, "bin_type": BinType.INDUSTRIAL, "capacity_kg": 500.0, "fill_level": 86.0, "priority": CollectionPriority.HIGH, "status": BinStatus.WARNING, "collection_status": CollectionStatus.SCHEDULED, "sensor_id": "SNS-1201", "battery_percentage": 74.0, "latitude": 22.3150, "longitude": 73.1900},
+    {"bin_code": "BIN-1342", "name": "Tech Park Tower A", "location_name": "Infocity IT Corridor", "zone": "North Zone", "waste_type": WasteType.PLASTIC, "bin_type": BinType.COMMERCIAL, "capacity_kg": 250.0, "fill_level": 78.0, "priority": CollectionPriority.HIGH, "status": BinStatus.WARNING, "collection_status": CollectionStatus.SCHEDULED, "sensor_id": "SNS-1342", "battery_percentage": 89.0, "latitude": 22.3250, "longitude": 73.1750},
+    {"bin_code": "BIN-1405", "name": "City Hospital West Wing", "location_name": "General Hospital Area", "zone": "West Zone", "waste_type": WasteType.ORGANIC, "bin_type": BinType.SMART, "capacity_kg": 450.0, "fill_level": 65.0, "priority": CollectionPriority.LOW, "status": BinStatus.NORMAL, "collection_status": CollectionStatus.NOT_REQUIRED, "sensor_id": "SNS-1405", "battery_percentage": 95.0, "latitude": 22.2980, "longitude": 73.1650},
+    {"bin_code": "BIN-1520", "name": "Railway Station Platform 1", "location_name": "Central Railway Junction", "zone": "Central Zone", "waste_type": WasteType.METAL, "bin_type": BinType.SMART, "capacity_kg": 300.0, "fill_level": 94.0, "priority": CollectionPriority.CRITICAL, "status": BinStatus.CRITICAL, "collection_status": CollectionStatus.PRIORITY, "sensor_id": "SNS-1520", "battery_percentage": 68.0, "latitude": 22.3100, "longitude": 73.1850},
+    {"bin_code": "BIN-1689", "name": "Riverside Promenade North", "location_name": "Riverfront Walkway", "zone": "North Zone", "waste_type": WasteType.GLASS, "bin_type": BinType.RECYCLING, "capacity_kg": 100.0, "fill_level": 42.0, "priority": CollectionPriority.LOW, "status": BinStatus.NORMAL, "collection_status": CollectionStatus.NOT_REQUIRED, "sensor_id": "SNS-1689", "battery_percentage": 91.0, "latitude": 22.3200, "longitude": 73.1700},
+    {"bin_code": "BIN-1744", "name": "Metro Station Concourse", "location_name": "Rapid Transit Line 1", "zone": "South Zone", "waste_type": WasteType.PAPER, "bin_type": BinType.COMMERCIAL, "capacity_kg": 200.0, "fill_level": 88.0, "priority": CollectionPriority.HIGH, "status": BinStatus.WARNING, "collection_status": CollectionStatus.SCHEDULED, "sensor_id": "SNS-1744", "battery_percentage": 79.0, "latitude": 22.2900, "longitude": 73.1800},
+    {"bin_code": "BIN-1890", "name": "Community Center Sector 9", "location_name": "Urban Community Hall", "zone": "Residential Zone", "waste_type": WasteType.ORGANIC, "bin_type": BinType.ORGANIC, "capacity_kg": 450.0, "fill_level": 25.0, "priority": CollectionPriority.LOW, "status": BinStatus.NORMAL, "collection_status": CollectionStatus.NOT_REQUIRED, "sensor_id": "SNS-1890", "battery_percentage": 97.0, "latitude": 22.2850, "longitude": 73.1950},
+    {"bin_code": "BIN-1923", "name": "University Campus Library", "location_name": "East Academic Quad", "zone": "East Zone", "waste_type": WasteType.PAPER, "bin_type": BinType.RECYCLING, "capacity_kg": 80.0, "fill_level": 91.0, "priority": CollectionPriority.CRITICAL, "status": BinStatus.CRITICAL, "collection_status": CollectionStatus.PRIORITY, "sensor_id": "SNS-1923", "battery_percentage": 84.0, "latitude": 22.3050, "longitude": 73.2050},
+    {"bin_code": "BIN-2045", "name": "Sports Complex Gate 4", "location_name": "Olympic Stadium Entry", "zone": "South Zone", "waste_type": WasteType.PLASTIC, "bin_type": BinType.STANDARD, "capacity_kg": 220.0, "fill_level": 58.0, "priority": CollectionPriority.LOW, "status": BinStatus.NORMAL, "collection_status": CollectionStatus.NOT_REQUIRED, "sensor_id": "SNS-2045", "battery_percentage": 86.0, "latitude": 22.2800, "longitude": 73.1750},
+    {"bin_code": "BIN-2110", "name": "Old Town Heritage Square", "location_name": "Heritage Clock Tower", "zone": "Central Zone", "waste_type": WasteType.OTHER, "bin_type": BinType.STANDARD, "capacity_kg": 100.0, "fill_level": 0.0, "priority": CollectionPriority.LOW, "status": BinStatus.MAINTENANCE, "collection_status": CollectionStatus.NOT_REQUIRED, "sensor_id": "SNS-2110", "battery_percentage": 45.0, "latitude": 22.3020, "longitude": 73.1830},
+    {"bin_code": "BIN-2250", "name": "Highway Service Station East", "location_name": "National Highway Toll", "zone": "East Zone", "waste_type": WasteType.OTHER, "bin_type": BinType.INDUSTRIAL, "capacity_kg": 500.0, "fill_level": 40.0, "priority": CollectionPriority.LOW, "status": BinStatus.OFFLINE, "collection_status": CollectionStatus.NOT_REQUIRED, "sensor_id": "SNS-2250", "battery_percentage": 12.0, "latitude": 22.3120, "longitude": 73.2150},
+    {"bin_code": "BIN-2380", "name": "Shopping Mall Food Court", "location_name": "Mega Mall Level 3", "zone": "Central Zone", "waste_type": WasteType.ORGANIC, "bin_type": BinType.SMART, "capacity_kg": 450.0, "fill_level": 95.0, "priority": CollectionPriority.CRITICAL, "status": BinStatus.CRITICAL, "collection_status": CollectionStatus.PRIORITY, "sensor_id": "SNS-2380", "battery_percentage": 80.0, "latitude": 22.3085, "longitude": 73.1818},
+    {"bin_code": "BIN-2415", "name": "Residential Colony Park", "location_name": "Green Valley Gardens", "zone": "Residential Zone", "waste_type": WasteType.PLASTIC, "bin_type": BinType.STANDARD, "capacity_kg": 90.0, "fill_level": 35.0, "priority": CollectionPriority.LOW, "status": BinStatus.NORMAL, "collection_status": CollectionStatus.NOT_REQUIRED, "sensor_id": "SNS-2415", "battery_percentage": 93.0, "latitude": 22.2880, "longitude": 73.1900},
 ]
 
 
@@ -458,17 +487,39 @@ async def seed_all():
 
         # 3. Bins
         bin_map = {}
+        now = datetime.now(timezone.utc)
         for b in DEMO_BINS:
+            cap_kg = b.get("capacity_kg", 100.0)
+            fill_pct = b["fill_level"]
+            fill_kg = round((fill_pct / 100.0) * cap_kg, 2)
+            c_status = b.get("connectivity_status", ConnectivityStatus.OFFLINE if b["status"] == BinStatus.OFFLINE else ConnectivityStatus.ONLINE)
+
             res = await session.execute(select(Bin).where(Bin.bin_code == b["bin_code"]))
             existing_b = res.scalar_one_or_none()
             if existing_b:
                 existing_b.name = b["name"]
                 existing_b.location_name = b["location_name"]
-                existing_b.fill_level = b["fill_level"]
+                existing_b.bin_type = b.get("bin_type", BinType.STANDARD)
+                existing_b.capacity_kg = cap_kg
+                existing_b.capacity_liters = cap_kg * 2.4
+                existing_b.current_fill_kg = fill_kg
+                existing_b.current_fill_percentage = fill_pct
+                existing_b.fill_level = fill_pct
+                existing_b.waste_type = b["waste_type"]
+                existing_b.status = b["status"]
+                existing_b.collection_status = b.get("collection_status", CollectionStatus.NOT_REQUIRED)
                 existing_b.priority = b["priority"]
                 existing_b.latitude = b["latitude"]
                 existing_b.longitude = b["longitude"]
-                bin_map[b["bin_code"]] = existing_b
+                existing_b.sensor_id = b.get("sensor_id")
+                existing_b.battery_percentage = b.get("battery_percentage", 100.0)
+                existing_b.connectivity_status = c_status
+                existing_b.last_telemetry_at = now - timedelta(minutes=10)
+                existing_b.predicted_fill_percentage = min(100.0, fill_pct + 5.0)
+                existing_b.predicted_overflow_at = now + timedelta(hours=3) if fill_pct >= 85.0 else None
+                existing_b.prediction_confidence = 90.0 if fill_pct >= 75.0 else 80.0
+                existing_b.is_active = b["status"] != BinStatus.INACTIVE
+                target_bin = existing_b
             else:
                 new_b = Bin(
                     uuid=uuid.uuid4(),
@@ -476,17 +527,91 @@ async def seed_all():
                     name=b["name"],
                     location_name=b["location_name"],
                     zone=b["zone"],
+                    bin_type=b.get("bin_type", BinType.STANDARD),
+                    capacity_kg=cap_kg,
+                    capacity_liters=cap_kg * 2.4,
+                    current_fill_kg=fill_kg,
+                    current_fill_percentage=fill_pct,
+                    fill_level=fill_pct,
                     waste_type=b["waste_type"],
-                    capacity_liters=b["capacity_liters"],
-                    fill_level=b["fill_level"],
-                    priority=b["priority"],
                     status=b["status"],
+                    collection_status=b.get("collection_status", CollectionStatus.NOT_REQUIRED),
+                    priority=b["priority"],
                     latitude=b["latitude"],
                     longitude=b["longitude"],
+                    sensor_id=b.get("sensor_id"),
+                    battery_percentage=b.get("battery_percentage", 100.0),
+                    connectivity_status=c_status,
+                    last_telemetry_at=now - timedelta(minutes=10),
+                    predicted_fill_percentage=min(100.0, fill_pct + 5.0),
+                    predicted_overflow_at=now + timedelta(hours=3) if fill_pct >= 85.0 else None,
+                    prediction_confidence=90.0 if fill_pct >= 75.0 else 80.0,
+                    is_active=b["status"] != BinStatus.INACTIVE,
                 )
                 session.add(new_b)
                 await session.flush()
-                bin_map[b["bin_code"]] = new_b
+                target_bin = new_b
+
+            bin_map[b["bin_code"]] = target_bin
+
+            # Seed Sensor if sensor_id present
+            s_id = b.get("sensor_id")
+            if s_id:
+                s_res = await session.execute(select(Sensor).where(Sensor.sensor_id == s_id))
+                existing_sensor = s_res.scalar_one_or_none()
+                if not existing_sensor:
+                    sensor = Sensor(
+                        sensor_id=s_id,
+                        bin_id=target_bin.id,
+                        sensor_type="ULTRASONIC",
+                        status="ACTIVE",
+                        battery_percentage=b.get("battery_percentage", 100.0),
+                        last_reading_at=now - timedelta(minutes=10),
+                        last_fill_reading=fill_pct,
+                        temperature_celsius=26.5,
+                        connectivity_status=c_status,
+                        firmware_version="v2.4.1",
+                    )
+                    session.add(sensor)
+
+            # Seed 2 Telemetry records
+            t_res = await session.execute(select(BinTelemetry).where(BinTelemetry.bin_id == target_bin.id))
+            if not t_res.scalars().first():
+                t1 = BinTelemetry(
+                    bin_id=target_bin.id,
+                    sensor_id=s_id,
+                    fill_percentage=max(0.0, fill_pct - 10.0),
+                    fill_kg=round(max(0.0, fill_pct - 10.0) / 100.0 * cap_kg, 2),
+                    battery_percentage=min(100.0, b.get("battery_percentage", 100.0) + 1.0),
+                    temperature_celsius=27.0,
+                    connectivity_status=c_status,
+                    recorded_at=now - timedelta(hours=2),
+                    source="IOT",
+                )
+                t2 = BinTelemetry(
+                    bin_id=target_bin.id,
+                    sensor_id=s_id,
+                    fill_percentage=fill_pct,
+                    fill_kg=fill_kg,
+                    battery_percentage=b.get("battery_percentage", 100.0),
+                    temperature_celsius=26.5,
+                    connectivity_status=c_status,
+                    recorded_at=now - timedelta(minutes=10),
+                    source="IOT",
+                )
+                session.add_all([t1, t2])
+
+            # Seed 1 Activity record
+            a_res = await session.execute(select(BinActivity).where(BinActivity.bin_id == target_bin.id))
+            if not a_res.scalars().first():
+                act = BinActivity(
+                    bin_id=target_bin.id,
+                    activity_type="CREATED",
+                    description=f"Bin {target_bin.bin_code} commissioned in {target_bin.zone}.",
+                    created_at=now - timedelta(days=5),
+                )
+                session.add(act)
+
         print(f"[+] Bins checked/seeded: {len(bin_map)}")
 
         # 4. Routes

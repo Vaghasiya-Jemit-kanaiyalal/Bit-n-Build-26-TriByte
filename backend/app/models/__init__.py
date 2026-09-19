@@ -3,7 +3,19 @@ from app.models.password_reset import PasswordResetToken
 from app.models.vehicle import Vehicle, VehicleType, EnergyType, VehicleStatus
 from app.models.vehicle_maintenance import VehicleMaintenanceRecord, MaintenanceStatus
 from app.models.vehicle_history import VehicleActivity
-from app.models.bin import Bin
+from app.models.bin import (
+    Bin,
+    BinType,
+    WasteType,
+    BinStatus,
+    CollectionStatus,
+    CollectionPriority,
+    ConnectivityStatus,
+)
+from app.models.sensor import Sensor
+from app.models.bin_telemetry import BinTelemetry
+from app.models.bin_collection import BinCollectionHistory
+from app.models.bin_activity import BinActivity
 from app.models.route import Route, RoutePriority, RouteStatus
 from app.models.route_stop import RouteStop, StopPriority, StopStatus
 
@@ -20,6 +32,16 @@ __all__ = [
     "MaintenanceStatus",
     "VehicleActivity",
     "Bin",
+    "BinType",
+    "WasteType",
+    "BinStatus",
+    "CollectionStatus",
+    "CollectionPriority",
+    "ConnectivityStatus",
+    "Sensor",
+    "BinTelemetry",
+    "BinCollectionHistory",
+    "BinActivity",
     "Route",
     "RoutePriority",
     "RouteStatus",
