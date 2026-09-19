@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Save, Edit3 } from 'lucide-react';
+import { X, Save, Edit3, AlertCircle } from 'lucide-react';
 import type { VehicleItem } from '../../mock/vehicleData';
 
 interface EditVehicleModalProps {
@@ -11,10 +11,12 @@ interface EditVehicleModalProps {
 
 const EditVehicleModal: React.FC<EditVehicleModalProps> = ({ vehicle, isOpen, onClose, onSave }) => {
   const [formData, setFormData] = useState<VehicleItem | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (vehicle) {
       setFormData({ ...vehicle });
+      setError(null);
     }
   }, [vehicle]);
 
@@ -22,8 +24,8 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({ vehicle, isOpen, on
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name || !formData.registration) {
-      alert('Please fill in vehicle name and registration number.');
+    if (!formData.name.trim() || !formData.registration.trim()) {
+      setError('Please fill in vehicle name and registration number.');
       return;
     }
 
@@ -53,6 +55,14 @@ const EditVehicleModal: React.FC<EditVehicleModalProps> = ({ vehicle, isOpen, on
 
         {/* Form Body */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+          
+          {error && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-lg flex items-center space-x-2 text-xs text-red-700 font-medium">
+              <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
+
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">Vehicle ID</label>

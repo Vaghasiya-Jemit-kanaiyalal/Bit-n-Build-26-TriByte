@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, CheckCircle, Navigation, User, MapPin, Clock } from 'lucide-react';
+import { X, CheckCircle, Navigation, User, MapPin, Clock, AlertCircle } from 'lucide-react';
 import type { VehicleItem } from '../../mock/vehicleData';
 
 interface AssignVehicleModalProps {
@@ -23,8 +23,10 @@ const AssignVehicleModal: React.FC<AssignVehicleModalProps> = ({
   const [selectedZone, setSelectedZone] = useState<string>('North');
   const [startTime, setStartTime] = useState<string>('08:30 AM');
   const [expectedCompletion, setExpectedCompletion] = useState<string>('12:30 PM');
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    setError(null);
     if (vehicle) {
       setSelectedVehicleId(vehicle.id);
       setSelectedDriver(vehicle.driverName !== 'Unassigned' ? vehicle.driverName : 'Arjun Patel');
@@ -45,9 +47,10 @@ const AssignVehicleModal: React.FC<AssignVehicleModalProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedVehicleId || !selectedDriver || !selectedRoute) {
-      alert('Please select vehicle, driver, and route.');
+      setError('Please select vehicle, driver, and route.');
       return;
     }
+    setError(null);
 
     onAssignConfirm(selectedVehicleId, selectedDriver, selectedRoute, selectedZone, startTime, expectedCompletion);
     onClose();
@@ -76,6 +79,13 @@ const AssignVehicleModal: React.FC<AssignVehicleModalProps> = ({
         {/* Form Body */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
           
+          {error && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-lg flex items-center space-x-2 text-xs text-red-700 font-medium">
+              <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
+
           {/* Select Vehicle */}
           <div>
             <label className="block text-xs font-semibold text-slate-700 mb-1">Select Vehicle</label>

@@ -12,7 +12,8 @@ import AddVehicleModal from './AddVehicleModal';
 import EditVehicleModal from './EditVehicleModal';
 import AssignVehicleModal from './AssignVehicleModal';
 import MaintenanceHistoryModal from './MaintenanceHistoryModal';
-import { CheckCircle } from 'lucide-react';
+import GarbageTruckLoader from '../common/GarbageTruckLoader';
+import { CheckCircle, Info } from 'lucide-react';
 
 interface VehiclesPageProps {
   onNavigateToRoute?: (routeId: string) => void;
@@ -22,6 +23,8 @@ const VehiclesPage: React.FC<VehiclesPageProps> = ({ onNavigateToRoute }) => {
   // State
   const [vehicles, setVehicles] = useState<VehicleItem[]>(initialVehicles);
   const [attentionItems] = useState(initialVehicleAttentionItems);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   
   // Filter state
   const [searchQuery, setSearchQuery] = useState('');
@@ -47,12 +50,24 @@ const VehiclesPage: React.FC<VehiclesPageProps> = ({ onNavigateToRoute }) => {
 
   // Notification Toast state
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [toastType, setToastType] = useState<'success' | 'info'>('success');
 
-  const showToast = (msg: string) => {
+  const showToast = (msg: string, type: 'success' | 'info' = 'success') => {
     setToastMessage(msg);
+    setToastType(type);
     setTimeout(() => {
       setToastMessage(null);
     }, 4000);
+  };
+
+  const handleRefreshFleet = () => {
+    setIsRefreshing(true);
+    setIsLoading(true);
+    setTimeout(() => {
+      setIsLoading(false);
+      setIsRefreshing(false);
+      showToast('Fleet telemetry refreshed with real-time IoT signal.', 'info');
+    }, 1200);
   };
 
   // Filter logic
@@ -144,7 +159,7 @@ const VehiclesPage: React.FC<VehiclesPageProps> = ({ onNavigateToRoute }) => {
     };
 
     setVehicles(prev => [fullVeh, ...prev]);
-    showToast(`Vehicle ${fullVeh.id} added successfully.`);
+    showToast(`Vehicle ${fullVeh.id} registered and added to fleet pool.`);
   };
 
   const handleOpenEditModal = (v: VehicleItem) => {
@@ -157,7 +172,7 @@ const VehiclesPage: React.FC<VehiclesPageProps> = ({ onNavigateToRoute }) => {
     if (drawerVehicle?.id === updatedVeh.id) {
       setDrawerVehicle(updatedVeh);
     }
-    showToast(`Vehicle ${updatedVeh.id} updated successfully.`);
+    showToast(`Vehicle ${updatedVeh.id} specifications updated.`);
   };
 
   const handleOpenAssignModal = (v?: VehicleItem) => {
@@ -197,7 +212,7 @@ const VehiclesPage: React.FC<VehiclesPageProps> = ({ onNavigateToRoute }) => {
         return v;
       })
     );
-    showToast(`Vehicle ${vehicleId} assigned to ${driver} on route ${route} successfully.`);
+    showToast(`Vehicle ${vehicleId} dispatched to driver ${driver} on route ${route}.`);
   };
 
   const handleOpenMaintenanceModal = (v: VehicleItem) => {
@@ -219,18 +234,20 @@ const VehiclesPage: React.FC<VehiclesPageProps> = ({ onNavigateToRoute }) => {
         return item;
       })
     );
-    showToast(`Vehicle ${v.id} marked as ${newStatus}.`);
+    showToast(`Vehicle ${v.id} status changed to ${newStatus}.`);
   };
-
-
 
   return (
     <div className="min-h-screen bg-[#fcfcfd] text-slate-900 pb-16">
       
       {/* Toast Notification Container */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center space-x-2 bg-slate-900 text-white px-4 py-3 rounded-lg shadow-xl border border-slate-800 animate-in slide-in-from-bottom-5 duration-200">
-          <CheckCircle className="w-5 h-5 text-[#88a573]" />
+        <div className="fixed bottom-6 right-6 z-50 flex items-center space-x-2.5 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-2xl border border-slate-800 animate-in slide-in-from-bottom-5 duration-200">
+          {toastType === 'info' ? (
+            <Info className="w-5 h-5 text-sky-400 shrink-0" />
+          ) : (
+            <CheckCircle className="w-5 h-5 text-[#88a573] shrink-0" />
+          )}
           <span className="text-xs font-medium">{toastMessage}</span>
         </div>
       )}
@@ -241,65 +258,76 @@ const VehiclesPage: React.FC<VehiclesPageProps> = ({ onNavigateToRoute }) => {
         <VehiclesHeader
           onAddVehicleClick={handleOpenAddModal}
           onAssignVehicleClick={() => handleOpenAssignModal()}
-          onRefreshClick={() => showToast('Fleet status refreshed.')}
+          onRefreshClick={handleRefreshFleet}
+          onExportClick={() => showToast('Fleet report exported to CSV.', 'info')}
+          isRefreshing={isRefreshing}
         />
 
-        {/* Fleet KPI Cards */}
-        <FleetKpiCards vehicles={vehicles} />
-
-        {/* Fleet Status Distribution & Requires Attention Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2">
-            <FleetStatusOverview vehicles={vehicles} />
+        {/* Custom Animated Garbage Truck Loader when Loading/Refreshing */}
+        {isLoading ? (
+          <div className="py-16 bg-white border border-slate-200 rounded-2xl shadow-2xs">
+            <GarbageTruckLoader message="Synchronizing vehicle telemetry & route status..." />
           </div>
-          <div>
-            <VehicleAttentionPanel
-              attentionItems={attentionItems}
-              onSelectVehicle={(vehId) => {
-                const found = vehicles.find(v => v.id === vehId);
-                if (found) handleOpenDrawer(found);
-              }}
-              onSelectMaintenance={(vehId) => {
-                const found = vehicles.find(v => v.id === vehId);
-                if (found) handleOpenMaintenanceModal(found);
-              }}
-              onSelectRoute={(routeId) => {
-                if (onNavigateToRoute) onNavigateToRoute(routeId);
-              }}
+        ) : (
+          <>
+            {/* Fleet KPI Cards */}
+            <FleetKpiCards vehicles={vehicles} />
+
+            {/* Fleet Status Distribution & Requires Attention Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2">
+                <FleetStatusOverview vehicles={vehicles} />
+              </div>
+              <div>
+                <VehicleAttentionPanel
+                  attentionItems={attentionItems}
+                  onSelectVehicle={(vehId) => {
+                    const found = vehicles.find(v => v.id === vehId);
+                    if (found) handleOpenDrawer(found);
+                  }}
+                  onSelectMaintenance={(vehId) => {
+                    const found = vehicles.find(v => v.id === vehId);
+                    if (found) handleOpenMaintenanceModal(found);
+                  }}
+                  onSelectRoute={(routeId) => {
+                    if (onNavigateToRoute) onNavigateToRoute(routeId);
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Vehicle Filters Toolbar */}
+            <VehicleFilters
+              searchTerm={searchQuery}
+              onSearchChange={setSearchQuery}
+              statusFilter={statusFilter}
+              onStatusChange={setStatusFilter}
+              typeFilter={typeFilter}
+              onTypeChange={setTypeFilter}
+              zoneFilter={zoneFilter}
+              onZoneChange={setZoneFilter}
+              capacityFilter={capacityFilter}
+              onCapacityChange={setCapacityFilter}
+              onClearFilters={handleClearFilters}
+              filteredCount={filteredVehicles.length}
+              totalCount={vehicles.length}
             />
-          </div>
-        </div>
 
-        {/* Vehicle Filters Toolbar */}
-        <VehicleFilters
-          searchTerm={searchQuery}
-          onSearchChange={setSearchQuery}
-          statusFilter={statusFilter}
-          onStatusChange={setStatusFilter}
-          typeFilter={typeFilter}
-          onTypeChange={setTypeFilter}
-          zoneFilter={zoneFilter}
-          onZoneChange={setZoneFilter}
-          capacityFilter={capacityFilter}
-          onCapacityChange={setCapacityFilter}
-          onClearFilters={handleClearFilters}
-          filteredCount={filteredVehicles.length}
-          totalCount={vehicles.length}
-        />
+            {/* Main Vehicle Fleet Table */}
+            <VehicleTable
+              vehicles={filteredVehicles}
+              onSelectVehicle={handleOpenDrawer}
+              onEditVehicle={handleOpenEditModal}
+              onAssignVehicle={(v) => handleOpenAssignModal(v)}
+              onViewMaintenance={handleOpenMaintenanceModal}
+              onMarkStatus={handleMarkStatus}
+              onAddVehicleClick={handleOpenAddModal}
+            />
 
-        {/* Main Vehicle Fleet Table */}
-        <VehicleTable
-          vehicles={filteredVehicles}
-          onSelectVehicle={handleOpenDrawer}
-          onEditVehicle={handleOpenEditModal}
-          onAssignVehicle={(v) => handleOpenAssignModal(v)}
-          onViewMaintenance={handleOpenMaintenanceModal}
-          onMarkStatus={handleMarkStatus}
-          onAddVehicleClick={handleOpenAddModal}
-        />
-
-        {/* Fleet Utilization & Capacity Analytics Section */}
-        <FleetAnalytics vehicles={vehicles} />
+            {/* Fleet Utilization & Capacity Analytics Section */}
+            <FleetAnalytics vehicles={vehicles} />
+          </>
+        )}
 
       </div>
 
@@ -312,6 +340,7 @@ const VehiclesPage: React.FC<VehiclesPageProps> = ({ onNavigateToRoute }) => {
         onAssign={(v) => handleOpenAssignModal(v)}
         onViewMaintenance={handleOpenMaintenanceModal}
         onNavigateToRoute={onNavigateToRoute}
+        onViewDriver={(driver) => showToast(`Viewing profile for driver ${driver}`, 'info')}
       />
 
       {/* Add Vehicle Modal */}

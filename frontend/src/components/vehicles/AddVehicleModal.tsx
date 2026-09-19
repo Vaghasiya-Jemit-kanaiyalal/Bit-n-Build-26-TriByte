@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Truck, Check } from 'lucide-react';
+import { X, Truck, Check, AlertCircle } from 'lucide-react';
 import type { VehicleItem } from '../../mock/vehicleData';
 
 interface AddVehicleModalProps {
@@ -9,6 +9,7 @@ interface AddVehicleModalProps {
 }
 
 const AddVehicleModal: React.FC<AddVehicleModalProps> = ({ isOpen, onClose, onAdd }) => {
+  const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     id: `VEH-0${Math.floor(Math.random() * 90 + 25)}`,
     name: '',
@@ -25,10 +26,11 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({ isOpen, onClose, onAd
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name || !formData.registration) {
-      alert('Please fill in vehicle name and registration number.');
+    if (!formData.name.trim() || !formData.registration.trim()) {
+      setError('Please fill in vehicle name and registration number.');
       return;
     }
+    setError(null);
 
     onAdd({
       ...formData,
@@ -75,6 +77,14 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({ isOpen, onClose, onAd
 
         {/* Form Body */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+          
+          {error && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-lg flex items-center space-x-2 text-xs text-red-700 font-medium">
+              <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
+
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">Vehicle ID</label>

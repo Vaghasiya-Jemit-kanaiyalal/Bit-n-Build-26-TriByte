@@ -25,6 +25,7 @@ interface VehicleDetailsDrawerProps {
   onAssign: (vehicle: VehicleItem) => void;
   onViewMaintenance: (vehicle: VehicleItem) => void;
   onNavigateToRoute?: (routeId: string) => void;
+  onViewDriver?: (driverName: string) => void;
 }
 
 const VehicleDetailsDrawer: React.FC<VehicleDetailsDrawerProps> = ({
@@ -34,7 +35,8 @@ const VehicleDetailsDrawer: React.FC<VehicleDetailsDrawerProps> = ({
   onEdit,
   onAssign,
   onViewMaintenance,
-  onNavigateToRoute
+  onNavigateToRoute,
+  onViewDriver
 }) => {
   if (!isOpen || !vehicle) return null;
 
@@ -262,7 +264,7 @@ const VehicleDetailsDrawer: React.FC<VehicleDetailsDrawerProps> = ({
                 </div>
 
                 <button
-                  onClick={() => alert(`Viewing driver profile for ${vehicle.driverName}`)}
+                  onClick={() => onViewDriver ? onViewDriver(vehicle.driverName) : null}
                   className="px-2.5 py-1 text-xs font-medium text-slate-700 hover:text-slate-900 bg-white border border-slate-200 rounded hover:bg-slate-100 transition-colors shadow-2xs"
                 >
                   View Driver
