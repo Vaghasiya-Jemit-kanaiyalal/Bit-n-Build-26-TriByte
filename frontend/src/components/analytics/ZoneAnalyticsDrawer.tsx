@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { X, MapPin, AlertTriangle, ArrowUpRight } from 'lucide-react';
 import type { ZoneAnalyticsItem } from '../../mock/analyticsMockData';
 
@@ -13,16 +13,29 @@ export const ZoneAnalyticsDrawer: React.FC<ZoneAnalyticsDrawerProps> = ({
   onClose,
   onNavigateToBins,
 }) => {
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && zone) {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [zone, onClose]);
+
   if (!zone) return null;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-slate-900/40 backdrop-blur-xs flex justify-end animate-in fade-in duration-200">
-      
-      {/* Click backdrop to dismiss */}
-      <div className="absolute inset-0" onClick={onClose} />
-
-      {/* Main Right Drawer */}
-      <div className="relative w-full max-w-lg bg-white h-full shadow-2xl flex flex-col z-10 animate-in slide-in-from-right duration-300">
+    <div
+      className="fixed inset-0 z-[999999] bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 transition-all duration-200 animate-in fade-in"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div
+        className="w-full max-w-lg md:max-w-xl bg-white rounded-2xl shadow-2xl max-h-[85vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200 border border-slate-200 text-xs text-slate-700"
+        onClick={(e) => e.stopPropagation()}
+      >
         
         {/* Drawer Header */}
         <div className="p-5 border-b border-[#e5e7eb] flex items-center justify-between bg-slate-50/80">
@@ -154,9 +167,7 @@ export const ZoneAnalyticsDrawer: React.FC<ZoneAnalyticsDrawerProps> = ({
             </button>
           )}
         </div>
-
       </div>
-    </div>
   );
 };
 

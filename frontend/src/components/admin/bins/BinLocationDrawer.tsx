@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, MapPin, ZoomIn, ZoomOut, LocateFixed, Truck } from 'lucide-react';
 import type { SmartBin } from '../../../types/bin';
 
@@ -10,11 +10,29 @@ interface BinLocationDrawerProps {
 export const BinLocationDrawer: React.FC<BinLocationDrawerProps> = ({ bin, onClose }) => {
   const [zoomLevel, setZoomLevel] = useState(100);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && bin) {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [bin, onClose]);
+
   if (!bin) return null;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-slate-950/40 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
-      <div className="bg-white rounded-2xl max-w-3xl w-full shadow-2xl overflow-hidden border border-slate-200 flex flex-col h-[80vh] animate-scaleUp">
+    <div
+      className="fixed inset-0 z-[999999] bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 transition-all duration-200 animate-fadeIn"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div
+        className="bg-white rounded-2xl max-w-3xl w-full shadow-2xl overflow-hidden border border-slate-200 flex flex-col h-[80vh] animate-scaleUp"
+        onClick={(e) => e.stopPropagation()}
+      >
         
         {/* HEADER */}
         <div className="p-4 px-6 border-b border-slate-200 flex items-center justify-between bg-slate-50 shrink-0">

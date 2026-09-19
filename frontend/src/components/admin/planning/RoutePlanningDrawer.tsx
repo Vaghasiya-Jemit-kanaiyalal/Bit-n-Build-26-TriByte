@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { X, Route, ArrowRight } from 'lucide-react';
 import type { PlanningRoute } from '../../../types/planning';
 
@@ -13,6 +13,16 @@ export const RoutePlanningDrawer: React.FC<RoutePlanningDrawerProps> = ({
   onClose,
   onNavigate,
 }) => {
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && route) {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [route, onClose]);
+
   if (!route) return null;
 
   const code = route.routeId || route.routeCode || 'Route';
@@ -20,9 +30,16 @@ export const RoutePlanningDrawer: React.FC<RoutePlanningDrawerProps> = ({
   const stopsCount = route.stopCount || route.stopsCount || binList.length;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="absolute inset-y-0 right-0 max-w-full flex pl-10">
-        <div className="w-screen max-w-md bg-white border-l border-slate-200 shadow-2xl flex flex-col justify-between">
+    <div
+      className="fixed inset-0 z-[999999] bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 transition-all duration-200 animate-in fade-in"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div
+        className="w-full max-w-lg md:max-w-xl bg-white rounded-2xl shadow-2xl max-h-[85vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200 border border-slate-200 text-xs text-slate-700"
+        onClick={(e) => e.stopPropagation()}
+      >
           
           {/* Header */}
           <div className="p-6 bg-slate-900 text-white border-b border-slate-800">
@@ -112,6 +129,5 @@ export const RoutePlanningDrawer: React.FC<RoutePlanningDrawerProps> = ({
 
         </div>
       </div>
-    </div>
   );
 };

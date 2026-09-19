@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   X,
   Sparkles,
@@ -33,6 +33,16 @@ export const BinDetailsDrawer: React.FC<BinDetailsDrawerProps> = ({
   onOpenHistory,
   onAssignRoute,
 }) => {
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && bin) {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [bin, onClose]);
+
   if (!bin) return null;
 
   const remainingVolumeLiters = Math.max(
@@ -41,8 +51,16 @@ export const BinDetailsDrawer: React.FC<BinDetailsDrawerProps> = ({
   );
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-slate-950/40 backdrop-blur-xs flex justify-end animate-fadeIn">
-      <div className="w-full max-w-lg bg-white h-full shadow-2xl flex flex-col justify-between overflow-y-auto border-l border-slate-200 animate-slideLeft">
+    <div
+      className="fixed inset-0 z-[999999] bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 transition-all duration-200 animate-fadeIn"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div
+        className="w-full max-w-lg md:max-w-xl bg-white rounded-2xl shadow-2xl max-h-[85vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200 border border-slate-200 text-xs text-slate-700"
+        onClick={(e) => e.stopPropagation()}
+      >
         
         {/* DRAWER HEADER */}
         <div className="p-5 border-b border-slate-200 flex items-start justify-between bg-slate-50/50 sticky top-0 bg-white z-10">

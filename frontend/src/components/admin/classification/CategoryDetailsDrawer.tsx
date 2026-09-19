@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import type { WasteCategoryItem } from '../../../types/classification';
 import { X, CheckCircle2, XCircle, TrendingUp, Layers, MapPin, ArrowRight } from 'lucide-react';
 
@@ -15,11 +15,30 @@ export const CategoryDetailsDrawer: React.FC<CategoryDetailsDrawerProps> = ({
   onClose,
   onNavigateTab,
 }) => {
+  // ESC key listener to close modal
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen || !category) return null;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-slate-900/50 backdrop-blur-xs flex justify-end transition-opacity">
-      <div className="w-full max-w-lg bg-white h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
+    <div
+      className="fixed inset-0 z-[999999] bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 transition-all duration-200"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div
+        className="w-full max-w-lg md:max-w-xl bg-white rounded-2xl shadow-2xl max-h-[85vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200 border border-slate-200 text-xs text-slate-700"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header */}
         <div className="p-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
@@ -31,14 +50,15 @@ export const CategoryDetailsDrawer: React.FC<CategoryDetailsDrawerProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-200 rounded-md transition-colors"
+            className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-200 rounded-md transition-colors cursor-pointer"
+            title="Close (Esc)"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Scrollable Body */}
-        <div className="flex-1 overflow-y-auto p-5 space-y-5 text-xs">
+        <div className="flex-1 overflow-y-auto p-5 space-y-4 text-xs">
           {/* Hero Metrics Card */}
           <div className="bg-slate-900 text-white rounded-xl p-4 space-y-3 shadow-md">
             <div className="flex items-center justify-between">
@@ -125,7 +145,7 @@ export const CategoryDetailsDrawer: React.FC<CategoryDetailsDrawerProps> = ({
               onClose();
               onNavigateTab('Zone Analysis');
             }}
-            className="flex-1 py-2 text-xs font-bold text-slate-700 bg-white border border-slate-300 hover:bg-slate-100 rounded-lg transition-colors text-center"
+            className="flex-1 py-2 text-xs font-bold text-slate-700 bg-white border border-slate-300 hover:bg-slate-100 rounded-xl transition-colors text-center cursor-pointer"
           >
             Zone Analysis
           </button>
@@ -135,7 +155,7 @@ export const CategoryDetailsDrawer: React.FC<CategoryDetailsDrawerProps> = ({
               onClose();
               onNavigateTab('Classification History');
             }}
-            className="flex-1 py-2 text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 rounded-lg transition-colors flex items-center justify-center gap-1 shadow-sm"
+            className="flex-1 py-2 text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 rounded-xl transition-colors flex items-center justify-center gap-1 shadow-xs cursor-pointer"
           >
             <span>View History</span>
             <ArrowRight className="w-3.5 h-3.5" />

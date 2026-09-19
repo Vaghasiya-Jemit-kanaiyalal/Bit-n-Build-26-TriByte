@@ -67,15 +67,6 @@ export const MonitoringHeader: React.FC<MonitoringHeaderProps> = ({
         >
           <RefreshCw className="w-4 h-4" />
         </button>
-
-        {/* Fullscreen Button */}
-        <button
-          onClick={onToggleFullscreenMap}
-          className="p-2 bg-white border border-slate-200/80 shadow-2xs rounded-xl text-slate-600 hover:text-slate-900 cursor-pointer"
-          title="Toggle Fullscreen Map"
-        >
-          {isFullscreenMap ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
-        </button>
       </div>
     </div>
   );

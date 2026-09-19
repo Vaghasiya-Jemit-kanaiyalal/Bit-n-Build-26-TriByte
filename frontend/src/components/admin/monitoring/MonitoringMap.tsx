@@ -54,6 +54,14 @@ export const MonitoringMap: React.FC<MonitoringMapProps> = ({
   // Native Fullscreen API state tracking
   const [isNativeFullscreen, setIsNativeFullscreen] = useState<boolean>(false);
 
+  // Realistic Map Toggles
+  const [mapToggles, setMapToggles] = useState({
+    bins: true,
+    vehicles: true,
+    routes: true,
+    binLabels: true,
+  });
+
   // Vector Grid Toggles
   const [vectorToggles, setVectorToggles] = useState({
     bins: true,
@@ -314,46 +322,87 @@ export const MonitoringMap: React.FC<MonitoringMapProps> = ({
 
         {/* Center / Right Controls */}
         <div className="flex flex-wrap items-center gap-3 text-xs font-semibold text-slate-700">
-          {mapType === 'vector' && (
-            <div className="flex items-center gap-3 border-r border-slate-200 pr-3">
-              <label className="flex items-center gap-1.5 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={vectorToggles.bins}
-                  onChange={(e) => setVectorToggles((v) => ({ ...v, bins: e.target.checked }))}
-                  className="rounded text-emerald-600 focus:ring-emerald-500 w-4 h-4 cursor-pointer"
-                />
-                <span>Bins</span>
-              </label>
-              <label className="flex items-center gap-1.5 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={vectorToggles.vehicles}
-                  onChange={(e) => setVectorToggles((v) => ({ ...v, vehicles: e.target.checked }))}
-                  className="rounded text-emerald-600 focus:ring-emerald-500 w-4 h-4 cursor-pointer"
-                />
-                <span>Vehicles</span>
-              </label>
-              <label className="flex items-center gap-1.5 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={vectorToggles.routes}
-                  onChange={(e) => setVectorToggles((v) => ({ ...v, routes: e.target.checked }))}
-                  className="rounded text-emerald-600 focus:ring-emerald-500 w-4 h-4 cursor-pointer"
-                />
-                <span>Routes</span>
-              </label>
-              <label className="flex items-center gap-1.5 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={vectorToggles.zones}
-                  onChange={(e) => setVectorToggles((v) => ({ ...v, zones: e.target.checked }))}
-                  className="rounded text-emerald-600 focus:ring-emerald-500 w-4 h-4 cursor-pointer"
-                />
-                <span>Zones</span>
-              </label>
-            </div>
-          )}
+          <div className="flex items-center gap-3 border-r border-slate-200 pr-3">
+            {mapType === 'vector' ? (
+              <>
+                <label className="flex items-center gap-1.5 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={vectorToggles.bins}
+                    onChange={(e) => setVectorToggles((v) => ({ ...v, bins: e.target.checked }))}
+                    className="rounded text-emerald-600 focus:ring-emerald-500 w-4 h-4 cursor-pointer"
+                  />
+                  <span>Bins</span>
+                </label>
+                <label className="flex items-center gap-1.5 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={vectorToggles.vehicles}
+                    onChange={(e) => setVectorToggles((v) => ({ ...v, vehicles: e.target.checked }))}
+                    className="rounded text-emerald-600 focus:ring-emerald-500 w-4 h-4 cursor-pointer"
+                  />
+                  <span>Vehicles</span>
+                </label>
+                <label className="flex items-center gap-1.5 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={vectorToggles.routes}
+                    onChange={(e) => setVectorToggles((v) => ({ ...v, routes: e.target.checked }))}
+                    className="rounded text-emerald-600 focus:ring-emerald-500 w-4 h-4 cursor-pointer"
+                  />
+                  <span>Routes</span>
+                </label>
+                <label className="flex items-center gap-1.5 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={vectorToggles.zones}
+                    onChange={(e) => setVectorToggles((v) => ({ ...v, zones: e.target.checked }))}
+                    className="rounded text-emerald-600 focus:ring-emerald-500 w-4 h-4 cursor-pointer"
+                  />
+                  <span>Zones</span>
+                </label>
+              </>
+            ) : (
+              <>
+                <label className="flex items-center gap-1.5 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={mapToggles.bins}
+                    onChange={(e) => setMapToggles((v) => ({ ...v, bins: e.target.checked }))}
+                    className="rounded text-emerald-600 focus:ring-emerald-500 w-4 h-4 cursor-pointer"
+                  />
+                  <span>Bins</span>
+                </label>
+                <label className="flex items-center gap-1.5 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={mapToggles.vehicles}
+                    onChange={(e) => setMapToggles((v) => ({ ...v, vehicles: e.target.checked }))}
+                    className="rounded text-emerald-600 focus:ring-emerald-500 w-4 h-4 cursor-pointer"
+                  />
+                  <span>Vehicles</span>
+                </label>
+                <label className="flex items-center gap-1.5 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={mapToggles.routes}
+                    onChange={(e) => setMapToggles((v) => ({ ...v, routes: e.target.checked }))}
+                    className="rounded text-emerald-600 focus:ring-emerald-500 w-4 h-4 cursor-pointer"
+                  />
+                  <span>Routes</span>
+                </label>
+                <label className="flex items-center gap-1.5 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={mapToggles.binLabels}
+                    onChange={(e) => setMapToggles((v) => ({ ...v, binLabels: e.target.checked }))}
+                    className="rounded text-emerald-600 focus:ring-emerald-500 w-4 h-4 cursor-pointer"
+                  />
+                  <span>Bin Labels</span>
+                </label>
+              </>
+            )}
+          </div>
 
           <div className="flex items-center gap-2">
             <div className="flex items-center bg-slate-100 border border-slate-200 rounded-lg px-2 py-1 gap-2 font-mono">
@@ -840,7 +889,7 @@ export const MonitoringMap: React.FC<MonitoringMapProps> = ({
                 </g>
 
                 {/* ACTIVE ROUTE POLYLINE */}
-                {propShowRoutes && (
+                {mapToggles.routes && (
                   <g>
                     <polyline
                       points={routePolylinePoints}
@@ -855,7 +904,7 @@ export const MonitoringMap: React.FC<MonitoringMapProps> = ({
                 )}
 
                 {/* ROUTE NUMBERED STOP BADGES */}
-                {propShowRoutes &&
+                {mapToggles.routes &&
                   routeStopsPositions.map((stop) => (
                     <g
                       key={stop.num}
@@ -884,7 +933,7 @@ export const MonitoringMap: React.FC<MonitoringMapProps> = ({
                   ))}
 
                 {/* VEHICLE MARKER */}
-                {propShowVehicles && (
+                {mapToggles.vehicles && (
                   <g
                     transform="translate(520, 290)"
                     className="cursor-pointer interactive-marker shadow-xl"
@@ -974,35 +1023,36 @@ export const MonitoringMap: React.FC<MonitoringMapProps> = ({
               </>
             ) : (
               /* ==================== B) REALISTIC MAP MARKERS ==================== */
-              realisticBins.map((bin) => {
-                const style = getBinStyle(bin.fill, bin.status);
-                const isRed = bin.fill >= 80;
+              mapToggles.bins &&
+                realisticBins.map((bin) => {
+                  const style = getBinStyle(bin.fill, bin.status);
+                  const isRed = bin.fill >= 80;
 
-                return (
-                  <div
-                    key={bin.id}
-                    style={{
-                      position: 'absolute',
-                      left: `${(bin.x / mapWidth) * 100}%`,
-                      top: `${(bin.y / mapHeight) * 100}%`,
-                      transform: 'translate(-50%, -100%)',
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      const match = bins.find((b) => b.binCode === bin.binCode);
-                      if (match) onSelectBin(match);
-                      setOpenPopupBin(bin as any);
-                    }}
-                    className="cursor-pointer group z-20 flex flex-col items-center select-none interactive-marker"
-                  >
-                    {/* Fill % Pill Tag */}
-                    {propShowBinLabels && (
-                      <div
-                        className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold font-mono shadow-md border ${style.pillBg} ${style.borderColor} mb-0.5 transition-transform duration-200 group-hover:scale-110 flex items-center gap-1`}
-                      >
-                        <span>{bin.fill}%</span>
-                      </div>
-                    )}
+                  return (
+                    <div
+                      key={bin.id}
+                      style={{
+                        position: 'absolute',
+                        left: `${(bin.x / mapWidth) * 100}%`,
+                        top: `${(bin.y / mapHeight) * 100}%`,
+                        transform: 'translate(-50%, -100%)',
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const match = bins.find((b) => b.binCode === bin.binCode);
+                        if (match) onSelectBin(match);
+                        setOpenPopupBin(bin as any);
+                      }}
+                      className="cursor-pointer group z-20 flex flex-col items-center select-none interactive-marker"
+                    >
+                      {/* Fill % Pill Tag */}
+                      {mapToggles.binLabels && (
+                        <div
+                          className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold font-mono shadow-md border ${style.pillBg} ${style.borderColor} mb-0.5 transition-transform duration-200 group-hover:scale-110 flex items-center gap-1`}
+                        >
+                          <span>{bin.fill}%</span>
+                        </div>
+                      )}
 
                     {/* 3D Trash Bin Icon */}
                     <div className="relative flex flex-col items-center transition-transform duration-200 group-hover:scale-125">

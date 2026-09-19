@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, SlidersHorizontal, ShieldAlert, Clock, Check, Layers } from 'lucide-react';
 import { initialAlertRules, type AlertRuleItem } from '../../mock/alertMockData';
 
@@ -31,6 +31,16 @@ export const AlertSettingsDrawer: React.FC<AlertSettingsDrawerProps> = ({
 
   const [rules, setRules] = useState<AlertRuleItem[]>(initialAlertRules);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   const handleToggleRule = (id: string) => {
@@ -43,11 +53,16 @@ export const AlertSettingsDrawer: React.FC<AlertSettingsDrawerProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-slate-900/40 backdrop-blur-xs transition-opacity animate-in fade-in duration-200">
-      <div className="absolute inset-0" onClick={onClose} />
-
-      <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
-        <div className="w-screen max-w-md bg-white shadow-2xl border-l border-slate-200 flex flex-col">
+    <div
+      className="fixed inset-0 z-[999999] bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 transition-all duration-200"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div
+        className="w-full max-w-lg bg-white rounded-2xl shadow-2xl max-h-[85vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200 border border-slate-200 text-xs text-slate-700"
+        onClick={(e) => e.stopPropagation()}
+      >
           
           {/* Drawer Header */}
           <div className="px-6 py-5 bg-slate-900 text-white flex items-center justify-between">
@@ -193,7 +208,6 @@ export const AlertSettingsDrawer: React.FC<AlertSettingsDrawerProps> = ({
 
         </div>
       </div>
-    </div>
   );
 };
 

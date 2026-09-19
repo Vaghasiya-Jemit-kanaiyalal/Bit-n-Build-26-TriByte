@@ -1,5 +1,5 @@
 import React from 'react';
-import { Filter, Navigation, Truck } from 'lucide-react';
+import { Navigation, Truck } from 'lucide-react';
 import type { MonitoredVehicle, MonitoredRoute, MonitoredBin } from '../../../types/monitoring';
 
 interface LiveVehiclesPanelProps {
@@ -8,16 +8,9 @@ interface LiveVehiclesPanelProps {
   bins?: MonitoredBin[];
   selectedVehicleId?: string;
   onSelectVehicle: (vehicle: MonitoredVehicle) => void;
-  filters: {
-    area: string;
-    wasteType: string;
-    status: string;
-    showVehicles: boolean;
-    showRoutes: boolean;
-    showBinLabels: boolean;
-  };
-  onFilterChange: (filters: any) => void;
-  onClearFilters: () => void;
+  filters?: any;
+  onFilterChange?: (filters: any) => void;
+  onClearFilters?: () => void;
   onNavigateGoogleMaps?: () => void;
 }
 
@@ -25,9 +18,6 @@ export const LiveVehiclesPanel: React.FC<LiveVehiclesPanelProps> = ({
   vehicles,
   selectedVehicleId,
   onSelectVehicle,
-  filters,
-  onFilterChange,
-  onClearFilters,
   onNavigateGoogleMaps,
 }) => {
   // Current active vehicle selection
@@ -58,9 +48,9 @@ export const LiveVehiclesPanel: React.FC<LiveVehiclesPanelProps> = ({
   };
 
   return (
-    <div className="space-y-4 h-full flex flex-col justify-between">
-      {/* 1. Live Vehicles Card */}
-      <div className="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-xs space-y-3.5">
+    <div className="h-full flex flex-col justify-start">
+      {/* Live Vehicles Card */}
+      <div className="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-xs space-y-3.5 h-full flex flex-col justify-between">
         {/* Header */}
         <div className="flex items-center justify-between pb-2 border-b border-slate-100">
           <div className="flex items-center gap-2">
@@ -96,7 +86,7 @@ export const LiveVehiclesPanel: React.FC<LiveVehiclesPanelProps> = ({
         </div>
 
         {/* Truck Graphic Image */}
-        <div className="relative w-full h-28 bg-gradient-to-br from-slate-100 to-slate-200 rounded-xl overflow-hidden flex items-center justify-center border border-slate-200/60 shadow-inner">
+        <div className="relative w-full h-32 bg-gradient-to-br from-slate-100 to-slate-200 rounded-xl overflow-hidden flex items-center justify-center border border-slate-200/60 shadow-inner">
           <img
             src="https://images.unsplash.com/photo-1591768793355-74d04bb6608f?auto=format&fit=crop&w=600&q=80"
             alt="Garbage Truck"
@@ -119,7 +109,7 @@ export const LiveVehiclesPanel: React.FC<LiveVehiclesPanelProps> = ({
                 {Math.round((activeVehicle.currentLoadTons || 0.85) * 1000)} / {Math.round((activeVehicle.capacityTons || 2.0) * 1000)} kg
               </span>
             </div>
-            <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden border border-slate-200/60">
+            <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden border border-slate-200/60">
               <div
                 className="bg-[#047857] h-full rounded-full transition-all duration-300"
                 style={{ width: `${activeVehicle.utilizationPercent || 43}%` }}
@@ -134,7 +124,7 @@ export const LiveVehiclesPanel: React.FC<LiveVehiclesPanelProps> = ({
         </div>
 
         {/* Route Stops Sequence */}
-        <div className="pt-2 border-t border-slate-100 space-y-2">
+        <div className="pt-2 border-t border-slate-100 space-y-2 flex-1">
           <div className="flex items-center justify-between text-xs">
             <span className="font-extrabold text-slate-900 flex items-center gap-1.5">
               <span className="w-4 h-4 rounded-full bg-emerald-800 text-white text-[10px] flex items-center justify-center">🎯</span>
@@ -142,11 +132,11 @@ export const LiveVehiclesPanel: React.FC<LiveVehiclesPanelProps> = ({
             </span>
           </div>
 
-          <div className="space-y-1.5 max-h-40 overflow-y-auto pr-1">
+          <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
             {routeStops.map((stop) => (
               <div
                 key={stop.id}
-                className="flex items-center justify-between text-xs p-1.5 bg-slate-50/80 rounded-lg border border-slate-100"
+                className="flex items-center justify-between text-xs p-2 bg-slate-50/80 rounded-lg border border-slate-100"
               >
                 <div className="flex items-center gap-2">
                   <span className="w-5 h-5 rounded-full bg-blue-600 text-white font-mono font-bold text-[10px] flex items-center justify-center">
@@ -171,103 +161,11 @@ export const LiveVehiclesPanel: React.FC<LiveVehiclesPanelProps> = ({
         {/* Action Button: Navigate with Google Maps */}
         <button
           onClick={handleOpenGoogleMaps}
-          className="w-full py-2.5 px-4 bg-[#064e3b] hover:bg-[#047857] text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer border-none"
+          className="w-full py-2.5 px-4 bg-[#064e3b] hover:bg-[#047857] text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer border-none mt-2"
         >
           <Navigation className="w-4 h-4 text-emerald-300" />
           <span>Navigate with Google Maps</span>
         </button>
-      </div>
-
-      {/* 2. Map Filters Card */}
-      <div className="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-xs space-y-3">
-        {/* Filter Card Header */}
-        <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-          <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4 text-[#064e3b]" />
-            <h3 className="text-xs font-extrabold text-slate-900 uppercase tracking-wider">
-              Map Filters
-            </h3>
-          </div>
-          <button
-            onClick={onClearFilters}
-            className="text-[11px] font-bold text-slate-500 hover:text-slate-900 cursor-pointer"
-          >
-            Clear All
-          </button>
-        </div>
-
-        {/* Filter Selectors Grid */}
-        <div className="grid grid-cols-1 gap-2 text-xs">
-          <select
-            value={filters.area}
-            onChange={(e) => onFilterChange({ area: e.target.value })}
-            className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 font-semibold text-slate-700 focus:outline-none cursor-pointer"
-          >
-            <option value="All">All Areas</option>
-            <option value="Academic Block">Academic Block</option>
-            <option value="CSE Block">CSE Block</option>
-            <option value="Hostel Area">Hostel Area</option>
-            <option value="Library">Library</option>
-            <option value="Sports Complex">Sports Complex</option>
-          </select>
-
-          <select
-            value={filters.wasteType}
-            onChange={(e) => onFilterChange({ wasteType: e.target.value })}
-            className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 font-semibold text-slate-700 focus:outline-none cursor-pointer"
-          >
-            <option value="All">All Waste Types</option>
-            <option value="Organic">Organic</option>
-            <option value="Plastic">Plastic / Recyclable</option>
-            <option value="Hazardous">Hazardous</option>
-            <option value="General">General Waste</option>
-          </select>
-
-          <select
-            value={filters.status}
-            onChange={(e) => onFilterChange({ status: e.target.value })}
-            className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 font-semibold text-slate-700 focus:outline-none cursor-pointer"
-          >
-            <option value="All">All Status</option>
-            <option value="Normal">Normal (&lt; 60%)</option>
-            <option value="Moderate">Moderate (60-80%)</option>
-            <option value="Critical">Critical (&gt; 80%)</option>
-            <option value="Offline">Offline / Maintenance</option>
-          </select>
-        </div>
-
-        {/* Checkbox Toggles */}
-        <div className="grid grid-cols-2 gap-2 text-xs pt-1 border-t border-slate-100">
-          <label className="flex items-center gap-2 text-slate-700 font-semibold cursor-pointer">
-            <input
-              type="checkbox"
-              checked={filters.showVehicles}
-              onChange={(e) => onFilterChange({ showVehicles: e.target.checked })}
-              className="rounded border-slate-300 text-[#047857] focus:ring-[#047857]"
-            />
-            <span>Show Vehicles</span>
-          </label>
-
-          <label className="flex items-center gap-2 text-slate-700 font-semibold cursor-pointer">
-            <input
-              type="checkbox"
-              checked={filters.showRoutes}
-              onChange={(e) => onFilterChange({ showRoutes: e.target.checked })}
-              className="rounded border-slate-300 text-[#047857] focus:ring-[#047857]"
-            />
-            <span>Show Routes</span>
-          </label>
-
-          <label className="flex items-center gap-2 text-slate-700 font-semibold cursor-pointer col-span-2">
-            <input
-              type="checkbox"
-              checked={filters.showBinLabels}
-              onChange={(e) => onFilterChange({ showBinLabels: e.target.checked })}
-              className="rounded border-slate-300 text-[#047857] focus:ring-[#047857]"
-            />
-            <span>Show Bin Labels</span>
-          </label>
-        </div>
       </div>
     </div>
   );

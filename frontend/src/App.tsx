@@ -4,6 +4,7 @@ import type { UserSession } from './types/auth';
 import { EcoTrackDashboard } from './components/dashboards/EcoTrackDashboard';
 import { ShieldCheck } from 'lucide-react';
 import NotificationToast, { showWebsiteToast } from './components/common/NotificationToast';
+import ScrollToTopButton from './components/common/ScrollToTopButton';
 import { authService } from './services/authService';
 
 export const App: React.FC = () => {
@@ -96,6 +97,9 @@ export const App: React.FC = () => {
     <>
       {/* Global In-Website Notification Toast Container */}
       <NotificationToast />
+
+      {/* Global Scroll to Top (Down to Top) Arrow Button */}
+      <ScrollToTopButton />
 
       {currentUser ? (
         <EcoTrackDashboard user={currentUser} onSignOut={handleSignOut} />

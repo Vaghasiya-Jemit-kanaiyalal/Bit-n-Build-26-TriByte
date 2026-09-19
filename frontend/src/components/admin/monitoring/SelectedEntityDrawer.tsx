@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import type { MonitoredBin, MonitoredVehicle, MonitoredRoute } from '../../../types/monitoring';
 import {
   X,
@@ -8,6 +8,7 @@ import {
   BrainCircuit,
   Gauge,
   MapPin,
+  Eye,
 } from 'lucide-react';
 
 interface SelectedEntityDrawerProps {
@@ -27,31 +28,58 @@ export const SelectedEntityDrawer: React.FC<SelectedEntityDrawerProps> = ({
   onClose,
   onNavigateToModule,
 }) => {
+  // ESC key listener to close modal
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen || !entity) return null;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden bg-slate-900/40 backdrop-blur-xs flex justify-end transition-opacity">
-      <div className="w-full max-w-md bg-white h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
-        {/* Drawer Header */}
+    <div
+      className="fixed inset-0 z-[999999] bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 transition-all duration-200"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div
+        className="w-full max-w-lg md:max-w-xl bg-white rounded-2xl shadow-2xl max-h-[85vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200 border border-slate-200"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Modal Header */}
         <div className="p-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-mono font-bold text-slate-400 bg-slate-200 px-2 py-0.5 rounded">
-              {entity.type.toUpperCase()}
+            <span className="p-1.5 rounded-lg bg-emerald-100 text-emerald-800">
+              <Eye className="w-4 h-4" />
             </span>
-            <h2 className="text-sm font-bold text-slate-900">
-              Live Telemetry &amp; Status Inspection
-            </h2>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-mono font-extrabold text-slate-500 bg-slate-200 px-2 py-0.5 rounded uppercase">
+                  {entity.type}
+                </span>
+                <h2 className="text-sm font-bold text-slate-900">
+                  Live Telemetry &amp; Inspection Details
+                </h2>
+              </div>
+            </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-200 rounded-md transition-colors cursor-pointer"
+            className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-200 rounded-lg transition-colors cursor-pointer"
+            title="Close (Esc)"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Drawer Content */}
-        <div className="flex-1 overflow-y-auto p-5 space-y-5 text-xs">
+        {/* Modal Scrollable Content */}
+        <div className="flex-1 overflow-y-auto p-5 space-y-4 text-xs">
           {/* 1. BIN DETAILS */}
           {entity.type === 'bin' && (
             <>
@@ -80,7 +108,7 @@ export const SelectedEntityDrawer: React.FC<SelectedEntityDrawerProps> = ({
               </div>
 
               {/* Current Fill Status */}
-              <div className="bg-white border border-slate-200 rounded-lg p-4 space-y-3">
+              <div className="bg-white border border-slate-200 rounded-xl p-4 space-y-3">
                 <h4 className="text-xs font-semibold text-slate-900 uppercase tracking-wider flex items-center gap-1.5 border-b border-slate-100 pb-2">
                   <Trash2 className="w-3.5 h-3.5 text-slate-500" /> Current Fill Status
                 </h4>
@@ -121,7 +149,7 @@ export const SelectedEntityDrawer: React.FC<SelectedEntityDrawerProps> = ({
               </div>
 
               {/* Sensor Health */}
-              <div className="bg-white border border-slate-200 rounded-lg p-4 space-y-3">
+              <div className="bg-white border border-slate-200 rounded-xl p-4 space-y-3">
                 <h4 className="text-xs font-semibold text-slate-900 uppercase tracking-wider flex items-center gap-1.5 border-b border-slate-100 pb-2">
                   <Cpu className="w-3.5 h-3.5 text-slate-500" /> Connected Sensor Telemetry
                 </h4>
@@ -154,7 +182,7 @@ export const SelectedEntityDrawer: React.FC<SelectedEntityDrawerProps> = ({
               </div>
 
               {/* AI Prediction */}
-              <div className="bg-emerald-50/70 border border-emerald-200 rounded-lg p-3.5 space-y-2 text-emerald-950">
+              <div className="bg-emerald-50/70 border border-emerald-200 rounded-xl p-3.5 space-y-2 text-emerald-950">
                 <div className="flex items-center gap-1.5 font-bold text-xs">
                   <BrainCircuit className="w-4 h-4 text-emerald-700" />
                   <span>AI Predictive Analytics</span>
@@ -196,7 +224,7 @@ export const SelectedEntityDrawer: React.FC<SelectedEntityDrawerProps> = ({
               </div>
 
               {/* Vehicle Capacity */}
-              <div className="bg-white border border-slate-200 rounded-lg p-4 space-y-3">
+              <div className="bg-white border border-slate-200 rounded-xl p-4 space-y-3">
                 <h4 className="text-xs font-semibold text-slate-900 uppercase tracking-wider flex items-center gap-1.5 border-b border-slate-100 pb-2">
                   <Gauge className="w-3.5 h-3.5 text-slate-500" /> Payload Load Capacity
                 </h4>
@@ -218,7 +246,7 @@ export const SelectedEntityDrawer: React.FC<SelectedEntityDrawerProps> = ({
               </div>
 
               {/* Live Location & Speed */}
-              <div className="bg-white border border-slate-200 rounded-lg p-4 space-y-3">
+              <div className="bg-white border border-slate-200 rounded-xl p-4 space-y-3">
                 <h4 className="text-xs font-semibold text-slate-900 uppercase tracking-wider flex items-center gap-1.5 border-b border-slate-100 pb-2">
                   <MapPin className="w-3.5 h-3.5 text-slate-500" /> Live Location Telemetry
                 </h4>
@@ -272,7 +300,7 @@ export const SelectedEntityDrawer: React.FC<SelectedEntityDrawerProps> = ({
               </div>
 
               {/* Progress */}
-              <div className="bg-white border border-slate-200 rounded-lg p-4 space-y-3">
+              <div className="bg-white border border-slate-200 rounded-xl p-4 space-y-3">
                 <h4 className="text-xs font-semibold text-slate-900 uppercase tracking-wider flex items-center gap-1.5 border-b border-slate-100 pb-2">
                   <RouteIcon className="w-3.5 h-3.5 text-slate-500" /> Route Progress &amp; Distance
                 </h4>
@@ -310,11 +338,11 @@ export const SelectedEntityDrawer: React.FC<SelectedEntityDrawerProps> = ({
           )}
         </div>
 
-        {/* Drawer Footer Navigation Link */}
+        {/* Modal Footer Actions */}
         <div className="p-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
           <button
             onClick={onClose}
-            className="px-4 py-1.5 text-xs font-medium text-slate-700 bg-white border border-slate-300 hover:bg-slate-100 rounded-md transition-colors cursor-pointer"
+            className="px-4 py-2 text-xs font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
           >
             Close
           </button>
@@ -331,9 +359,10 @@ export const SelectedEntityDrawer: React.FC<SelectedEntityDrawerProps> = ({
                 onNavigateToModule(target);
               }
             }}
-            className="px-4 py-1.5 text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 rounded-md transition-colors shadow-xs cursor-pointer"
+            className="px-4 py-2 text-xs font-bold text-white bg-[#064e3b] hover:bg-[#047857] rounded-xl transition-colors shadow-xs cursor-pointer flex items-center gap-1.5"
           >
-            Open Dedicated Module →
+            <span>Open Dedicated Module</span>
+            <span>→</span>
           </button>
         </div>
       </div>
