@@ -122,7 +122,7 @@ export const userService = {
     return user || null;
   },
 
-  async createUser(userData: Partial<PlatformUser>): Promise<PlatformUser> {
+  async createUser(userData: any): Promise<PlatformUser> {
     const newNum = Math.floor(100 + Math.random() * 900);
     const newId = `USR-${newNum}`;
 
@@ -135,6 +135,33 @@ export const userService = {
     const fullName = `${fName} ${lName}`;
     const initials = `${fName[0]}${lName[0]}`.toUpperCase();
 
+    // Call backend API if admin token exists
+    const token = localStorage.getItem('wastewise_token');
+    if (token) {
+      try {
+        await fetch('http://localhost:8000/api/v1/users', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            first_name: fName,
+            last_name: lName,
+            email: userData.email,
+            phone: userData.phone,
+            role: userData.role || 'COLLECTOR',
+            status: userData.status || 'ACTIVE',
+            organization: userData.organization || 'EcoTrack AI Waste Management',
+            department: userData.department || 'Operations',
+            temporary_password: userData.tempPassword || userData.temporary_password || 'TempPass123!',
+          }),
+        });
+      } catch (err) {
+        console.warn('Backend user creation offline or failed, saving locally:', err);
+      }
+    }
+
     const newUser: PlatformUser = {
       id: newId,
       userCode: newId,
@@ -143,7 +170,7 @@ export const userService = {
       fullName,
       email: userData.email || `user${newNum}@example.com`,
       phone: userData.phone || '+91 98000 00000',
-      role: userData.role || 'DRIVER',
+      role: userData.role || 'COLLECTOR',
       status: userData.status || 'ACTIVE',
       organization: userData.organization || 'Municipal Waste Operations',
       department: userData.department || 'Operations Team',
@@ -151,9 +178,9 @@ export const userService = {
       assignedVehicleId: userData.assignedVehicleId,
       assignedRouteId: userData.assignedRouteId,
       analyticsScope: userData.analyticsScope,
-      accessScope: userData.role === 'ADMIN' ? 'Full Platform' : userData.role === 'ANALYST' ? 'Analytics Only' : 'Operational Only',
+      accessScope: userData.role === 'ADMIN' ? 'Full Platform' : userData.role === 'VIEWER' ? 'Analytics Only' : 'Operational Only',
       avatarInitials: initials,
-      avatarBgColor: userData.role === 'ADMIN' ? 'bg-[#064e3b] text-white' : userData.role === 'ANALYST' ? 'bg-purple-700 text-white' : 'bg-emerald-600 text-white',
+      avatarBgColor: userData.role === 'ADMIN' ? 'bg-[#064e3b] text-white' : userData.role === 'VIEWER' ? 'bg-purple-700 text-white' : 'bg-emerald-600 text-white',
       lastActiveAt: 'Just now',
       joinedAt: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
       createdAt: new Date().toISOString().split('T')[0],
@@ -178,6 +205,29 @@ export const userService = {
     const lName = updates.lastName || current.lastName;
     const fullName = `${fName} ${lName}`;
 
+    const token = localStorage.getItem('wastewise_token');
+    if (token) {
+      try {
+        await fetch(`http://localhost:8000/api/v1/users/${current.email}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            first_name: fName,
+            last_name: lName,
+            email: updates.email || current.email,
+            phone: updates.phone || current.phone,
+            organization: updates.organization || current.organization,
+            department: updates.department || current.department,
+          }),
+        });
+      } catch (err) {
+        console.warn('Backend user update offline or failed:', err);
+      }
+    }
+
     const updated: PlatformUser = {
       ...current,
       ...updates,
@@ -196,13 +246,28 @@ export const userService = {
     const user = mockUserStore.find((u) => u.id === id);
     if (!user) throw new Error(`User ${id} not found.`);
 
+    const token = localStorage.getItem('wastewise_token');
+    if (token) {
+      try {
+        await fetch(`http://localhost:8000/api/v1/users/${user.email}/role`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ role: newRole }),
+        });
+      } catch (err) {
+        console.warn('Backend role update offline or failed:', err);
+      }
+    }
+
     return this.updateUser(id, {
       role: newRole,
-      accessScope: newRole === 'ADMIN' ? 'Full Platform' : newRole === 'ANALYST' ? 'Analytics Only' : 'Operational Only',
-      // Reset incompatible fields
-      assignedVehicleId: newRole === 'DRIVER' ? user.assignedVehicleId : undefined,
-      assignedRouteId: newRole === 'DRIVER' ? user.assignedRouteId : undefined,
-      analyticsScope: newRole === 'ANALYST' ? 'All Zones' : undefined,
+      accessScope: newRole === 'ADMIN' ? 'Full Platform' : newRole === 'VIEWER' ? 'Analytics Only' : 'Operational Only',
+      assignedVehicleId: newRole === 'COLLECTOR' ? user.assignedVehicleId : undefined,
+      assignedRouteId: newRole === 'COLLECTOR' ? user.assignedRouteId : undefined,
+      analyticsScope: newRole === 'VIEWER' ? 'All Zones' : undefined,
     });
   },
 

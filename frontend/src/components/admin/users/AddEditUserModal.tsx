@@ -42,7 +42,7 @@ export const AddEditUserModal: React.FC<AddEditUserModalProps> = ({
       setLastName(userToEdit.lastName || '');
       setEmail(userToEdit.email || '');
       setPhone(userToEdit.phone || '');
-      setRole((userToEdit.role as string) === 'ADMIN' ? 'COLLECTOR' : userToEdit.role || 'COLLECTOR');
+      setRole(userToEdit.role || 'COLLECTOR');
       setStatus(userToEdit.status || 'ACTIVE');
       setOrganization(userToEdit.organization || 'Waste Management Dept');
       setDepartment(userToEdit.department || 'Field Operations');
@@ -238,6 +238,7 @@ export const AddEditUserModal: React.FC<AddEditUserModalProps> = ({
                   onChange={(e) => setRole(e.target.value as UserRole)}
                   className="w-full px-3 py-1.5 border border-slate-300 rounded-md focus:ring-1 focus:ring-slate-500 focus:outline-none bg-white font-medium"
                 >
+                  <option value="ADMIN">Admin</option>
                   <option value="COLLECTOR">Collector</option>
                   <option value="VIEWER">Viewer</option>
                 </select>

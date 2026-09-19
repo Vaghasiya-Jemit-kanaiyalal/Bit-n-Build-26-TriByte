@@ -4,6 +4,7 @@ import type { UserSession } from './types/auth';
 import { EcoTrackDashboard } from './components/dashboards/EcoTrackDashboard';
 import { ShieldCheck } from 'lucide-react';
 import NotificationToast, { showWebsiteToast } from './components/common/NotificationToast';
+import { authService } from './services/authService';
 
 export const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<UserSession | null>(null);
@@ -18,21 +19,59 @@ export const App: React.FC = () => {
         showWebsiteToast(msgStr, 'info', 'Website Notification');
       };
     }
+
+    // Auto restore session if saved
+    const savedUser = authService.getSavedUser();
+    const token = authService.getToken();
+    if (savedUser && token) {
+      const roleStr = savedUser.role || 'VIEWER';
+      const userSession: UserSession = {
+        id: savedUser.id,
+        name: savedUser.full_name || savedUser.name || savedUser.email.split('@')[0],
+        email: savedUser.email,
+        role: roleStr,
+        displayRole:
+          roleStr === 'ADMIN'
+            ? 'Waste Manager'
+            : roleStr === 'COLLECTOR'
+            ? 'Driver / Field Worker'
+            : 'Analyst / Supervisor',
+        status: savedUser.status || 'ACTIVE',
+        organization: savedUser.organization || 'EcoTrack AI Waste Management',
+        department: savedUser.department || 'Operations',
+      };
+      setCurrentUser(userSession);
+    }
   }, []);
 
-  const handleSignInSuccess = (role: string, email: string) => {
-    let mappedRole: UserSession['role'] = 'Waste Manager';
-    if (role.includes('Collector') || role.includes('Driver') || role === 'Role 2') {
-      mappedRole = 'Driver / Field Worker';
-    } else if (role.includes('Viewer') || role.includes('Analyst') || role === 'Role 3') {
-      mappedRole = 'Analyst / Supervisor';
+  const handleSignInSuccess = (role: string, email: string, userRecord?: any) => {
+    // Role strictly comes from the database record!
+    const dbRole = (userRecord?.role || role || 'VIEWER').toUpperCase();
+
+    // Map to display representation for dashboard while keeping raw database role
+    let mappedDisplayRole: string = 'Analyst / Supervisor';
+    if (dbRole === 'ADMIN') {
+      mappedDisplayRole = 'Waste Manager';
+    } else if (dbRole === 'COLLECTOR') {
+      mappedDisplayRole = 'Driver / Field Worker';
+    } else if (dbRole === 'VIEWER') {
+      mappedDisplayRole = 'Analyst / Supervisor';
     }
 
+    const displayName =
+      userRecord?.full_name ||
+      (userRecord?.first_name ? `${userRecord.first_name} ${userRecord.last_name || ''}`.trim() : null) ||
+      (email === 'yug@gmail.com' ? 'Yug Admin' : email.split('@')[0]);
+
     const userSession: UserSession = {
-      name: email === 'admin@ecotrack.com' ? 'Jemit Vaghasiya' : (email.split('@')[0] || 'Authorized Personnel'),
+      id: userRecord?.id,
+      name: displayName,
       email: email,
-      role: mappedRole,
-      organization: 'EcoTrack AI Waste Management',
+      role: mappedDisplayRole, // Passes display role expected by existing EcoTrackDashboard component
+      displayRole: mappedDisplayRole,
+      status: userRecord?.status || 'ACTIVE',
+      organization: userRecord?.organization || 'EcoTrack AI Waste Management',
+      department: userRecord?.department || 'Operations',
     };
 
     setPendingUser(userSession);
@@ -42,11 +81,13 @@ export const App: React.FC = () => {
       setCurrentUser(userSession);
       setIsTransitioning(false);
       setPendingUser(null);
-    }, 1000);
+    }, 800);
   };
 
   const handleSignOut = () => {
+    authService.logout();
     setCurrentUser(null);
+    showWebsiteToast('You have been signed out.', 'info', 'Session Ended');
   };
 
   return (
@@ -63,18 +104,23 @@ export const App: React.FC = () => {
               <ShieldCheck className="w-6 h-6" />
             </div>
 
-            <h3 className="text-lg font-bold mb-1">Authentication Successful</h3>
+            <h3 className="text-lg font-bold mb-1">Authentication Verified</h3>
             <p className="text-xs text-slate-400 mb-4">
-              Redirecting {pendingUser.name} to authorized portal...
+              Loading {pendingUser.name}'s authorized workspace...
             </p>
 
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-white/5 border border-white/10 mb-6">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-xs font-semibold text-slate-200">{pendingUser.role}</span>
+              <span className="text-xs font-semibold text-slate-200">
+                {pendingUser.role} Portal
+              </span>
             </div>
 
             <div className="w-full h-1 bg-slate-800 rounded-full overflow-hidden">
-              <div className="h-full bg-emerald-500 rounded-full animate-pulse w-full" style={{ animationDuration: '1s' }} />
+              <div
+                className="h-full bg-emerald-500 rounded-full animate-pulse w-full"
+                style={{ animationDuration: '0.8s' }}
+              />
             </div>
           </div>
         </div>

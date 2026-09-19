@@ -3,6 +3,41 @@ import type { PlatformUser } from '../types/user';
 export const INITIAL_MOCK_USERS: PlatformUser[] = [
   // 1. ADMINS
   {
+    id: 'USR-000',
+    userCode: 'USR-000',
+    firstName: 'Yug',
+    lastName: 'Admin',
+    fullName: 'Yug Admin',
+    email: 'yug@gmail.com',
+    phone: '+91 98765 43210',
+    role: 'ADMIN',
+    status: 'ACTIVE',
+    organization: 'EcoTrack AI Central HQ',
+    department: 'Platform Administration',
+    zone: 'All Zones',
+    accessScope: 'Full Platform',
+    avatarInitials: 'YA',
+    avatarBgColor: 'bg-[#064e3b] text-white',
+    lastActiveAt: 'Just now',
+    joinedAt: '19 Sep 2026',
+    createdAt: '2026-09-19',
+    updatedAt: '2026-09-19T10:00:00Z',
+    loginSession: {
+      lastLoginAt: 'Just now',
+      device: 'Chrome / Windows',
+      location: 'Gujarat, India',
+    },
+    adminStats: {
+      usersManaged: 88,
+      routesCreated: 30,
+      vehiclesUpdated: 16,
+      alertsResolved: 45,
+    },
+    activityHistory: [
+      { id: 'ACT-YUG-01', timestamp: 'Just now', description: 'Logged into Admin Dashboard', category: 'login' },
+    ],
+  },
+  {
     id: 'USR-001',
     userCode: 'USR-001',
     firstName: 'Priya',

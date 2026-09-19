@@ -104,6 +104,7 @@ export const ChangeRoleModal: React.FC<ChangeRoleModalProps> = ({
               onChange={(e) => setSelectedRole(e.target.value as UserRole)}
               className="w-full px-3 py-2 border border-slate-300 rounded-md bg-white text-xs font-semibold text-slate-900 focus:ring-1 focus:ring-slate-500 focus:outline-none"
             >
+              <option value="ADMIN">Admin</option>
               <option value="COLLECTOR">Collector</option>
               <option value="VIEWER">Viewer</option>
             </select>
