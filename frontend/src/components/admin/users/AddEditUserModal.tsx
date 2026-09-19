@@ -23,7 +23,7 @@ export const AddEditUserModal: React.FC<AddEditUserModalProps> = ({
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
-  const [role, setRole] = useState<UserRole>('DRIVER');
+  const [role, setRole] = useState<UserRole>('COLLECTOR');
   const [status, setStatus] = useState<UserStatus>('ACTIVE');
   const [organization, setOrganization] = useState('Waste Management Dept');
   const [department, setDepartment] = useState('Field Operations');
@@ -42,7 +42,7 @@ export const AddEditUserModal: React.FC<AddEditUserModalProps> = ({
       setLastName(userToEdit.lastName || '');
       setEmail(userToEdit.email || '');
       setPhone(userToEdit.phone || '');
-      setRole(userToEdit.role || 'DRIVER');
+      setRole((userToEdit.role as string) === 'ADMIN' ? 'COLLECTOR' : userToEdit.role || 'COLLECTOR');
       setStatus(userToEdit.status || 'ACTIVE');
       setOrganization(userToEdit.organization || 'Waste Management Dept');
       setDepartment(userToEdit.department || 'Field Operations');
@@ -57,7 +57,7 @@ export const AddEditUserModal: React.FC<AddEditUserModalProps> = ({
       setLastName('');
       setEmail('');
       setPhone('');
-      setRole('DRIVER');
+      setRole('COLLECTOR');
       setStatus('ACTIVE');
       setOrganization('Waste Management Dept');
       setDepartment('Field Operations');
@@ -107,9 +107,9 @@ export const AddEditUserModal: React.FC<AddEditUserModalProps> = ({
         organization,
         department,
         zone,
-        assignedVehicleId: role === 'DRIVER' ? assignedVehicleId : undefined,
-        assignedRouteId: role === 'DRIVER' ? assignedRouteId : undefined,
-        analyticsScope: role === 'ANALYST' ? analyticsScope : undefined,
+        assignedVehicleId: (role === 'COLLECTOR' || role === 'DRIVER') ? assignedVehicleId : undefined,
+        assignedRouteId: (role === 'COLLECTOR' || role === 'DRIVER') ? assignedRouteId : undefined,
+        analyticsScope: (role === 'VIEWER' || role === 'ANALYST') ? analyticsScope : undefined,
       });
     } else {
       onSubmitAdd({
@@ -122,26 +122,14 @@ export const AddEditUserModal: React.FC<AddEditUserModalProps> = ({
         organization,
         department,
         zone,
-        assignedVehicleId: role === 'DRIVER' ? assignedVehicleId : undefined,
-        assignedRouteId: role === 'DRIVER' ? assignedRouteId : undefined,
-        analyticsScope: role === 'ANALYST' ? analyticsScope : undefined,
+        assignedVehicleId: (role === 'COLLECTOR' || role === 'DRIVER') ? assignedVehicleId : undefined,
+        assignedRouteId: (role === 'COLLECTOR' || role === 'DRIVER') ? assignedRouteId : undefined,
+        analyticsScope: (role === 'VIEWER' || role === 'ANALYST') ? analyticsScope : undefined,
         tempPassword,
         requirePasswordChange,
       });
     }
   };
-
-  const zones: ZoneName[] = [
-    'Central Zone',
-    'North Zone',
-    'South Zone',
-    'East Zone',
-    'West Zone',
-    'Industrial Zone',
-    'Residential Zone',
-  ];
-  const availableVehicles = ['TRK-014', 'TRK-021', 'TRK-033', 'TRK-042', 'TRK-055', 'TRK-068'];
-  const availableRoutes = ['R-101', 'R-102', 'R-103', 'R-104', 'R-105', 'R-108', 'R-112'];
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
@@ -250,9 +238,8 @@ export const AddEditUserModal: React.FC<AddEditUserModalProps> = ({
                   onChange={(e) => setRole(e.target.value as UserRole)}
                   className="w-full px-3 py-1.5 border border-slate-300 rounded-md focus:ring-1 focus:ring-slate-500 focus:outline-none bg-white font-medium"
                 >
-                  <option value="DRIVER">Driver / Field Worker</option>
-                  <option value="ANALYST">Analyst / Supervisor</option>
-                  <option value="ADMIN">Waste Manager (Admin)</option>
+                  <option value="COLLECTOR">Collector</option>
+                  <option value="VIEWER">Viewer</option>
                 </select>
               </div>
 
@@ -289,87 +276,6 @@ export const AddEditUserModal: React.FC<AddEditUserModalProps> = ({
                   className="w-full px-3 py-1.5 border border-slate-300 rounded-md focus:ring-1 focus:ring-slate-500 focus:outline-none"
                 />
               </div>
-            </div>
-          </div>
-
-          {/* OPERATIONAL ASSIGNMENT & SCOPE */}
-          <div>
-            <h4 className="text-xs font-semibold text-slate-900 uppercase tracking-wider mb-3 pb-1 border-b border-slate-100">
-              Operational Assignment & Scope
-            </h4>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block font-medium text-slate-700 mb-1">Assigned Zone</label>
-                <select
-                  value={zone}
-                  onChange={(e) => setZone(e.target.value as ZoneName)}
-                  className="w-full px-3 py-1.5 border border-slate-300 rounded-md focus:ring-1 focus:ring-slate-500 focus:outline-none bg-white"
-                >
-                  {zones.map((z) => (
-                    <option key={z} value={z}>
-                      {z}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Role-specific fields */}
-              {role === 'DRIVER' && (
-                <>
-                  <div>
-                    <label className="block font-medium text-slate-700 mb-1">Vehicle Assignment</label>
-                    <select
-                      value={assignedVehicleId}
-                      onChange={(e) => setAssignedVehicleId(e.target.value)}
-                      className="w-full px-3 py-1.5 border border-slate-300 rounded-md focus:ring-1 focus:ring-slate-500 focus:outline-none bg-white font-mono"
-                    >
-                      {availableVehicles.map((v) => (
-                        <option key={v} value={v}>
-                          {v} (Compactor/Truck)
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block font-medium text-slate-700 mb-1">Route Assignment</label>
-                    <select
-                      value={assignedRouteId}
-                      onChange={(e) => setAssignedRouteId(e.target.value)}
-                      className="w-full px-3 py-1.5 border border-slate-300 rounded-md focus:ring-1 focus:ring-slate-500 focus:outline-none bg-white font-mono"
-                    >
-                      {availableRoutes.map((r) => (
-                        <option key={r} value={r}>
-                          {r} (Active Route)
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </>
-              )}
-
-              {role === 'ANALYST' && (
-                <div>
-                  <label className="block font-medium text-slate-700 mb-1">Analytics Scope</label>
-                  <select
-                    value={analyticsScope}
-                    onChange={(e) => setAnalyticsScope(e.target.value as 'All Zones' | 'Assigned Zones')}
-                    className="w-full px-3 py-1.5 border border-slate-300 rounded-md focus:ring-1 focus:ring-slate-500 focus:outline-none bg-white"
-                  >
-                    <option value="All Zones">All Zones (Global Scope)</option>
-                    <option value="Assigned Zones">Assigned Zone Only ({zone})</option>
-                  </select>
-                </div>
-              )}
-
-              {role === 'ADMIN' && (
-                <div className="col-span-2 bg-purple-50 p-2.5 rounded border border-purple-200 text-purple-900">
-                  <p className="font-semibold">Full Platform Access Granted</p>
-                  <p className="text-[11px] text-purple-700">
-                    Waste Managers possess administrative privileges over all 12 modules, system settings, and user management.
-                  </p>
-                </div>
-              )}
             </div>
           </div>
 

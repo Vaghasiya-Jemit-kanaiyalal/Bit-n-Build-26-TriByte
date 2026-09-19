@@ -87,9 +87,9 @@ export const userService = {
     // Compute KPI Summary over full dataset
     const totalUsers = 86; // Display total metric
     const activeUsers = mockUserStore.filter((u) => u.status === 'ACTIVE').length;
-    const driverCount = mockUserStore.filter((u) => u.role === 'DRIVER').length;
-    const activeDriverCount = mockUserStore.filter((u) => u.role === 'DRIVER' && u.status === 'ACTIVE').length;
-    const analystCount = mockUserStore.filter((u) => u.role === 'ANALYST').length;
+    const collectorCount = mockUserStore.filter((u) => u.role === 'COLLECTOR' || u.role === 'DRIVER').length;
+    const activeDriverCount = mockUserStore.filter((u) => (u.role === 'COLLECTOR' || u.role === 'DRIVER') && u.status === 'ACTIVE').length;
+    const viewerCount = mockUserStore.filter((u) => u.role === 'VIEWER' || u.role === 'ANALYST').length;
     const adminCount = mockUserStore.filter((u) => u.role === 'ADMIN').length;
     const inactiveCount = mockUserStore.filter((u) => u.status === 'INACTIVE').length;
     const pendingCount = mockUserStore.filter((u) => u.status === 'PENDING').length;
@@ -99,9 +99,11 @@ export const userService = {
       totalUsers,
       activeUsers: activeUsers > 0 ? activeUsers : 78,
       activePercent: 90.7,
-      driverCount: driverCount > 0 ? driverCount : 52,
+      driverCount: collectorCount > 0 ? collectorCount : 52,
+      collectorCount: collectorCount > 0 ? collectorCount : 52,
       activeDriverCount: activeDriverCount > 0 ? activeDriverCount : 46,
-      analystCount: analystCount > 0 ? analystCount : 21,
+      analystCount: viewerCount > 0 ? viewerCount : 21,
+      viewerCount: viewerCount > 0 ? viewerCount : 21,
       adminCount: adminCount > 0 ? adminCount : 13,
       inactiveCount: inactiveCount > 0 ? inactiveCount : 6,
       pendingCount: pendingCount > 0 ? pendingCount : 2,

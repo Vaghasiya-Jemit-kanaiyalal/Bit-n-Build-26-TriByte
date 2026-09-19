@@ -1,4 +1,4 @@
-export type UserRole = 'ADMIN' | 'DRIVER' | 'ANALYST';
+export type UserRole = 'ADMIN' | 'COLLECTOR' | 'VIEWER' | 'DRIVER' | 'ANALYST';
 
 export type UserStatus = 'ACTIVE' | 'INACTIVE' | 'PENDING' | 'SUSPENDED';
 
@@ -63,9 +63,9 @@ export interface PlatformUser {
   organization: string;
   department: string;
   zone: ZoneName;
-  assignedVehicleId?: string; // e.g. TRK-021 (for Drivers)
-  assignedRouteId?: string; // e.g. R-104 (for Drivers)
-  analyticsScope?: 'All Zones' | 'Assigned Zones'; // (for Analysts)
+  assignedVehicleId?: string; // e.g. TRK-021 (for Collectors/Drivers)
+  assignedRouteId?: string; // e.g. R-104 (for Collectors/Drivers)
+  analyticsScope?: 'All Zones' | 'Assigned Zones'; // (for Viewers/Analysts)
   accessScope?: 'Full Platform' | 'Operational Only' | 'Analytics Only';
   avatarInitials: string;
   avatarBgColor?: string;
@@ -119,9 +119,11 @@ export interface UserKpiSummary {
   totalUsers: number;
   activeUsers: number;
   activePercent: number;
-  driverCount: number;
+  driverCount: number; // Legacy alias for collector
+  collectorCount: number;
   activeDriverCount: number;
-  analystCount: number;
+  analystCount: number; // Legacy alias for viewer
+  viewerCount: number;
   adminCount: number;
   inactiveCount: number;
   pendingCount: number;

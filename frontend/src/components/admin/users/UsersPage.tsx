@@ -44,8 +44,10 @@ export const UsersPage: React.FC = () => {
     activeUsers: 78,
     activePercent: 90.7,
     driverCount: 52,
+    collectorCount: 52,
     activeDriverCount: 46,
     analystCount: 21,
+    viewerCount: 21,
     adminCount: 13,
     inactiveCount: 6,
     pendingCount: 2,
@@ -132,8 +134,10 @@ export const UsersPage: React.FC = () => {
   const roleCounts = useMemo(() => {
     return {
       ADMIN: users.filter((u) => u.role === 'ADMIN').length,
-      DRIVER: users.filter((u) => u.role === 'DRIVER').length,
-      ANALYST: users.filter((u) => u.role === 'ANALYST').length,
+      DRIVER: users.filter((u) => u.role === 'DRIVER' || u.role === 'COLLECTOR').length,
+      ANALYST: users.filter((u) => u.role === 'ANALYST' || u.role === 'VIEWER').length,
+      COLLECTOR: users.filter((u) => u.role === 'COLLECTOR' || u.role === 'DRIVER').length,
+      VIEWER: users.filter((u) => u.role === 'VIEWER' || u.role === 'ANALYST').length,
     };
   }, [users]);
 

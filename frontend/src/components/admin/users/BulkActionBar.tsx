@@ -73,9 +73,8 @@ export const BulkActionBar: React.FC<BulkActionBarProps> = ({
             <option value="" disabled>
               Change Role...
             </option>
-            <option value="ADMIN">Set Role: Waste Manager (Admin)</option>
-            <option value="DRIVER">Set Role: Driver / Field Worker</option>
-            <option value="ANALYST">Set Role: Analyst / Supervisor</option>
+            <option value="COLLECTOR">Set Role: Collector</option>
+            <option value="VIEWER">Set Role: Viewer</option>
           </select>
         </div>
 
