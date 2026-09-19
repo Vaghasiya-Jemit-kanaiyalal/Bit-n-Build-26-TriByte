@@ -71,7 +71,7 @@ export const ExportReportModal: React.FC<ExportReportModalProps> = ({ isOpen, on
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-[1000000] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
       
       {/* Backdrop */}
       <div className="absolute inset-0" onClick={onClose} />

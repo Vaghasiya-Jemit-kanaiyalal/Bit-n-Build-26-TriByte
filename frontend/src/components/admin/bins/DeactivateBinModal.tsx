@@ -16,7 +16,7 @@ export const DeactivateBinModal: React.FC<DeactivateBinModalProps> = ({
   if (!bin) return null;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-950/40 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
+    <div className="fixed inset-0 z-[1000000] overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
       <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl overflow-hidden border border-slate-200 animate-scaleUp">
         {/* HEADER */}
         <div className="p-5 border-b border-slate-200 flex items-center justify-between bg-red-50">

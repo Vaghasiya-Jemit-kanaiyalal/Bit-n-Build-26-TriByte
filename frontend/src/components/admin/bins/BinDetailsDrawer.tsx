@@ -294,7 +294,10 @@ export const BinDetailsDrawer: React.FC<BinDetailsDrawerProps> = ({
         {/* DRAWER FOOTER ACTIONS */}
         <div className="p-4 border-t border-slate-200 bg-white sticky bottom-0 flex items-center gap-2">
           <button
-            onClick={() => onEditBin(bin)}
+            onClick={() => {
+              onClose();
+              onEditBin(bin);
+            }}
             className="flex-1 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer border-none"
           >
             <Edit className="w-3.5 h-3.5" />
@@ -302,7 +305,10 @@ export const BinDetailsDrawer: React.FC<BinDetailsDrawerProps> = ({
           </button>
 
           <button
-            onClick={() => onOpenHistory(bin)}
+            onClick={() => {
+              onClose();
+              onOpenHistory(bin);
+            }}
             className="flex-1 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer border-none"
           >
             <History className="w-3.5 h-3.5" />
@@ -311,7 +317,10 @@ export const BinDetailsDrawer: React.FC<BinDetailsDrawerProps> = ({
 
           {onAssignRoute && (
             <button
-              onClick={() => onAssignRoute(bin)}
+              onClick={() => {
+                onClose();
+                onAssignRoute(bin);
+              }}
               className="flex-1 px-3 py-2 bg-[#064e3b] text-white hover:bg-[#047857] rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer border-none"
             >
               <RouteIcon className="w-3.5 h-3.5" />

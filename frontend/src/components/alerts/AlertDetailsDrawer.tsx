@@ -264,14 +264,20 @@ export const AlertDetailsDrawer: React.FC<AlertDetailsDrawerProps> = ({
               </button>
             )}
             <button
-              onClick={() => onSnooze(alertItem)}
-              className="flex-1 py-2 text-xs font-bold text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 rounded-lg transition-colors"
+              onClick={() => {
+                onClose();
+                onSnooze(alertItem);
+              }}
+              className="flex-1 py-2 text-xs font-bold text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 rounded-lg transition-colors cursor-pointer"
             >
               Snooze
             </button>
             <button
-              onClick={() => onResolve(alertItem)}
-              className="flex-1 py-2 text-xs font-bold text-white bg-[#738a62] hover:bg-[#5f7350] rounded-lg transition-colors shadow-2xs"
+              onClick={() => {
+                onClose();
+                onResolve(alertItem);
+              }}
+              className="flex-1 py-2 text-xs font-bold text-white bg-[#738a62] hover:bg-[#5f7350] rounded-lg transition-colors shadow-2xs cursor-pointer"
             >
               Resolve Alert
             </button>

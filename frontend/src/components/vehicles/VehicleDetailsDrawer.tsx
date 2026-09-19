@@ -357,14 +357,20 @@ const VehicleDetailsDrawer: React.FC<VehicleDetailsDrawerProps> = ({
           {/* Drawer Footer Actions */}
           <div className="p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
             <button
-              onClick={() => onAssign(vehicle)}
-              className="w-1/2 mr-2 py-2 text-xs font-medium text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 rounded-lg transition-colors shadow-2xs"
+              onClick={() => {
+                onClose();
+                onAssign(vehicle);
+              }}
+              className="w-1/2 mr-2 py-2 text-xs font-medium text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 rounded-lg transition-colors shadow-2xs cursor-pointer"
             >
               Assign Route / Driver
             </button>
             <button
-              onClick={() => onEdit(vehicle)}
-              className="w-1/2 ml-2 py-2 text-xs font-medium text-white bg-[#738a62] hover:bg-[#5f7350] rounded-lg transition-colors shadow-2xs"
+              onClick={() => {
+                onClose();
+                onEdit(vehicle);
+              }}
+              className="w-1/2 ml-2 py-2 text-xs font-medium text-white bg-[#738a62] hover:bg-[#5f7350] rounded-lg transition-colors shadow-2xs cursor-pointer"
             >
               Edit Vehicle Specs
             </button>

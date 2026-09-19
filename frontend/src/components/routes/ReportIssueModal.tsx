@@ -26,7 +26,7 @@ export const ReportIssueModal: React.FC<ReportIssueModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[1000000] bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
       <div className="bg-white rounded-lg shadow-xl border border-[#e5e7eb] w-full max-w-md overflow-hidden flex flex-col text-xs text-[#374151]">
         
         {/* Header */}
