@@ -28,12 +28,24 @@ import type { ZoneAnalyticsItem } from '../../mock/analyticsMockData';
 
 interface AnalyticsPageProps {
   onNavigateTab?: (tabName: string) => void;
+  initialTab?: AnalyticsTabType;
 }
 
-export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ onNavigateTab }) => {
+export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ onNavigateTab, initialTab = 'Overview' }) => {
   const [dateRange, setDateRange] = useState<DateRangeType>('Last 30 Days');
   const [comparePeriod, setComparePeriod] = useState<ComparePeriodType>('Previous Period');
-  const [activeTab, setActiveTab] = useState<AnalyticsTabType>('Overview');
+  const [activeTab, setActiveTab] = useState<AnalyticsTabType>(initialTab);
+
+  const handleSubTabChange = (tab: AnalyticsTabType) => {
+    setActiveTab(tab);
+    if (onNavigateTab) {
+      if (tab === 'Predictions') onNavigateTab('Prediction Analytics');
+      else if (tab === 'Collections') onNavigateTab('Collection Analytics');
+      else if (tab === 'Zones') onNavigateTab('Area Analysis');
+      else if (tab === 'Recycling') onNavigateTab('Recycling Analytics');
+      else if (tab === 'Waste') onNavigateTab('Waste Analytics');
+    }
+  };
   const [selectedZoneFilter] = useState<string>('All');
   const [selectedDrawerZone, setSelectedDrawerZone] = useState<ZoneAnalyticsItem | null>(null);
   const [isExportModalOpen, setIsExportModalOpen] = useState<boolean>(false);
@@ -88,7 +100,7 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ onNavigateTab }) =
       {/* Sub-Navigation Tabs */}
       <AnalyticsSubNav
         activeTab={activeTab}
-        onTabChange={setActiveTab}
+        onTabChange={handleSubTabChange}
       />
 
       <div className="px-6 max-w-7xl mx-auto">

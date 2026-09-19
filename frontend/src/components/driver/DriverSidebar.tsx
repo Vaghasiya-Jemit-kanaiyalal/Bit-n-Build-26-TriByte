@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import type { UserSession } from '../../types/auth';
 import faviconImg from '../../assets/favicon.png';
+import homeImg from '../../assets/home.png';
 
 interface DriverSidebarProps {
   activeTab: string;
@@ -49,14 +50,17 @@ export const DriverSidebar: React.FC<DriverSidebarProps> = ({
   return (
     <aside className="w-64 bg-white border-r border-slate-200 flex flex-col justify-between p-4 shrink-0 shadow-sm z-20">
       <div>
-        {/* Brand Header — Clickable Favicon Logo to Dashboard */}
+        {/* Brand Header — Clickable Favicon & Home Logo to Dashboard */}
         <button
           type="button"
           onClick={() => onNavigateTab('Dashboard')}
-          className="flex flex-col gap-1 px-2 py-2 mb-4 cursor-pointer bg-transparent border-none text-left hover:opacity-85 transition-opacity"
+          className="flex flex-col gap-1.5 px-2 py-2 mb-4 cursor-pointer bg-transparent border-none text-left hover:opacity-85 transition-opacity"
           title="Go to Dashboard"
         >
-          <img src={faviconImg} alt="EcoTrack Favicon" className="h-11 w-auto object-contain max-w-[200px]" />
+          <div className="flex items-center gap-2">
+            <img src={faviconImg} alt="EcoTrack Favicon" className="h-9 w-auto object-contain shrink-0" />
+            <img src={homeImg} alt="EcoTrack Home" className="h-8 w-auto object-contain max-w-[130px]" />
+          </div>
           <span className="text-[10px] font-bold text-emerald-700 leading-none flex items-center gap-1">
             <ShieldCheck className="w-3 h-3" /> Field Driver App
           </span>

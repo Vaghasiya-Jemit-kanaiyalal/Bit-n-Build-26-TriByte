@@ -36,6 +36,12 @@ import { DriverDashboardPreview } from './DriverDashboardPreview';
 import { AnalystDashboardPreview } from './AnalystDashboardPreview';
 import { ErrorBoundary } from '../common/ErrorBoundary';
 
+import { PredictionAnalyticsPage } from '../analyst/prediction/PredictionAnalyticsPage';
+import { CollectionAnalyticsPage } from '../analyst/collection/CollectionAnalyticsPage';
+import { AreaAnalysisPage } from '../analyst/area/AreaAnalysisPage';
+import { RecyclingAnalyticsPage } from '../analyst/recycling/RecyclingAnalyticsPage';
+import { ReportsPage } from '../analyst/reports/ReportsPage';
+
 const getTabFromPath = (path: string, role: string): string => {
   const p = (path || '').toLowerCase();
   if (role === 'ADMIN') {
@@ -64,6 +70,11 @@ const getTabFromPath = (path: string, role: string): string => {
   }
   if (role === 'ANALYST') {
     if (p.startsWith('/analyst/analytics')) return 'Analytics';
+    if (p.startsWith('/analyst/waste-analytics')) return 'Waste Analytics';
+    if (p.startsWith('/analyst/prediction-analytics')) return 'Prediction Analytics';
+    if (p.startsWith('/analyst/collection-analytics')) return 'Collection Analytics';
+    if (p.startsWith('/analyst/area-analysis')) return 'Area Analysis';
+    if (p.startsWith('/analyst/recycling-analytics')) return 'Recycling Analytics';
     if (p.startsWith('/analyst/reports')) return 'Reports';
     if (p.startsWith('/analyst/notifications')) return 'Notifications';
     if (p.startsWith('/analyst/profile')) return 'Profile';
@@ -104,6 +115,12 @@ const getPathFromTab = (tab: string, role: string): string => {
   if (role === 'ANALYST') {
     switch (tab) {
       case 'Analytics': return '/analyst/analytics';
+      case 'Waste Analytics': return '/analyst/waste-analytics';
+      case 'Prediction Analytics': return '/analyst/prediction-analytics';
+      case 'Collection Analytics': return '/analyst/collection-analytics';
+      case 'Area Analysis': return '/analyst/area-analysis';
+      case 'Recycling Analytics': return '/analyst/recycling-analytics';
+      case 'Reports': return '/analyst/reports';
       case 'Notifications': return '/analyst/notifications';
       case 'Profile': case 'Settings': return '/analyst/profile';
       default: return '/analyst/dashboard';
@@ -114,8 +131,7 @@ const getPathFromTab = (tab: string, role: string): string => {
 
 import { DriverPortal } from '../driver/DriverPortal';
 import faviconImg from '../../assets/favicon.png';
-import logoImg from '../../assets/logo.png';
-import logoTextImg from '../../assets/logo_text.png';
+import homeImg from '../../assets/home.png';
 
 interface EcoTrackDashboardProps {
   user: UserSession;
@@ -223,14 +239,15 @@ export const EcoTrackDashboard: React.FC<EcoTrackDashboardProps> = ({ user, onSi
       {/* LEFT SIDEBAR */}
       <aside className="w-64 bg-white border-r border-slate-200 flex flex-col justify-between p-4 shrink-0 shadow-sm z-20">
         <div>
-          {/* Clickable Favicon Logo to Dashboard */}
+          {/* Clickable Favicon & Home Logo to Dashboard */}
           <button
             type="button"
             onClick={() => handleSelectTab('Dashboard')}
-            className="flex items-center px-2 py-2 mb-6 cursor-pointer bg-transparent border-none text-left hover:opacity-85 transition-opacity"
+            className="flex items-center gap-2.5 px-2 py-2 mb-6 cursor-pointer bg-transparent border-none text-left hover:opacity-85 transition-opacity"
             title="Go to Dashboard"
           >
-            <img src={faviconImg} alt="EcoTrack Favicon" className="h-12 w-auto object-contain max-w-[200px]" />
+            <img src={faviconImg} alt="EcoTrack Favicon" className="h-10 w-auto object-contain shrink-0" />
+            <img src={homeImg} alt="EcoTrack Home" className="h-9 w-auto object-contain max-w-[140px]" />
           </button>
 
           {/* MAIN Navigation */}
@@ -410,14 +427,20 @@ export const EcoTrackDashboard: React.FC<EcoTrackDashboardProps> = ({ user, onSi
                 <DriverDashboardPreview user={user as any} onSignOut={onSignOut} />
               )
             ) : userRole === 'ANALYST' ? (
-              activeTab === 'Analytics' ||
-              activeTab === 'Waste Analytics' ||
-              activeTab === 'Prediction Analytics' ||
-              activeTab === 'Collection Analytics' ||
-              activeTab === 'Area Analysis' ||
-              activeTab === 'Recycling Analytics' ||
-              activeTab === 'Reports' ? (
-                <AnalyticsPage onNavigateTab={(tabName) => handleSelectTab(tabName)} />
+              activeTab === 'Analytics' ? (
+                <AnalyticsPage onNavigateTab={(tabName) => handleSelectTab(tabName)} initialTab="Overview" />
+              ) : activeTab === 'Waste Analytics' ? (
+                <AnalyticsPage onNavigateTab={(tabName) => handleSelectTab(tabName)} initialTab="Waste" />
+              ) : activeTab === 'Prediction Analytics' ? (
+                <PredictionAnalyticsPage />
+              ) : activeTab === 'Collection Analytics' ? (
+                <CollectionAnalyticsPage />
+              ) : activeTab === 'Area Analysis' ? (
+                <AreaAnalysisPage />
+              ) : activeTab === 'Recycling Analytics' ? (
+                <RecyclingAnalyticsPage />
+              ) : activeTab === 'Reports' ? (
+                <ReportsPage />
               ) : activeTab === 'Notifications' ? (
                 <AlertsPage onNavigateTab={(tabName) => handleSelectTab(tabName)} />
               ) : activeTab === 'Profile' || activeTab === 'Settings' ? (
