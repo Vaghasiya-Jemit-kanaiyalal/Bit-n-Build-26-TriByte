@@ -5,7 +5,6 @@ import {
   MapPin,
   Clock,
   Cpu,
-  Activity,
   Edit,
   Route as RouteIcon,
   History,
@@ -269,26 +268,6 @@ export const BinDetailsDrawer: React.FC<BinDetailsDrawerProps> = ({
             </div>
           </div>
 
-          {/* SECTION 6: RECENT ACTIVITY */}
-          <div className="space-y-2 text-xs">
-            <div className="flex items-center gap-1.5 font-bold text-slate-900 mb-1">
-              <Activity className="w-4 h-4 text-slate-600" />
-              <span>RECENT BIN ACTIVITY</span>
-            </div>
-
-            <div className="space-y-2">
-              {(bin.activity || [
-                { id: '1', timestamp: 'Today 08:14', message: 'Fill level increased to 92%', type: 'fill_update' },
-                { id: '2', timestamp: 'Today 07:58', message: 'Fill level increased to 88%', type: 'fill_update' },
-                { id: '3', timestamp: 'Today 06:42', message: 'Bin collected', type: 'collection' },
-              ]).map((act: { id: string; timestamp: string; message: string }) => (
-                <div key={act.id} className="p-2.5 bg-slate-50 rounded-xl border border-slate-200/60 flex items-center justify-between">
-                  <span className="font-medium text-slate-700">{act.message}</span>
-                  <span className="text-[10px] font-mono text-slate-400">{act.timestamp}</span>
-                </div>
-              ))}
-            </div>
-          </div>
 
         </div>
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Trash2, AlertTriangle, Scale, Truck, ShieldCheck, Target } from 'lucide-react';
+import { Trash2, Scale, Truck, ShieldCheck, Target } from 'lucide-react';
 import type { PlanningSummaryData } from '../../../types/planning';
 
 interface PlanningKpiGridProps {
@@ -16,15 +16,6 @@ export const PlanningKpiGrid: React.FC<PlanningKpiGridProps> = ({ summary }) => 
       icon: Trash2,
       color: 'text-slate-900',
       iconBg: 'bg-slate-100 text-slate-700',
-    },
-    {
-      id: 'overflow',
-      label: 'PREDICTED OVERFLOW',
-      value: `${summary.predictedOverflowBins}`,
-      sub: '+4 vs yesterday &bull; Critical',
-      icon: AlertTriangle,
-      color: 'text-amber-700',
-      iconBg: 'bg-amber-50 text-amber-600 border-amber-200',
     },
     {
       id: 'waste',
@@ -65,7 +56,7 @@ export const PlanningKpiGrid: React.FC<PlanningKpiGridProps> = ({ summary }) => 
   ];
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-6">
       {cards.map((card) => {
         const IconComp = card.icon;
 

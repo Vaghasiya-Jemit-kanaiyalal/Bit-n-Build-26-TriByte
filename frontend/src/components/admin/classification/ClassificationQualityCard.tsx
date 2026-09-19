@@ -17,7 +17,7 @@ export const ClassificationQualityCard: React.FC<ClassificationQualityCardProps>
         <span className="text-[10px] font-mono text-slate-400">Benchmark Metrics</span>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 text-center font-mono">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-center font-mono">
         <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
           <span className="text-[10px] text-slate-400 font-bold font-sans uppercase block mb-1">Accuracy</span>
           <span className="text-xl font-extrabold text-slate-900">{model.accuracy}%</span>

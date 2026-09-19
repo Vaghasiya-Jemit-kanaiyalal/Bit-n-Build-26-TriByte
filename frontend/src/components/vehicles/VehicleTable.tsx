@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Eye, Edit2, UserCheck, Wrench, MoreVertical, ArrowUpDown, ChevronLeft, ChevronRight, Route as RouteIcon, Plus } from 'lucide-react';
 import type { VehicleItem } from '../../mock/vehicleData';
 import { VehicleStatusBadge } from './VehicleStatusBadge';
@@ -46,7 +46,7 @@ export const VehicleTable: React.FC<VehicleTableProps> = ({
   const [currentPage, setCurrentPage] = useState(1);
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
 
-  const itemsPerPage = 8;
+  const itemsPerPage = 5;
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -74,6 +74,13 @@ export const VehicleTable: React.FC<VehicleTableProps> = ({
   }, [vehicles, sortField, sortAsc]);
 
   const totalPages = Math.ceil(sortedVehicles.length / itemsPerPage) || 1;
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [totalPages, currentPage]);
+
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedVehicles = sortedVehicles.slice(startIndex, startIndex + itemsPerPage);
 
@@ -230,7 +237,7 @@ export const VehicleTable: React.FC<VehicleTableProps> = ({
 
                   {/* Location Zone */}
                   <td className="py-3 px-4 text-[11px] text-[#4b5563]">
-                    {veh.zone} Zone
+                    {veh.zone.endsWith('Zone') ? veh.zone : `${veh.zone} Zone`}
                   </td>
 
                   {/* Status Badge */}

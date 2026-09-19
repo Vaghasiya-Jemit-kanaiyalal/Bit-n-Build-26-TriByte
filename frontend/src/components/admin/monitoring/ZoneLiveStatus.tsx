@@ -20,7 +20,7 @@ export const ZoneLiveStatus: React.FC<ZoneLiveStatusProps> = ({ zones, onSelectZ
         <span className="text-xs font-mono text-slate-500">7 Municipal Zones</span>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2.5">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5">
         {zones.map((z) => {
           return (
             <div

@@ -130,7 +130,6 @@ const getPathFromTab = (tab: string, role: string): string => {
 };
 
 import { DriverPortal } from '../driver/DriverPortal';
-import faviconImg from '../../assets/favicon.png';
 import homeImg from '../../assets/home.png';
 
 interface EcoTrackDashboardProps {
@@ -144,12 +143,12 @@ export const EcoTrackDashboard: React.FC<EcoTrackDashboardProps> = ({ user, onSi
   const userRole: 'ADMIN' | 'DRIVER' | 'ANALYST' = cleanEmail.endsWith('@driver.gmail.com')
     ? 'DRIVER'
     : cleanEmail.endsWith('@analyst.gmail.com')
-    ? 'ANALYST'
-    : (user.role || '').toUpperCase().includes('ADMIN') || user.displayRole === 'Waste Manager'
-    ? 'ADMIN'
-    : (user.role || '').toUpperCase().includes('DRIVER') || user.displayRole === 'Collection Driver'
-    ? 'DRIVER'
-    : 'ANALYST';
+      ? 'ANALYST'
+      : (user.role || '').toUpperCase().includes('ADMIN') || user.displayRole === 'Waste Manager'
+        ? 'ADMIN'
+        : (user.role || '').toUpperCase().includes('DRIVER') || user.displayRole === 'Collection Driver'
+          ? 'DRIVER'
+          : 'ANALYST';
 
   // Route protection guard: Redirect Collection Driver to DriverPortal
   const rawRole = (user.role || '').toUpperCase();
@@ -161,8 +160,8 @@ export const EcoTrackDashboard: React.FC<EcoTrackDashboardProps> = ({ user, onSi
     userRole === 'ADMIN'
       ? 'Waste Manager'
       : (userRole as any) === 'DRIVER'
-      ? 'Collection Driver'
-      : 'Operations Analyst';
+        ? 'Collection Driver'
+        : 'Operations Analyst';
 
   const initialPath = typeof window !== 'undefined' ? window.location.pathname : '/';
   const [activeTab, setActiveTab] = useState<string>(() => getTabFromPath(initialPath, userRole));
@@ -189,19 +188,19 @@ export const EcoTrackDashboard: React.FC<EcoTrackDashboardProps> = ({ user, onSi
   const navMain =
     userRole === 'ADMIN'
       ? [
-          { name: 'Dashboard', icon: LayoutDashboard },
-          { name: 'Bins', icon: Trash2 },
-          { name: 'Monitoring', icon: MapPin },
-          { name: 'Classification', icon: Cpu },
-          { name: 'Predictions', icon: BrainCircuit },
-          { name: 'Planning', icon: CalendarCheck },
-          { name: 'Routes', icon: RouteIcon },
-          { name: 'Vehicles', icon: Truck },
-          { name: 'Alerts', icon: Bell },
-          { name: 'Analytics', icon: BarChart3 },
-        ]
+        { name: 'Dashboard', icon: LayoutDashboard },
+        { name: 'Bins', icon: Trash2 },
+        { name: 'Monitoring', icon: MapPin },
+        { name: 'Classification', icon: Cpu },
+        { name: 'Predictions', icon: BrainCircuit },
+        { name: 'Planning', icon: CalendarCheck },
+        { name: 'Routes', icon: RouteIcon },
+        { name: 'Vehicles', icon: Truck },
+        { name: 'Alerts', icon: Bell },
+        { name: 'Analytics', icon: BarChart3 },
+      ]
       : (userRole as any) === 'DRIVER'
-      ? [
+        ? [
           { name: 'Dashboard', icon: LayoutDashboard },
           { name: 'My Route', icon: RouteIcon },
           { name: 'Bins', icon: Trash2 },
@@ -210,7 +209,7 @@ export const EcoTrackDashboard: React.FC<EcoTrackDashboardProps> = ({ user, onSi
           { name: 'History', icon: Clock },
           { name: 'Notifications', icon: Bell },
         ]
-      : [
+        : [
           { name: 'Dashboard', icon: LayoutDashboard },
           { name: 'Analytics', icon: BarChart3 },
           { name: 'Waste Analytics', icon: Trash2 },
@@ -225,35 +224,35 @@ export const EcoTrackDashboard: React.FC<EcoTrackDashboardProps> = ({ user, onSi
   const navAdmin =
     userRole === 'ADMIN'
       ? [
-          { name: 'Users', icon: Users },
-          { name: 'Settings', icon: Settings },
-        ]
+        { name: 'Users', icon: Users },
+        { name: 'Settings', icon: Settings },
+      ]
       : [
-          { name: 'Profile', icon: Users },
-          { name: 'Settings', icon: Settings },
-        ];
+        { name: 'Profile', icon: Users },
+        { name: 'Settings', icon: Settings },
+      ];
 
   return (
     <div className="min-h-screen bg-[#f8fafc] text-slate-800 font-sans flex flex-row overflow-x-hidden">
 
       {/* LEFT SIDEBAR */}
-      <aside className="w-64 bg-white border-r border-slate-200 flex flex-col justify-between p-4 shrink-0 shadow-sm z-20">
+      <aside className="w-52 bg-white border-r border-slate-200 flex flex-col justify-between p-3 shrink-0 shadow-xs z-20">
         <div>
-          {/* Clickable Favicon & Home Logo to Dashboard */}
+          {/* Clickable Brand & Home Logo to Dashboard */}
           <button
             type="button"
             onClick={() => handleSelectTab('Dashboard')}
-            className="flex items-center gap-2.5 px-2 py-2 mb-6 cursor-pointer bg-transparent border-none text-left hover:opacity-85 transition-opacity"
+            className="flex items-center gap-1.5 gap-2.5 px-1 py-1 mb-4 cursor-pointer bg-transparent border-none text-left hover:opacity-85 transition-opacity"
             title="Go to Dashboard"
           >
-            <img src={faviconImg} alt="EcoTrack Favicon" className="h-10 w-auto object-contain shrink-0" />
-            <img src={homeImg} alt="EcoTrack Home" className="h-9 w-auto object-contain max-w-[140px]" />
+            <img src={logoImg} alt="EcoTrack Logo" className="h-7 w-auto object-contain" />
+            <img src={logoTextImg} alt="EcoTrack Brand" className="h-5 w-auto object-contain" />
           </button>
 
           {/* MAIN Navigation */}
-          <div className="mb-6">
-            <span className="px-2 text-[10px] font-extrabold text-slate-400 tracking-wider uppercase block mb-2">MAIN</span>
-            <nav className="flex flex-col gap-1">
+          <div className="mb-5">
+            <span className="px-1.5 text-[10px] font-extrabold text-slate-400 tracking-wider uppercase block mb-1.5">MAIN</span>
+            <nav className="flex flex-col gap-0.5">
               {navMain.map((item) => {
                 const IconComp = item.icon;
                 const isActive = activeTab === item.name;
@@ -262,9 +261,9 @@ export const EcoTrackDashboard: React.FC<EcoTrackDashboardProps> = ({ user, onSi
                     key={item.name}
                     type="button"
                     onClick={() => handleSelectTab(item.name)}
-                    className={`flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer border-none ${isActive
-                        ? 'bg-emerald-50 text-[#047857]'
-                        : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                    className={`flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer border-none ${isActive
+                      ? 'bg-emerald-50 text-[#047857]'
+                      : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                       }`}
                   >
                     <IconComp className={`w-4 h-4 ${isActive ? 'text-[#047857]' : 'text-slate-400'}`} />
@@ -277,8 +276,8 @@ export const EcoTrackDashboard: React.FC<EcoTrackDashboardProps> = ({ user, onSi
 
           {/* ADMINISTRATION Navigation */}
           <div>
-            <span className="px-2 text-[10px] font-extrabold text-slate-400 tracking-wider uppercase block mb-2">ADMINISTRATION</span>
-            <nav className="flex flex-col gap-1">
+            <span className="px-1.5 text-[10px] font-extrabold text-slate-400 tracking-wider uppercase block mb-1.5">ADMINISTRATION</span>
+            <nav className="flex flex-col gap-0.5">
               {navAdmin.map((item) => {
                 const IconComp = item.icon;
                 const isActive = activeTab === item.name;
@@ -287,9 +286,9 @@ export const EcoTrackDashboard: React.FC<EcoTrackDashboardProps> = ({ user, onSi
                     key={item.name}
                     type="button"
                     onClick={() => handleSelectTab(item.name)}
-                    className={`flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer border-none ${isActive
-                        ? 'bg-emerald-50 text-[#047857]'
-                        : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                    className={`flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer border-none ${isActive
+                      ? 'bg-emerald-50 text-[#047857]'
+                      : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                       }`}
                   >
                     <IconComp className={`w-4 h-4 ${isActive ? 'text-[#047857]' : 'text-slate-400'}`} />
@@ -302,11 +301,11 @@ export const EcoTrackDashboard: React.FC<EcoTrackDashboardProps> = ({ user, onSi
         </div>
 
         {/* Sidebar Footer Tagline */}
-        <div className="pt-4 border-t border-slate-100 flex items-center gap-2 px-2 text-slate-500">
-          <Leaf className="w-5 h-5 text-emerald-600 shrink-0" />
+        <div className="pt-3 border-t border-slate-100 flex items-center gap-1.5 px-1 text-slate-500">
+          <Leaf className="w-4 h-4 text-emerald-600 shrink-0" />
           <div className="flex flex-col">
-            <span className="text-[11px] font-bold text-slate-700 leading-tight">Cleaner Today</span>
-            <span className="text-[10px] font-semibold text-slate-500 leading-tight">Greener Tomorrow</span>
+            <span className="text-[10px] font-bold text-slate-700 leading-tight">Cleaner Today</span>
+            <span className="text-[9px] font-semibold text-slate-500 leading-tight">Greener Tomorrow</span>
           </div>
         </div>
       </aside>

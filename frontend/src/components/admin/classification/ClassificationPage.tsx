@@ -176,8 +176,8 @@ export const ClassificationPage: React.FC<ClassificationPageProps> = ({ onNaviga
       <div className="min-h-screen bg-slate-50 p-6 space-y-6 max-w-[1600px] mx-auto animate-pulse">
         <div className="h-16 bg-slate-200 rounded-xl w-full" />
         <div className="h-12 bg-slate-200 rounded-xl w-full" />
-        <div className="grid grid-cols-6 gap-4">
-          {[...Array(6)].map((_, i) => (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          {[...Array(5)].map((_, i) => (
             <div key={i} className="h-28 bg-slate-200 rounded-2xl" />
           ))}
         </div>

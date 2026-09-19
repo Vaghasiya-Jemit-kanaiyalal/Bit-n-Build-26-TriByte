@@ -1,10 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import type { SmartBin, BinFilterState, BinSortState, BinStatus, ZoneName, CollectionHistoryLog } from '../../../types/bin';
+import type { SmartBin, BinFilterState, BinSortState, ZoneName, CollectionHistoryLog } from '../../../types/bin';
 import { binService } from '../../../services/binService';
 import { BinHeader } from './BinHeader';
 import { BinKpiGrid } from './BinKpiGrid';
-import { NetworkHealth } from './NetworkHealth';
-import { BinStatusSummary } from './BinStatusSummary';
 import { BinFilterToolbar } from './BinFilterToolbar';
 import { BinTable } from './BinTable';
 import { BulkActionBar } from './BulkActionBar';
@@ -21,7 +19,7 @@ interface BinManagementProps {
   onNavigateTab?: (tabName: string) => void;
 }
 
-export const BinManagement: React.FC<BinManagementProps> = ({ onNavigateTab }) => {
+export const BinManagement: React.FC<BinManagementProps> = ({ onNavigateTab: _onNavigateTab }) => {
   // Data State
   const [bins, setBins] = useState<SmartBin[]>([]);
   const [totalCount, setTotalCount] = useState(0);
@@ -237,18 +235,6 @@ export const BinManagement: React.FC<BinManagementProps> = ({ onNavigateTab }) =
       {/* 2. KPI GRID */}
       <BinKpiGrid summary={kpiSummary} />
 
-      {/* 3. NETWORK HEALTH STRIP */}
-      <NetworkHealth
-        summary={kpiSummary}
-        onNavigateToMonitoring={() => onNavigateTab && onNavigateTab('Monitoring')}
-      />
-
-      {/* 4. QUICK STATUS SUMMARY PILLS */}
-      <BinStatusSummary
-        currentStatus={filters.status}
-        summary={kpiSummary}
-        onSelectStatus={(status: BinStatus | 'All') => handleFilterChange({ status })}
-      />
 
       {/* 5. SEARCH & FILTER TOOLBAR */}
       <BinFilterToolbar

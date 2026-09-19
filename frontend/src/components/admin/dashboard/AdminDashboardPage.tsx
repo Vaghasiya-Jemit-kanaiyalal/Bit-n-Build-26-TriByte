@@ -14,11 +14,9 @@ import { showWebsiteToast } from '../../common/NotificationToast';
 import { DashboardHeader } from './DashboardHeader';
 import { DashboardStatusStrip } from './DashboardStatusStrip';
 import { DashboardKpiCards } from './DashboardKpiCards';
-import { QuickActions } from './QuickActions';
 import { DashboardMap } from './DashboardMap';
 import { LiveOperationsFeed } from './LiveOperationsFeed';
 import { BinCapacityCard } from './BinCapacityCard';
-import { AIForecastCard } from './AIForecastCard';
 import { CollectionPerformanceCard } from './CollectionPerformanceCard';
 import { WasteCompositionCard } from './WasteCompositionCard';
 import { ZonePerformanceTable } from './ZonePerformanceTable';
@@ -26,7 +24,6 @@ import { PriorityCollectionTable } from './PriorityCollectionTable';
 import { FleetStatusCard } from './FleetStatusCard';
 import { ActiveRoutesCard } from './ActiveRoutesCard';
 import { AttentionRequired } from './AttentionRequired';
-import { RecentActivity } from './RecentActivity';
 
 // Drawers & Modals
 import { BinDetailsDrawer } from './BinDetailsDrawer';
@@ -74,13 +71,11 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
   // Data State
   const [statusStrip, setStatusStrip] = useState(dashboardService.getStatusStrip());
   const [kpis, setKpis] = useState(dashboardService.getKpiMetrics());
-  const quickActions = dashboardService.getQuickActions();
   const [binMarkers, setBinMarkers] = useState<DashboardMapBinMarker[]>(dashboardService.getMapBinMarkers(filters));
   const vehicleMarkers = dashboardService.getMapVehicleMarkers();
   const routePolylines = dashboardService.getMapRoutePolylines();
   const [liveEvents, setLiveEvents] = useState(dashboardService.getLiveOperationsFeed());
   const binCapacity = dashboardService.getBinCapacityDistribution();
-  const aiForecast = dashboardService.getAiForecastSummary();
   const collectionPerformance = dashboardService.getCollectionPerformanceSummary();
   const wasteComposition = dashboardService.getWasteCompositionSummary();
   const [zonePerformance, setZonePerformance] = useState(dashboardService.getZonePerformanceList(filters));
@@ -88,7 +83,6 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
   const fleetStatus = dashboardService.getFleetStatusSummary();
   const activeRoutes = dashboardService.getActiveRoutesList();
   const attentionItems = dashboardService.getAttentionItemList();
-  const recentActivity = dashboardService.getRecentActivityList();
 
   // Refresh Handler
   const handleRefresh = useCallback(() => {
@@ -153,10 +147,7 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
         {/* 3. Top KPI Grid */}
         <DashboardKpiCards kpi={kpis} onNavigateTab={handleNavigate} />
 
-        {/* 4. Quick Actions Row */}
-        <QuickActions actions={quickActions} onNavigateTab={handleNavigate} />
-
-        {/* 5. Live Operations Map & Activity Feed */}
+        {/* 4. Live Operations Map & Activity Feed */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           <div className="lg:col-span-8">
             <DashboardMap
@@ -179,17 +170,12 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
           </div>
         </div>
 
-        {/* 6. Bin Capacity Overview & AI Forecast */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <div className="lg:col-span-6">
-            <BinCapacityCard distribution={binCapacity} onNavigateTab={handleNavigate} />
-          </div>
-          <div className="lg:col-span-6">
-            <AIForecastCard forecast={aiForecast} onNavigateTab={handleNavigate} />
-          </div>
+        {/* 5. Bin Capacity Overview */}
+        <div className="w-full">
+          <BinCapacityCard distribution={binCapacity} onNavigateTab={handleNavigate} />
         </div>
 
-        {/* 7. Collection Performance & Waste Composition */}
+        {/* 6. Collection Performance & Waste Composition */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           <div className="lg:col-span-6">
             <CollectionPerformanceCard performance={collectionPerformance} onNavigateTab={handleNavigate} />
@@ -199,10 +185,10 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
           </div>
         </div>
 
-        {/* 8. Municipal Zone Performance Table */}
+        {/* 7. Municipal Zone Performance Table */}
         <ZonePerformanceTable zones={zonePerformance} />
 
-        {/* 9. Priority Collection Queue */}
+        {/* 8. Priority Collection Queue */}
         <PriorityCollectionTable
           items={priorityQueue}
           onSelectBin={(code) => {
@@ -215,7 +201,7 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
           }}
         />
 
-        {/* 10. Fleet Status & Active Routes */}
+        {/* 9. Fleet Status & Active Routes */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           <div className="lg:col-span-6">
             <FleetStatusCard
@@ -233,18 +219,13 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
           </div>
         </div>
 
-        {/* 11. Attention Required & Recent Activity */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <div className="lg:col-span-7">
-            <AttentionRequired
-              items={attentionItems}
-              onSelectAlert={setSelectedAlert}
-              onNavigateTab={handleNavigate}
-            />
-          </div>
-          <div className="lg:col-span-5">
-            <RecentActivity activity={recentActivity} />
-          </div>
+        {/* 10. Attention Required */}
+        <div className="w-full">
+          <AttentionRequired
+            items={attentionItems}
+            onSelectAlert={setSelectedAlert}
+            onNavigateTab={handleNavigate}
+          />
         </div>
       </main>
 

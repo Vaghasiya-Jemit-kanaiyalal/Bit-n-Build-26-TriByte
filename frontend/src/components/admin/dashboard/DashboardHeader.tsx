@@ -2,9 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   RefreshCw,
   Download,
-  Calendar,
   Clock,
-  Filter,
 } from 'lucide-react';
 import type { DashboardFilterState } from '../../../types/dashboard';
 
@@ -18,8 +16,8 @@ interface DashboardHeaderProps {
 
 export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   user: _user,
-  filters,
-  onFilterChange,
+  filters: _filters,
+  onFilterChange: _onFilterChange,
   onRefresh,
   onExport,
 }) => {
@@ -91,64 +89,6 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
             <span>Export Report</span>
           </button>
         </div>
-      </div>
-
-      {/* Global Filter Bar */}
-      <div className="flex flex-wrap items-center gap-3 pt-3 border-t border-slate-100 text-xs font-semibold text-slate-600">
-        <div className="flex items-center gap-1.5 bg-slate-100/80 px-2.5 py-1.5 rounded-xl border border-slate-200/60">
-          <Calendar className="w-3.5 h-3.5 text-slate-400" />
-          <span className="text-slate-500 font-bold">Date:</span>
-          <select
-            value={filters.dateRange}
-            onChange={(e) => onFilterChange({ dateRange: e.target.value as any })}
-            className="bg-transparent border-none text-xs font-bold text-slate-900 focus:outline-none cursor-pointer"
-          >
-            <option value="today">Today</option>
-            <option value="yesterday">Yesterday</option>
-            <option value="7days">Last 7 Days</option>
-            <option value="30days">Last 30 Days</option>
-          </select>
-        </div>
-
-        <div className="flex items-center gap-1.5 bg-slate-100/80 px-2.5 py-1.5 rounded-xl border border-slate-200/60">
-          <Filter className="w-3.5 h-3.5 text-slate-400" />
-          <span className="text-slate-500 font-bold">Zone:</span>
-          <select
-            value={filters.zone}
-            onChange={(e) => onFilterChange({ zone: e.target.value })}
-            className="bg-transparent border-none text-xs font-bold text-slate-900 focus:outline-none cursor-pointer"
-          >
-            <option value="All">All Zones</option>
-            <option value="Central">Central</option>
-            <option value="North">North</option>
-            <option value="South">South</option>
-            <option value="East">East</option>
-            <option value="West">West</option>
-            <option value="Industrial">Industrial</option>
-            <option value="Residential">Residential</option>
-          </select>
-        </div>
-
-        <div className="flex items-center gap-1.5 bg-slate-100/80 px-2.5 py-1.5 rounded-xl border border-slate-200/60">
-          <span className="text-slate-500 font-bold">Status:</span>
-          <select
-            value={filters.operationalStatus}
-            onChange={(e) => onFilterChange({ operationalStatus: e.target.value as any })}
-            className="bg-transparent border-none text-xs font-bold text-slate-900 focus:outline-none cursor-pointer"
-          >
-            <option value="All">All Statuses</option>
-            <option value="Active">Active Only</option>
-            <option value="Warning">Warning Only</option>
-            <option value="Critical">Critical Only</option>
-          </select>
-        </div>
-
-        <button
-          onClick={() => onFilterChange({ dateRange: 'today', zone: 'All', operationalStatus: 'All' })}
-          className="text-xs font-bold text-emerald-700 hover:text-emerald-900 hover:underline cursor-pointer border-none bg-transparent ml-auto"
-        >
-          Reset Filters
-        </button>
       </div>
     </div>
   );

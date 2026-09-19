@@ -333,24 +333,6 @@ const VehicleDetailsDrawer: React.FC<VehicleDetailsDrawerProps> = ({
               </button>
             </div>
 
-            {/* Vehicle Activity Timeline */}
-            <div className="p-4 bg-white border border-slate-200 rounded-xl shadow-2xs space-y-3">
-              <h3 className="text-sm font-semibold text-slate-900">Recent Activity</h3>
-              <div className="relative pl-5 space-y-4 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-200">
-                {(vehicle.history || [
-                  { time: '10:42 AM', description: 'Collection started on Route ' + (vehicle.assignedRouteId || 'RT-024') },
-                  { time: '10:18 AM', description: 'Reached checkpoint BIN-104 (82% full)' },
-                  { time: '09:56 AM', description: 'Departed Central Depot' },
-                  { time: '09:40 AM', description: `Assigned to driver ${vehicle.driverName}` }
-                ]).map((act, index) => (
-                  <div key={index} className="relative">
-                    <div className="absolute -left-[17px] top-1 w-2.5 h-2.5 rounded-full bg-[#738a62] border-2 border-white ring-2 ring-slate-100" />
-                    <div className="text-xs font-mono text-slate-400">{act.time}</div>
-                    <div className="text-xs text-slate-700 font-medium mt-0.5">{act.description}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
 
           </div>
 

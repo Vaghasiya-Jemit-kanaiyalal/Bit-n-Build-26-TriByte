@@ -21,7 +21,7 @@ export const PredictionQuality: React.FC<PredictionQualityProps> = ({ quality })
       </div>
 
       {/* KPI Cards Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3.5">
         <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex flex-col justify-between">
           <span className="text-[10px] uppercase font-bold text-slate-400">Forecast Accuracy</span>
           <span className="text-2xl font-mono font-extrabold text-[#047857] mt-2">{quality.forecastAccuracy}%</span>
