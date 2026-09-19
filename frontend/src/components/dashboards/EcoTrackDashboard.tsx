@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import type { UserSession } from '../../types/auth';
 import { RoutePage } from '../routes/RoutePage';
+import VehiclesPage from '../vehicles/VehiclesPage';
 
 interface EcoTrackDashboardProps {
   user: UserSession;
@@ -208,6 +209,8 @@ export const EcoTrackDashboard: React.FC<EcoTrackDashboardProps> = ({ user, onSi
         {/* DASHBOARD BODY */}
         {activeTab === 'Route' || activeTab === 'Routes' ? (
           <RoutePage />
+        ) : activeTab === 'Vehicles' ? (
+          <VehiclesPage onNavigateToRoute={() => setActiveTab('Route')} />
         ) : (
           <main className="p-6 flex-1 flex flex-col gap-6 max-w-7xl w-full mx-auto">
           
