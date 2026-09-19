@@ -25,6 +25,8 @@ from app.models.route import Route, RouteStatus, RoutePriority
 from app.models.route_stop import RouteStop, StopStatus, StopPriority
 from app.models.waste_classification import WasteClassification, ClassificationSource
 from app.models.alert import Alert, AlertActivity
+from app.models.organization import Organization
+
 
 DEMO_USERS = [
     {
@@ -1366,7 +1368,37 @@ async def seed_all():
             await session.commit()
             print("[+] Seeded 22 realistic alerts and alert activities across bins, routes, vehicles, sensors!")
 
+        # 8. Seed Organization
+        async with AsyncSessionLocal() as session:
+            existing_org = (await session.execute(select(Organization).limit(1))).scalar_one_or_none()
+            if not existing_org:
+                org = Organization(
+                    org_code="WW-ORG-001",
+                    name="WasteWise Municipal Operations",
+                    department="Municipal Waste Management",
+                    operating_region="Vadodara Operating Region",
+                    operating_zones=[
+                        "Zone A - Alkapuri",
+                        "Zone B - Sayajigunj",
+                        "Zone C - Manjalpur",
+                        "Zone D - Fatehgunj",
+                    ],
+                    default_timezone="Asia/Kolkata (IST +5:30)",
+                    default_currency="INR (₹)",
+                    contact_email="operations@wastewise.local",
+                    contact_phone="+91 98765 43210",
+                    address="Municipal Corporation Complex, Sector 4, Vadodara, Gujarat 390001",
+                    status="Operational",
+                    active_since="Jan 15, 2025",
+                )
+                session.add(org)
+                await session.commit()
+                print("[+] Seeded default organization: WW-ORG-001 (WasteWise Municipal Operations)")
+            else:
+                print(f"[i] Organization already exists: {existing_org.name} ({existing_org.org_code})")
+
     print("[*] Database seeding finished successfully!\n")
+
 
 
 if __name__ == "__main__":

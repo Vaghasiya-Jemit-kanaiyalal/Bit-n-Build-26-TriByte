@@ -145,6 +145,15 @@ from app.schemas.alert import (
     AlertCategoryItem,
     AlertCategoriesResponse,
 )
+from app.schemas.settings import (
+    OrganizationResponse,
+    OrganizationUpdate,
+    AdminProfileResponse,
+    AdminProfileUpdate,
+    AdminActivityItem,
+    AdminActivityResponse,
+)
+
 
 __all__ = [
     "AdminCreateUserRequest",
@@ -274,4 +283,10 @@ __all__ = [
     "AlertTrendsResponse",
     "AlertCategoryItem",
     "AlertCategoriesResponse",
+    "OrganizationResponse",
+    "OrganizationUpdate",
+    "AdminProfileResponse",
+    "AdminProfileUpdate",
+    "AdminActivityItem",
+    "AdminActivityResponse",
 ]

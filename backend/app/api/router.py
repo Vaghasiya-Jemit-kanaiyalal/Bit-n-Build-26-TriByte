@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.api.routes import auth, users, routes, vehicles, bins, monitoring, classification, alerts
+from app.api.routes import auth, users, routes, vehicles, bins, monitoring, classification, alerts, settings
 
 api_router = APIRouter()
 api_router.include_router(auth.router)
@@ -12,3 +12,5 @@ api_router.include_router(bins.router)
 api_router.include_router(monitoring.router)
 api_router.include_router(classification.router)
 api_router.include_router(alerts.router)
+api_router.include_router(settings.router)
+

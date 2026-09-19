@@ -20,8 +20,10 @@ from app.models.route import Route, RoutePriority, RouteStatus
 from app.models.route_stop import RouteStop, StopPriority, StopStatus
 from app.models.waste_classification import WasteClassification, ClassificationSource
 from app.models.alert import Alert, AlertActivity
+from app.models.organization import Organization
 
 __all__ = [
+    "Organization",
     "User",
     "UserRole",
     "UserStatus",

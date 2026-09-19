@@ -21,9 +21,17 @@ from app.models.route import Route, RoutePriority, RouteStatus  # noqa: F401
 from app.models.route_stop import RouteStop, StopPriority, StopStatus  # noqa: F401
 from app.models.waste_classification import WasteClassification, ClassificationSource  # noqa: F401
 from app.models.alert import Alert, AlertActivity  # noqa: F401
+from app.models.organization import Organization  # noqa: F401
+from app.models.collection_plan import CollectionPlan  # noqa: F401
+from app.models.collection_plan_item import CollectionPlanItem, CollectionPlanVehicle  # noqa: F401
+from app.models.planning_conflict import PlanningConflict  # noqa: F401
+from app.models.planning_constraints import PlanningConstraint, CollectionWindow  # noqa: F401
+from app.models.planning_route_proposal import PlanningRouteProposal, PlanningRouteProposalStop  # noqa: F401
 
 __all__ = [
+
     "Base",
+    "Organization",
     "User",
     "UserRole",
     "UserStatus",

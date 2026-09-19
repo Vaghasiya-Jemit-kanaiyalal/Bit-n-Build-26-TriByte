@@ -5,5 +5,6 @@ from app.services.bin_service import BinService
 from app.services.monitoring_service import MonitoringService
 from app.services.classification_service import ClassificationService
 from app.services.alert_service import AlertService
+from app.services.settings_service import SettingsService
 
-__all__ = ["auth_service", "RouteService", "VehicleService", "BinService", "MonitoringService", "ClassificationService", "AlertService"]
+__all__ = ["auth_service", "RouteService", "VehicleService", "BinService", "MonitoringService", "ClassificationService", "AlertService", "SettingsService"]
