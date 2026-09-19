@@ -8,6 +8,7 @@ import type {
   AttentionItem,
 } from '../../../types/dashboard';
 import { dashboardService } from '../../../services/dashboardService';
+import { showWebsiteToast } from '../../common/NotificationToast';
 
 // Subcomponents
 import { DashboardHeader } from './DashboardHeader';
@@ -123,11 +124,11 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
   const handleConfirmAssignment = (binId: string, vehicleCode: string) => {
     dashboardService.assignVehicleToPriorityBin(binId, vehicleCode);
     setPriorityQueue(dashboardService.getPriorityCollectionList(filters));
-    alert(`Vehicle ${vehicleCode} assigned successfully.`);
+    showWebsiteToast(`Vehicle ${vehicleCode} assigned successfully.`, 'success', 'Dispatch Assigned');
   };
 
   const handleExport = () => {
-    alert(`Simulated Operational Summary PDF/CSV export generated on ${new Date().toLocaleTimeString()}`);
+    showWebsiteToast(`Simulated Operational Summary PDF/CSV export generated on ${new Date().toLocaleTimeString()}`, 'success', 'Export Ready');
   };
 
   return (
@@ -210,7 +211,7 @@ export const AdminDashboardPage: React.FC<AdminDashboardPageProps> = ({
           }}
           onAssignVehicle={setAssigningPriorityBin}
           onPrioritize={(item) => {
-            alert(`Bin ${item.binCode} prioritized for immediate route dispatch.`);
+            showWebsiteToast(`Bin ${item.binCode} prioritized for immediate route dispatch.`, 'success', 'Priority Updated');
           }}
         />
 

@@ -158,7 +158,7 @@ export const BinDetailsDrawer: React.FC<BinDetailsDrawerProps> = ({
                 AI Overflow risk forecast model v2.4
               </span>
               <button
-                onClick={() => alert('Navigating to Prediction Intelligence module...')}
+                onClick={() => showWebsiteToast('Navigating to Prediction Intelligence module...', 'info', 'Prediction Module')}
                 className="text-xs font-bold text-[#047857] hover:underline flex items-center gap-1 cursor-pointer border-none bg-transparent"
               >
                 <span>View prediction details</span>

@@ -30,7 +30,7 @@ export const WasteCompositionChart: React.FC<WasteCompositionChartProps> = ({
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
         {/* Left Donut Graphic Representation */}
-        <div className="lg:col-span-5 flex flex-col items-center justify-center p-4">
+        <div className="lg:col-span-4 flex flex-col items-center justify-center p-4">
           <div className="relative w-48 h-48 flex items-center justify-center">
             {/* Custom Multi-Color Conic Gradient Donut Ring */}
             <div
@@ -66,17 +66,17 @@ export const WasteCompositionChart: React.FC<WasteCompositionChartProps> = ({
         </div>
 
         {/* Right Category Breakdown Table */}
-        <div className="lg:col-span-7 overflow-x-auto">
+        <div className="lg:col-span-8 overflow-x-auto">
           <table className="w-full text-left border-collapse text-xs">
             <thead>
-              <tr className="border-b border-slate-200 text-slate-400 font-bold uppercase text-[10px]">
-                <th className="pb-2">Category</th>
-                <th className="pb-2 text-right">Weight</th>
-                <th className="pb-2 text-right">% Share</th>
-                <th className="pb-2 text-right">Items</th>
-                <th className="pb-2 text-right">Avg Conf.</th>
-                <th className="pb-2 text-center">Recyclable</th>
-                <th className="pb-2 text-right">Action</th>
+              <tr className="border-b border-slate-200 text-slate-400 font-bold uppercase text-[10px] tracking-wider">
+                <th className="px-3 pb-2.5 whitespace-nowrap">Category</th>
+                <th className="px-3 pb-2.5 text-right whitespace-nowrap">Weight</th>
+                <th className="px-3 pb-2.5 text-right whitespace-nowrap">% Share</th>
+                <th className="px-3 pb-2.5 text-right whitespace-nowrap">Items</th>
+                <th className="px-3 pb-2.5 text-right whitespace-nowrap">Avg Conf.</th>
+                <th className="px-3 pb-2.5 text-center whitespace-nowrap">Recyclable</th>
+                <th className="px-3 pb-2.5 text-right whitespace-nowrap">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 font-medium">
@@ -90,7 +90,7 @@ export const WasteCompositionChart: React.FC<WasteCompositionChartProps> = ({
                       isSelected ? 'bg-emerald-50/60' : ''
                     }`}
                   >
-                    <td className="py-2.5">
+                    <td className="px-3 py-2.5 whitespace-nowrap">
                       <div className="flex items-center gap-2">
                         <span
                           className="w-3 h-3 rounded-full shrink-0 shadow-xs"
@@ -99,31 +99,31 @@ export const WasteCompositionChart: React.FC<WasteCompositionChartProps> = ({
                         <span className="font-bold text-slate-900">{cat.name}</span>
                       </div>
                     </td>
-                    <td className="py-2.5 text-right font-mono font-bold text-slate-800">
+                    <td className="px-3 py-2.5 text-right font-mono font-bold text-slate-800 whitespace-nowrap">
                       {cat.weightTons} t
                     </td>
-                    <td className="py-2.5 text-right font-mono font-bold text-slate-900">
+                    <td className="px-3 py-2.5 text-right font-mono font-bold text-slate-900 whitespace-nowrap">
                       {cat.percentage}%
                     </td>
-                    <td className="py-2.5 text-right font-mono text-slate-600">
+                    <td className="px-3 py-2.5 text-right font-mono text-slate-600 whitespace-nowrap">
                       {cat.itemsCount.toLocaleString()}
                     </td>
-                    <td className="py-2.5 text-right font-mono font-semibold text-emerald-700">
+                    <td className="px-3 py-2.5 text-right font-mono font-semibold text-emerald-700 whitespace-nowrap">
                       {cat.avgConfidence}%
                     </td>
-                    <td className="py-2.5 text-center">
+                    <td className="px-3 py-2.5 text-center whitespace-nowrap">
                       {cat.isRecyclable ? (
-                        <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                        <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-md border border-emerald-200">
                           <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Yes
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">
+                        <span className="inline-flex items-center gap-1 text-[10px] font-bold text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-md border border-slate-200">
                           <XCircle className="w-3 h-3 text-slate-400" /> No
                         </span>
                       )}
                     </td>
-                    <td className="py-2.5 text-right">
-                      <button className="text-slate-400 hover:text-emerald-700 p-1 rounded hover:bg-slate-200 transition-colors">
+                    <td className="px-3 py-2.5 text-right whitespace-nowrap">
+                      <button className="text-slate-400 hover:text-emerald-700 p-1 rounded hover:bg-slate-200 transition-colors cursor-pointer">
                         <ArrowUpRight className="w-4 h-4" />
                       </button>
                     </td>

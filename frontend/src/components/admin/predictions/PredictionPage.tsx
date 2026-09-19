@@ -7,6 +7,7 @@ import type {
   PredictionPriorityItem,
 } from '../../../types/prediction';
 import { predictionService } from '../../../services/predictionService';
+import { showWebsiteToast } from '../../common/NotificationToast';
 
 // Subcomponents
 import { PredictionHeader } from './PredictionHeader';
@@ -158,7 +159,7 @@ export const PredictionPage: React.FC<PredictionPageProps> = ({ onNavigateTab })
 
   const handleExport = (type: 'all' | 'overflow' | 'waste' | 'history') => {
     const msg = predictionService.exportPredictions(type);
-    alert(msg);
+    showWebsiteToast(msg, 'success', 'Export Generated');
   };
 
   return (

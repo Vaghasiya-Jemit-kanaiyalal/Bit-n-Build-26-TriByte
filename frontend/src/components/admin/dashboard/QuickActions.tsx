@@ -55,21 +55,21 @@ export const QuickActions: React.FC<QuickActionsProps> = ({ actions, onNavigateT
           <button
             key={act.id}
             onClick={() => handleRouteClick(act.route)}
-            className="flex items-center justify-between p-2.5 bg-slate-50 hover:bg-emerald-50/60 rounded-xl border border-slate-200/80 hover:border-emerald-200 transition-colors cursor-pointer text-left group"
+            className="flex flex-col justify-between p-3 bg-slate-50 hover:bg-emerald-50/60 rounded-xl border border-slate-200/80 hover:border-emerald-200 transition-all cursor-pointer text-left group min-h-[72px]"
           >
-            <div className="flex items-center gap-2">
-              <div className="p-1.5 bg-white rounded-lg border border-slate-200 shadow-xs group-hover:scale-105 transition-transform">
+            <div className="flex items-center justify-between w-full gap-1.5 mb-1.5">
+              <div className="p-1.5 bg-white rounded-lg border border-slate-200 shadow-2xs group-hover:scale-105 transition-transform shrink-0">
                 {getIcon(act.iconName)}
               </div>
-              <span className="text-xs font-bold text-slate-800 group-hover:text-emerald-950 leading-tight">
-                {act.title}
-              </span>
+              {act.badge && (
+                <span className="text-[9px] font-extrabold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full shrink-0 whitespace-nowrap">
+                  {act.badge}
+                </span>
+              )}
             </div>
-            {act.badge && (
-              <span className="text-[9px] font-extrabold bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded-full shrink-0 ml-1">
-                {act.badge}
-              </span>
-            )}
+            <span className="text-xs font-bold text-slate-800 group-hover:text-emerald-950 leading-snug">
+              {act.title}
+            </span>
           </button>
         ))}
       </div>

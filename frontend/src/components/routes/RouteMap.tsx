@@ -16,6 +16,7 @@ export const RouteMap: React.FC<RouteMapProps> = ({
   selectedBinId,
 }) => {
   const [zoomLevel, setZoomLevel] = useState<number>(1);
+  const [mapMode, setMapMode] = useState<'vector' | 'satellite'>('vector');
 
   // Coordinates for mock SVG layout
   const mapWidth = 720;
@@ -37,12 +38,31 @@ export const RouteMap: React.FC<RouteMapProps> = ({
     <div className="bg-white rounded-md border border-[#e5e7eb] shadow-xs flex flex-col overflow-hidden h-full">
       {/* Map Control Toolbar */}
       <div className="p-3 bg-[#f9fafb] border-b border-[#e5e7eb] flex items-center justify-between gap-3 text-xs">
-        <div className="flex items-center gap-2 font-semibold text-[#374151]">
+        <div className="flex items-center gap-2">
           <MapPin className="w-4 h-4 text-[#738a62]" />
-          <span>Operational Route Map & Vector Grid</span>
-          <span className="text-[10px] text-[#6b7280] bg-[#f3f4f6] px-2 py-0.5 rounded border border-[#e5e7eb]">
-            Zone A &amp; B Live Operations
-          </span>
+          {/* 2-View Mode Switcher Tabs */}
+          <div className="bg-slate-200/80 p-0.5 rounded-lg flex items-center gap-1 border border-slate-300/60">
+            <button
+              onClick={() => setMapMode('vector')}
+              className={`px-2.5 py-1 rounded-md text-[11px] font-extrabold transition-all cursor-pointer ${
+                mapMode === 'vector'
+                  ? 'bg-white text-slate-900 shadow-2xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              Vector Grid
+            </button>
+            <button
+              onClick={() => setMapMode('satellite')}
+              className={`px-2.5 py-1 rounded-md text-[11px] font-extrabold transition-all cursor-pointer ${
+                mapMode === 'satellite'
+                  ? 'bg-slate-900 text-white shadow-2xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              Realistic Satellite
+            </button>
+          </div>
         </div>
 
         {/* Map Action Controls */}
@@ -84,16 +104,27 @@ export const RouteMap: React.FC<RouteMapProps> = ({
       </div>
 
       {/* Map Interactive SVG Canvas */}
-      <div className="relative flex-1 bg-[#f3f4f6] overflow-hidden min-h-[360px] flex items-center justify-center p-2">
+      <div className={`relative flex-1 overflow-hidden min-h-[360px] flex items-center justify-center p-2 ${
+        mapMode === 'satellite' ? 'bg-slate-950' : 'bg-[#f3f4f6]'
+      }`}>
         
-        {/* Subtle Map Grid Pattern */}
-        <div
-          className="absolute inset-0 opacity-40 pointer-events-none"
-          style={{
-            backgroundImage: `radial-gradient(#9ca3af 1px, transparent 1px)`,
-            backgroundSize: '20px 20px',
-          }}
-        />
+        {/* Realistic Satellite Background */}
+        {mapMode === 'satellite' ? (
+          <div
+            className="absolute inset-0 bg-cover bg-center opacity-75 transition-opacity duration-300"
+            style={{
+              backgroundImage: `url('https://images.unsplash.com/photo-1524661135-423995f22d0b?q=80&w=1200&auto=format&fit=crop')`,
+            }}
+          />
+        ) : (
+          <div
+            className="absolute inset-0 opacity-40 pointer-events-none"
+            style={{
+              backgroundImage: `radial-gradient(#9ca3af 1px, transparent 1px)`,
+              backgroundSize: '20px 20px',
+            }}
+          />
+        )}
 
         {/* SVG Container */}
         <div

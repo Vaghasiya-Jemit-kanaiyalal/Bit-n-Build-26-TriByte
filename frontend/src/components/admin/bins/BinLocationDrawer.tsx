@@ -9,6 +9,7 @@ interface BinLocationDrawerProps {
 
 export const BinLocationDrawer: React.FC<BinLocationDrawerProps> = ({ bin, onClose }) => {
   const [zoomLevel, setZoomLevel] = useState(100);
+  const [mapMode, setMapMode] = useState<'vector' | 'satellite'>('vector');
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -50,24 +51,62 @@ export const BinLocationDrawer: React.FC<BinLocationDrawerProps> = ({ bin, onClo
             </div>
           </div>
 
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-xl text-slate-400 hover:text-slate-800 hover:bg-slate-200 cursor-pointer border-none bg-transparent"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-3">
+            {/* 2-View Mode Switcher Tabs */}
+            <div className="bg-slate-200/80 p-0.5 rounded-lg flex items-center gap-1 border border-slate-300/60 text-xs">
+              <button
+                onClick={() => setMapMode('vector')}
+                className={`px-2.5 py-1 rounded-md text-[11px] font-extrabold transition-all cursor-pointer ${
+                  mapMode === 'vector'
+                    ? 'bg-white text-slate-900 shadow-2xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                Vector Grid
+              </button>
+              <button
+                onClick={() => setMapMode('satellite')}
+                className={`px-2.5 py-1 rounded-md text-[11px] font-extrabold transition-all cursor-pointer ${
+                  mapMode === 'satellite'
+                    ? 'bg-slate-900 text-white shadow-2xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                Realistic Satellite
+              </button>
+            </div>
+
+            <button
+              onClick={onClose}
+              className="p-1.5 rounded-xl text-slate-400 hover:text-slate-800 hover:bg-slate-200 cursor-pointer border-none bg-transparent"
+              title="Close (Esc)"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         {/* MAP CANVAS AREA */}
-        <div className="relative flex-1 bg-slate-900 overflow-hidden">
-          {/* Simulated Map Visual Background */}
-          <div
-            className="absolute inset-0 bg-cover bg-center transition-transform duration-300 opacity-70"
-            style={{
-              transform: `scale(${zoomLevel / 100})`,
-              backgroundImage: `url('https://images.unsplash.com/photo-1524661135-423995f22d0b?q=80&w=1200&auto=format&fit=crop')`,
-            }}
-          />
+        <div className={`relative flex-1 overflow-hidden ${mapMode === 'satellite' ? 'bg-slate-950' : 'bg-slate-900'}`}>
+          {/* Map Background */}
+          {mapMode === 'satellite' ? (
+            <div
+              className="absolute inset-0 bg-cover bg-center transition-transform duration-300 opacity-75"
+              style={{
+                transform: `scale(${zoomLevel / 100})`,
+                backgroundImage: `url('https://images.unsplash.com/photo-1524661135-423995f22d0b?q=80&w=1200&auto=format&fit=crop')`,
+              }}
+            />
+          ) : (
+            <div
+              className="absolute inset-0 opacity-30 pointer-events-none transition-transform duration-300"
+              style={{
+                transform: `scale(${zoomLevel / 100})`,
+                backgroundImage: `radial-gradient(#10b981 1.5px, transparent 1.5px)`,
+                backgroundSize: '24px 24px',
+              }}
+            />
+          )}
 
           {/* Simulated Grid Road Lines SVG */}
           <svg className="absolute inset-0 w-full h-full pointer-events-none stroke-emerald-500/40">

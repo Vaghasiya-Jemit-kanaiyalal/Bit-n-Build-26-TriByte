@@ -10,6 +10,7 @@ interface PredictionRiskMapProps {
 export const PredictionRiskMap: React.FC<PredictionRiskMapProps> = ({ bins, onSelectBin }) => {
   const [zoomLevel, setZoomLevel] = useState<number>(1);
   const [selectedZoneFilter, setSelectedZoneFilter] = useState<string>('All');
+  const [mapMode, setMapMode] = useState<'vector' | 'satellite'>('vector');
 
   const filteredBins = selectedZoneFilter === 'All'
     ? bins
@@ -18,10 +19,36 @@ export const PredictionRiskMap: React.FC<PredictionRiskMapProps> = ({ bins, onSe
   return (
     <div className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs flex flex-col justify-between">
       {/* Map Header */}
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <MapPin className="w-4 h-4 text-[#047857]" />
-          <h3 className="text-sm font-bold text-slate-900 m-0">Predicted Overflow Risk Map</h3>
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <MapPin className="w-4 h-4 text-[#047857]" />
+            <h3 className="text-sm font-bold text-slate-900 m-0">Predicted Overflow Risk Map</h3>
+          </div>
+
+          {/* 2-View Mode Switcher Tabs */}
+          <div className="bg-slate-200/80 p-0.5 rounded-lg flex items-center gap-1 border border-slate-300/60 text-xs">
+            <button
+              onClick={() => setMapMode('vector')}
+              className={`px-2.5 py-1 rounded-md text-[11px] font-extrabold transition-all cursor-pointer ${
+                mapMode === 'vector'
+                  ? 'bg-white text-slate-900 shadow-2xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              Vector Grid
+            </button>
+            <button
+              onClick={() => setMapMode('satellite')}
+              className={`px-2.5 py-1 rounded-md text-[11px] font-extrabold transition-all cursor-pointer ${
+                mapMode === 'satellite'
+                  ? 'bg-slate-900 text-white shadow-2xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              Realistic Satellite
+            </button>
+          </div>
         </div>
 
         <div className="flex items-center gap-2">
@@ -64,16 +91,28 @@ export const PredictionRiskMap: React.FC<PredictionRiskMapProps> = ({ bins, onSe
       </div>
 
       {/* Map Graphic Canvas */}
-      <div className="relative w-full h-64 rounded-xl bg-slate-900 border border-slate-800 overflow-hidden flex items-center justify-center p-4">
-        {/* Background Grid Pattern */}
-        <div
-          className="absolute inset-0 opacity-20 transition-transform duration-300"
-          style={{
-            backgroundImage: `radial-gradient(#334155 1.5px, transparent 1.5px)`,
-            backgroundSize: '20px 20px',
-            transform: `scale(${zoomLevel})`,
-          }}
-        />
+      <div className={`relative w-full h-64 rounded-xl border border-slate-800 overflow-hidden flex items-center justify-center p-4 ${
+        mapMode === 'satellite' ? 'bg-slate-950' : 'bg-slate-900'
+      }`}>
+        {/* Background Graphic */}
+        {mapMode === 'satellite' ? (
+          <div
+            className="absolute inset-0 bg-cover bg-center opacity-75 transition-transform duration-300"
+            style={{
+              backgroundImage: `url('https://images.unsplash.com/photo-1524661135-423995f22d0b?q=80&w=1200&auto=format&fit=crop')`,
+              transform: `scale(${zoomLevel})`,
+            }}
+          />
+        ) : (
+          <div
+            className="absolute inset-0 opacity-20 transition-transform duration-300"
+            style={{
+              backgroundImage: `radial-gradient(#334155 1.5px, transparent 1.5px)`,
+              backgroundSize: '20px 20px',
+              transform: `scale(${zoomLevel})`,
+            }}
+          />
+        )}
 
         {/* Zone Outlines */}
         <svg className="absolute inset-0 w-full h-full pointer-events-none" style={{ transform: `scale(${zoomLevel})` }}>
