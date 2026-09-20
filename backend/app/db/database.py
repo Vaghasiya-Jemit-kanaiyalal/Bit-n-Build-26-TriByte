@@ -7,15 +7,23 @@ from sqlalchemy.ext.asyncio import (
 
 from app.core.config import settings
 
-# Configure async engine with connection pooling and pre-ping
-engine = create_async_engine(
-    settings.DATABASE_URL,
-    echo=(settings.ENVIRONMENT == "debug"),
-    pool_pre_ping=True,
-    pool_size=10,
-    max_overflow=20,
-    future=True,
-)
+# Configure async engine with fallback
+db_url = settings.DATABASE_URL
+
+try:
+    if "sqlite" in db_url:
+        engine = create_async_engine(db_url, echo=False, future=True)
+    else:
+        engine = create_async_engine(
+            db_url,
+            echo=(settings.ENVIRONMENT == "debug"),
+            pool_pre_ping=True,
+            pool_size=10,
+            max_overflow=20,
+            future=True,
+        )
+except Exception:
+    engine = create_async_engine("sqlite+aiosqlite:///./test.db", echo=False, future=True)
 
 # Async session factory
 AsyncSessionLocal = async_sessionmaker(

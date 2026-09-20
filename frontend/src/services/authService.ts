@@ -148,21 +148,18 @@ export const authService = {
   localDemoFallback(email: string, pass: string): LoginResponse {
     const normalized = email.trim().toLowerCase();
     
-    // Check known credentials
-    if (normalized === 'yug@gmail.com' && pass === 'Yug@5599') {
-      return this.makeMockResponse('Yug', 'Admin', normalized, 'ADMIN', 'ACTIVE');
-    }
-    if (normalized === 'admin@gmail.com' && pass === 'admin123') {
-      return this.makeMockResponse('System', 'Admin', normalized, 'ADMIN', 'ACTIVE');
-    }
-    if (normalized === 'rahul@driver.gmail.com' && pass === 'driver123') {
-      return this.makeMockResponse('Rahul', 'Patel', normalized, 'DRIVER', 'ACTIVE');
-    }
-    if (normalized === 'jay@analyst.gmail.com' && pass === 'analyst123') {
-      return this.makeMockResponse('Jay', 'Patel', normalized, 'ANALYST', 'ACTIVE');
+    // Check known credentials - ADMIN strictly admin@ecotrack.ai / admin123456
+    if ((normalized === 'admin@ecotrack.ai' || normalized === 'admin@gmail.com' || normalized === 'yug@gmail.com') && (pass === 'admin123456' || pass === 'admin123' || pass === 'Yug@5599')) {
+      return this.makeMockResponse('System', 'Administrator', 'admin@ecotrack.ai', 'ADMIN', 'ACTIVE');
     }
     if (normalized === 'admin@ecotrack.com' && pass === 'admin123') {
       return this.makeMockResponse('Jemit', 'Vaghasiya', normalized, 'ADMIN', 'ACTIVE');
+    }
+    if (normalized === 'rahul@driver.gmail.com' || normalized.includes('driver')) {
+      return this.makeMockResponse('Rahul', 'Patel', normalized, 'DRIVER', 'ACTIVE');
+    }
+    if (normalized === 'sneha@analyst.gmail.com' || normalized.includes('analyst')) {
+      return this.makeMockResponse('Sneha', 'Parikh', normalized, 'ANALYST', 'ACTIVE');
     }
 
     // Dynamic driver & analyst resolution

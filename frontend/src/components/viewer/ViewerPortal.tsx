@@ -13,8 +13,21 @@ import {
   BarChart3,
   MapPin,
   Lock,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import NotificationToast from '../common/NotificationToast';
+import homeImg from '../../assets/home.png';
+
+import { UnifiedGisMap } from '../common/UnifiedGisMap';
+
+const ViewerLiveCampusMap: React.FC<{ isDarkMode: boolean }> = () => {
+  return (
+    <div className="w-full h-full min-h-[420px]">
+      <UnifiedGisMap zoneName="DEPSTAR Campus Telemetry" stepIntervalMs={60000} />
+    </div>
+  );
+};
 
 interface ViewerPortalProps {
   user: UserSession;
@@ -23,89 +36,116 @@ interface ViewerPortalProps {
 
 export const ViewerPortal: React.FC<ViewerPortalProps> = ({ user, onSignOut }) => {
   const [activeTab, setActiveTab] = useState<'overview' | 'monitoring' | 'profile' | 'settings'>('overview');
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
+    <div className={`min-h-screen flex flex-col font-sans transition-colors duration-300 ${isDarkMode ? 'bg-slate-950 text-slate-100' : 'bg-[#f8fafc] text-slate-800'}`}>
       <NotificationToast />
 
       {/* Top Banner for Viewer Role Notice */}
-      <div className="bg-amber-500/10 border-b border-amber-500/20 px-4 py-2.5 flex items-center justify-between text-xs text-amber-200">
+      <div className={`px-4 py-2.5 flex items-center justify-between text-xs transition-colors ${
+        isDarkMode 
+          ? 'bg-amber-500/10 border-b border-amber-500/20 text-amber-200' 
+          : 'bg-amber-50 border-b border-amber-200 text-amber-900'
+      }`}>
         <div className="flex items-center gap-2">
-          <ShieldAlert className="w-4 h-4 text-amber-400 shrink-0" />
+          <ShieldAlert className="w-4 h-4 text-amber-500 shrink-0" />
           <span>
             <strong>READ-ONLY VIEWER ACCESS:</strong> Your account is currently in Viewer mode. An Administrator can promote your account to Analyst, Driver, or Manager.
           </span>
         </div>
-        <span className="px-2 py-0.5 rounded bg-amber-400/20 text-amber-300 text-[11px] font-mono font-bold uppercase">
+        <span className={`px-2.5 py-0.5 rounded text-[11px] font-mono font-bold uppercase ${
+          isDarkMode ? 'bg-amber-400/20 text-amber-300' : 'bg-amber-100 text-amber-800 border border-amber-300'
+        }`}>
           Role: VIEWER
         </span>
       </div>
 
       {/* Navbar */}
-      <header className="bg-slate-900 border-b border-slate-800 px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400">
-            <Trash2 className="w-5 h-5" />
-          </div>
-          <div>
-            <h1 className="text-base font-bold text-white leading-tight">EcoTrack AI</h1>
-            <p className="text-[11px] text-slate-400">Public & Viewer Overview Console</p>
+      <header className={`px-6 py-3.5 border-b flex items-center justify-between transition-colors ${
+        isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-xs'
+      }`}>
+        {/* Brand Logo Header with home.png in Big Size */}
+        <div className="flex items-center gap-2.5">
+          <img src={homeImg} alt="EcoTrack Home Logo" className="h-10 w-10 object-contain drop-shadow-md shrink-0" />
+          <div className="flex flex-col">
+            <span className={`text-base font-extrabold leading-tight tracking-tight ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>EcoTrack</span>
+            <span className={`text-[10px] font-bold ${isDarkMode ? 'text-emerald-400' : 'text-emerald-700'}`}>Viewer Console</span>
           </div>
         </div>
 
         {/* Navigation tabs */}
-        <nav className="flex items-center gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs">
+        <nav className={`flex items-center gap-1 p-1 rounded-xl border text-xs font-bold ${
+          isDarkMode ? 'bg-slate-950 border-slate-800' : 'bg-slate-100 border-slate-200'
+        }`}>
           <button
             onClick={() => setActiveTab('overview')}
-            className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
+            className={`px-3.5 py-1.5 rounded-lg transition-all cursor-pointer border-none ${
               activeTab === 'overview'
-                ? 'bg-emerald-600 text-white shadow-xs'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'bg-[#047857] text-white shadow-xs'
+                : isDarkMode ? 'text-slate-400 hover:text-slate-200' : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             Overview
           </button>
           <button
             onClick={() => setActiveTab('monitoring')}
-            className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
+            className={`px-3.5 py-1.5 rounded-lg transition-all cursor-pointer border-none ${
               activeTab === 'monitoring'
-                ? 'bg-emerald-600 text-white shadow-xs'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'bg-[#047857] text-white shadow-xs'
+                : isDarkMode ? 'text-slate-400 hover:text-slate-200' : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             Campus Monitoring
           </button>
           <button
             onClick={() => setActiveTab('profile')}
-            className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
+            className={`px-3.5 py-1.5 rounded-lg transition-all cursor-pointer border-none ${
               activeTab === 'profile'
-                ? 'bg-emerald-600 text-white shadow-xs'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'bg-[#047857] text-white shadow-xs'
+                : isDarkMode ? 'text-slate-400 hover:text-slate-200' : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             My Profile
           </button>
           <button
             onClick={() => setActiveTab('settings')}
-            className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
+            className={`px-3.5 py-1.5 rounded-lg transition-all cursor-pointer border-none ${
               activeTab === 'settings'
-                ? 'bg-emerald-600 text-white shadow-xs'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'bg-[#047857] text-white shadow-xs'
+                : isDarkMode ? 'text-slate-400 hover:text-slate-200' : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             Settings
           </button>
         </nav>
 
-        {/* User Account Pill */}
+        {/* Theme Toggle & User Account Pill */}
         <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setIsDarkMode(!isDarkMode)}
+            className={`p-2 rounded-xl border flex items-center justify-center cursor-pointer transition-colors ${
+              isDarkMode 
+                ? 'bg-slate-800 text-amber-300 border-slate-700 hover:bg-slate-700' 
+                : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200'
+            }`}
+            title={isDarkMode ? 'Switch to Light/White Theme' : 'Switch to Dark Theme'}
+          >
+            {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4 text-slate-700" />}
+          </button>
+
           <div className="text-right text-xs hidden sm:block">
-            <div className="font-bold text-slate-200">{user.name}</div>
-            <div className="text-[11px] text-slate-400">{user.email}</div>
+            <div className={`font-bold ${isDarkMode ? 'text-slate-200' : 'text-slate-900'}`}>{user.name}</div>
+            <div className={`text-[11px] ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>{user.email}</div>
           </div>
           <button
             onClick={onSignOut}
-            className="p-2 rounded-xl bg-slate-800 hover:bg-red-500/20 text-slate-300 hover:text-red-400 border border-slate-700 transition-colors cursor-pointer"
+            className={`p-2 rounded-xl border transition-colors cursor-pointer ${
+              isDarkMode
+                ? 'bg-slate-800 hover:bg-red-500/20 text-slate-300 hover:text-red-400 border-slate-700'
+                : 'bg-slate-100 hover:bg-red-50 text-slate-700 hover:text-red-600 border-slate-200'
+            }`}
             title="Sign Out"
           >
             <LogOut className="w-4 h-4" />
@@ -119,60 +159,70 @@ export const ViewerPortal: React.FC<ViewerPortalProps> = ({ user, onSignOut }) =
           <div className="space-y-6 animate-in fade-in duration-200">
             {/* KPI Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between">
+              <div className={`p-4 rounded-2xl border flex items-center justify-between transition-colors ${
+                isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200/80 shadow-xs'
+              }`}>
                 <div>
-                  <p className="text-xs text-slate-400 font-medium">Campus Smart Bins</p>
-                  <p className="text-2xl font-bold text-white mt-1">248 Bins</p>
-                  <p className="text-[11px] text-emerald-400 mt-0.5">Active Telemetry</p>
+                  <p className={`text-xs font-medium ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>Campus Smart Bins</p>
+                  <p className={`text-2xl font-bold mt-1 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>248 Bins</p>
+                  <p className="text-[11px] text-emerald-600 font-semibold mt-0.5">Active Telemetry</p>
                 </div>
-                <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-600">
                   <Trash2 className="w-5 h-5" />
                 </div>
               </div>
 
-              <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between">
+              <div className={`p-4 rounded-2xl border flex items-center justify-between transition-colors ${
+                isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200/80 shadow-xs'
+              }`}>
                 <div>
-                  <p className="text-xs text-slate-400 font-medium">Recycling Efficiency</p>
-                  <p className="text-2xl font-bold text-white mt-1">78.4%</p>
-                  <p className="text-[11px] text-emerald-400 mt-0.5">+4.2% this month</p>
+                  <p className={`text-xs font-medium ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>Recycling Efficiency</p>
+                  <p className={`text-2xl font-bold mt-1 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>78.4%</p>
+                  <p className="text-[11px] text-emerald-600 font-semibold mt-0.5">+4.2% this month</p>
                 </div>
-                <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-400">
+                <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-center justify-center text-blue-600">
                   <BarChart3 className="w-5 h-5" />
                 </div>
               </div>
 
-              <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between">
+              <div className={`p-4 rounded-2xl border flex items-center justify-between transition-colors ${
+                isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200/80 shadow-xs'
+              }`}>
                 <div>
-                  <p className="text-xs text-slate-400 font-medium">Active Collection Fleet</p>
-                  <p className="text-2xl font-bold text-white mt-1">12 Trucks</p>
-                  <p className="text-[11px] text-slate-400 mt-0.5">On Active Routes</p>
+                  <p className={`text-xs font-medium ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>Active Collection Fleet</p>
+                  <p className={`text-2xl font-bold mt-1 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>12 Trucks</p>
+                  <p className={`text-[11px] mt-0.5 ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>On Active Routes</p>
                 </div>
-                <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-600">
                   <Truck className="w-5 h-5" />
                 </div>
               </div>
 
-              <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl flex items-center justify-between">
+              <div className={`p-4 rounded-2xl border flex items-center justify-between transition-colors ${
+                isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200/80 shadow-xs'
+              }`}>
                 <div>
-                  <p className="text-xs text-slate-400 font-medium">Account Authorization</p>
-                  <p className="text-2xl font-bold text-amber-400 mt-1">VIEWER</p>
-                  <p className="text-[11px] text-slate-400 mt-0.5">Pending Role Promotion</p>
+                  <p className={`text-xs font-medium ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>Account Authorization</p>
+                  <p className="text-2xl font-bold text-amber-600 mt-1">VIEWER</p>
+                  <p className={`text-[11px] mt-0.5 ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>Pending Role Promotion</p>
                 </div>
-                <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400">
+                <div className="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-600">
                   <Eye className="w-5 h-5" />
                 </div>
               </div>
             </div>
 
             {/* Read-Only Information Banner */}
-            <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 relative overflow-hidden">
+            <div className={`rounded-2xl p-6 relative overflow-hidden border transition-colors ${
+              isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-xs'
+            }`}>
               <div className="max-w-2xl space-y-3">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold">
-                  <Activity className="w-3.5 h-3.5" />
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 text-xs font-bold">
+                  <Activity className="w-3.5 h-3.5 text-emerald-600" />
                   <span>EcoTrack Environmental Intelligence Platform</span>
                 </div>
-                <h2 className="text-xl font-bold text-white">Welcome, {user.name}</h2>
-                <p className="text-xs text-slate-300 leading-relaxed">
+                <h2 className={`text-xl font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>Welcome, Viewer</h2>
+                <p className={`text-xs leading-relaxed ${isDarkMode ? 'text-slate-300' : 'text-slate-600'}`}>
                   As a registered <strong>Viewer</strong>, you have access to read-only campus sustainability telemetry and waste analytics overview. Editing, administrative configuration, route optimization, and operational collection actions require elevated role permissions (`ANALYST`, `DRIVER`, or `ADMIN`).
                 </p>
               </div>
@@ -180,65 +230,83 @@ export const ViewerPortal: React.FC<ViewerPortalProps> = ({ user, onSignOut }) =
 
             {/* Public Campus Highlights */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4">
-                <h3 className="font-bold text-sm text-white flex items-center gap-2">
-                  <MapPin className="w-4 h-4 text-emerald-400" />
+              <div className={`rounded-2xl p-5 space-y-4 border transition-colors ${
+                isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-xs'
+              }`}>
+                <h3 className={`font-bold text-sm flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                  <MapPin className="w-4 h-4 text-emerald-600" />
                   <span>Campus Zone Health Overview</span>
                 </h3>
                 <div className="space-y-3 text-xs">
-                  <div className="flex items-center justify-between p-3 rounded-xl bg-slate-950 border border-slate-800">
+                  <div className={`flex items-center justify-between p-3 rounded-xl border ${
+                    isDarkMode ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200'
+                  }`}>
                     <div>
-                      <span className="font-bold text-white">Academic & Library Zone</span>
-                      <p className="text-[11px] text-slate-400">42 Smart Bins • Avg Fill: 48%</p>
+                      <span className={`font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>Academic & Library Zone</span>
+                      <p className={`text-[11px] ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>42 Smart Bins • Avg Fill: 48%</p>
                     </div>
-                    <span className="px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-[11px] font-bold">
+                    <span className="px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-bold border border-emerald-300">
                       Optimal
                     </span>
                   </div>
 
-                  <div className="flex items-center justify-between p-3 rounded-xl bg-slate-950 border border-slate-800">
+                  <div className={`flex items-center justify-between p-3 rounded-xl border ${
+                    isDarkMode ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200'
+                  }`}>
                     <div>
-                      <span className="font-bold text-white">Hostels & Residential Zone</span>
-                      <p className="text-[11px] text-slate-400">64 Smart Bins • Avg Fill: 72%</p>
+                      <span className={`font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>Hostels & Residential Zone</span>
+                      <p className={`text-[11px] ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>64 Smart Bins • Avg Fill: 72%</p>
                     </div>
-                    <span className="px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-400 text-[11px] font-bold">
+                    <span className="px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 text-[11px] font-bold border border-amber-300">
                       Moderate
                     </span>
                   </div>
 
-                  <div className="flex items-center justify-between p-3 rounded-xl bg-slate-950 border border-slate-800">
+                  <div className={`flex items-center justify-between p-3 rounded-xl border ${
+                    isDarkMode ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200'
+                  }`}>
                     <div>
-                      <span className="font-bold text-white">Cafeteria & East Campus</span>
-                      <p className="text-[11px] text-slate-400">38 Smart Bins • Avg Fill: 84%</p>
+                      <span className={`font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>Cafeteria & East Campus</span>
+                      <p className={`text-[11px] ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>38 Smart Bins • Avg Fill: 84%</p>
                     </div>
-                    <span className="px-2.5 py-1 rounded-full bg-red-500/10 text-red-400 text-[11px] font-bold">
+                    <span className="px-2.5 py-1 rounded-full bg-red-100 text-red-800 text-[11px] font-bold border border-red-300">
                       High Fill
                     </span>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4">
-                <h3 className="font-bold text-sm text-white flex items-center gap-2">
-                  <Lock className="w-4 h-4 text-slate-400" />
+              <div className={`rounded-2xl p-5 space-y-4 border transition-colors ${
+                isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-xs'
+              }`}>
+                <h3 className={`font-bold text-sm flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                  <Lock className={`w-4 h-4 ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`} />
                   <span>Role Permissions Matrix</span>
                 </h3>
-                <div className="space-y-2.5 text-xs text-slate-300">
-                  <div className="flex items-center justify-between p-2.5 rounded-lg bg-slate-950/60 border border-slate-800">
+                <div className={`space-y-2.5 text-xs ${isDarkMode ? 'text-slate-300' : 'text-slate-700'}`}>
+                  <div className={`flex items-center justify-between p-2.5 rounded-lg border ${
+                    isDarkMode ? 'bg-slate-950/60 border-slate-800' : 'bg-slate-50 border-slate-200'
+                  }`}>
                     <span>View Public Campus Telemetry</span>
-                    <CheckCircle className="w-4 h-4 text-emerald-400" />
+                    <CheckCircle className="w-4 h-4 text-emerald-600" />
                   </div>
-                  <div className="flex items-center justify-between p-2.5 rounded-lg bg-slate-950/60 border border-slate-800">
+                  <div className={`flex items-center justify-between p-2.5 rounded-lg border ${
+                    isDarkMode ? 'bg-slate-950/60 border-slate-800' : 'bg-slate-50 border-slate-200'
+                  }`}>
                     <span>Export Analytics & Generate Reports</span>
-                    <span className="text-[11px] font-bold text-purple-400">Analyst / Admin</span>
+                    <span className="text-[11px] font-bold text-purple-700 bg-purple-100 px-2 py-0.5 rounded border border-purple-200">Analyst / Admin</span>
                   </div>
-                  <div className="flex items-center justify-between p-2.5 rounded-lg bg-slate-950/60 border border-slate-800">
+                  <div className={`flex items-center justify-between p-2.5 rounded-lg border ${
+                    isDarkMode ? 'bg-slate-950/60 border-slate-800' : 'bg-slate-50 border-slate-200'
+                  }`}>
                     <span>Perform Bin Collection & Driver Routes</span>
-                    <span className="text-[11px] font-bold text-emerald-400">Driver / Admin</span>
+                    <span className="text-[11px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded border border-emerald-200">Driver / Admin</span>
                   </div>
-                  <div className="flex items-center justify-between p-2.5 rounded-lg bg-slate-950/60 border border-slate-800">
+                  <div className={`flex items-center justify-between p-2.5 rounded-lg border ${
+                    isDarkMode ? 'bg-slate-950/60 border-slate-800' : 'bg-slate-50 border-slate-200'
+                  }`}>
                     <span>Manage Users, Roles & System Settings</span>
-                    <span className="text-[11px] font-bold text-amber-400">Admin Only</span>
+                    <span className="text-[11px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded border border-amber-200">Admin Only</span>
                   </div>
                 </div>
               </div>
@@ -247,77 +315,104 @@ export const ViewerPortal: React.FC<ViewerPortalProps> = ({ user, onSignOut }) =
         )}
 
         {activeTab === 'monitoring' && (
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4 animate-in fade-in duration-200">
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <Eye className="w-5 h-5 text-emerald-400" />
-              <span>Read-Only Campus Monitoring Feed</span>
-            </h3>
-            <p className="text-xs text-slate-400">
-              Live operational monitoring view for campus sustainability tracking.
-            </p>
-            <div className="bg-slate-950 border border-slate-800 rounded-xl p-8 text-center space-y-3">
-              <div className="w-12 h-12 rounded-full bg-slate-900 border border-slate-800 mx-auto flex items-center justify-center text-slate-400">
-                <Trash2 className="w-6 h-6" />
+          <div className={`rounded-2xl p-6 space-y-4 animate-in fade-in duration-200 border transition-colors ${
+            isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-xs'
+          }`}>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h3 className={`text-base font-bold flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                  <Eye className="w-5 h-5 text-emerald-600" />
+                  <span>Live Campus Telemetry & GIS Monitoring Map</span>
+                </h3>
+                <p className={`text-xs ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+                  Real-time IoT sensor telemetry, live vehicle location, and waste collection tracking.
+                </p>
               </div>
-              <p className="text-sm font-bold text-slate-200">Campus Sensor Grid Operational</p>
-              <p className="text-xs text-slate-400 max-w-md mx-auto">
-                248 IoT Smart Bins reporting via WebSocket telemetry. Operational edits or bin allocation require Admin permissions.
-              </p>
+
+              <div className="flex items-center gap-2">
+                <span className="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-700 font-mono text-xs font-bold border border-emerald-500/30 flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+                  <span>LIVE TRUCK MOVEMENT (28 km/h)</span>
+                </span>
+              </div>
             </div>
+
+            {/* Interactive Campus Map Canvas with Moving Truck */}
+            <ViewerLiveCampusMap isDarkMode={isDarkMode} />
           </div>
         )}
 
         {activeTab === 'profile' && (
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4 max-w-xl mx-auto animate-in fade-in duration-200">
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <User className="w-5 h-5 text-emerald-400" />
+          <div className={`rounded-2xl p-6 space-y-4 max-w-xl mx-auto animate-in fade-in duration-200 border transition-colors ${
+            isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-xs'
+          }`}>
+            <h3 className={`text-base font-bold flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+              <User className="w-5 h-5 text-emerald-600" />
               <span>User Profile Details</span>
             </h3>
             <div className="space-y-3 text-xs">
-              <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 flex justify-between">
-                <span className="text-slate-400">Full Name:</span>
-                <span className="font-bold text-white">{user.name}</span>
+              <div className={`p-3 rounded-xl border flex justify-between ${
+                isDarkMode ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200'
+              }`}>
+                <span className={isDarkMode ? 'text-slate-400' : 'text-slate-500'}>Full Name:</span>
+                <span className={`font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{user.name}</span>
               </div>
-              <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 flex justify-between">
-                <span className="text-slate-400">Email Address:</span>
-                <span className="font-bold text-white">{user.email}</span>
+              <div className={`p-3 rounded-xl border flex justify-between ${
+                isDarkMode ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200'
+              }`}>
+                <span className={isDarkMode ? 'text-slate-400' : 'text-slate-500'}>Email Address:</span>
+                <span className={`font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>{user.email}</span>
               </div>
-              <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 flex justify-between">
-                <span className="text-slate-400">Current Role:</span>
-                <span className="font-bold text-amber-400 font-mono">VIEWER</span>
+              <div className={`p-3 rounded-xl border flex justify-between ${
+                isDarkMode ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200'
+              }`}>
+                <span className={isDarkMode ? 'text-slate-400' : 'text-slate-500'}>Current Role:</span>
+                <span className="font-bold text-amber-700 font-mono">VIEWER</span>
               </div>
-              <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 flex justify-between">
-                <span className="text-slate-400">Account Status:</span>
-                <span className="font-bold text-emerald-400">{user.status || 'ACTIVE'}</span>
+              <div className={`p-3 rounded-xl border flex justify-between ${
+                isDarkMode ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200'
+              }`}>
+                <span className={isDarkMode ? 'text-slate-400' : 'text-slate-500'}>Account Status:</span>
+                <span className="font-bold text-emerald-600">{user.status || 'ACTIVE'}</span>
               </div>
-              <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 flex justify-between">
-                <span className="text-slate-400">Organization:</span>
-                <span className="font-bold text-slate-200">{user.organization || 'EcoTrack AI'}</span>
+              <div className={`p-3 rounded-xl border flex justify-between ${
+                isDarkMode ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200'
+              }`}>
+                <span className={isDarkMode ? 'text-slate-400' : 'text-slate-500'}>Organization:</span>
+                <span className={`font-bold ${isDarkMode ? 'text-slate-200' : 'text-slate-800'}`}>{user.organization || 'EcoTrack AI'}</span>
               </div>
             </div>
           </div>
         )}
 
         {activeTab === 'settings' && (
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4 max-w-xl mx-auto animate-in fade-in duration-200">
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <Settings className="w-5 h-5 text-emerald-400" />
+          <div className={`rounded-2xl p-6 space-y-4 max-w-xl mx-auto animate-in fade-in duration-200 border transition-colors ${
+            isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-xs'
+          }`}>
+            <h3 className={`text-base font-bold flex items-center gap-2 ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+              <Settings className="w-5 h-5 text-emerald-600" />
               <span>Viewer Preferences</span>
             </h3>
             <div className="space-y-3 text-xs">
-              <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
+              <div className={`p-4 rounded-xl border flex items-center justify-between ${
+                isDarkMode ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200'
+              }`}>
                 <div>
-                  <p className="font-bold text-white">Email Notifications</p>
-                  <p className="text-[11px] text-slate-400">Receive campus sustainability updates</p>
+                  <p className={`font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>Email Notifications</p>
+                  <p className={`text-[11px] ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>Receive campus sustainability updates</p>
                 </div>
-                <input type="checkbox" defaultChecked className="rounded border-slate-700 bg-slate-900 text-emerald-500 w-4 h-4" />
+                <input type="checkbox" defaultChecked className="rounded border-slate-300 bg-white text-emerald-600 w-4 h-4 cursor-pointer" />
               </div>
-              <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
+              <div className={`p-4 rounded-xl border flex items-center justify-between ${
+                isDarkMode ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200'
+              }`}>
                 <div>
-                  <p className="font-bold text-white">Telemetry Unit</p>
-                  <p className="text-[11px] text-slate-400">Display capacity in Liters (L) or Metric Tons</p>
+                  <p className={`font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>Telemetry Unit</p>
+                  <p className={`text-[11px] ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>Display capacity in Liters (L) or Metric Tons</p>
                 </div>
-                <select className="bg-slate-900 border border-slate-700 text-white rounded-lg px-2.5 py-1 text-xs font-bold">
+                <select className={`rounded-lg px-2.5 py-1 text-xs font-bold border ${
+                  isDarkMode ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-300 text-slate-900'
+                }`}>
                   <option value="L">Liters (L)</option>
                   <option value="KG">Kilograms (kg)</option>
                 </select>
@@ -331,3 +426,4 @@ export const ViewerPortal: React.FC<ViewerPortalProps> = ({ user, onSignOut }) =
 };
 
 export default ViewerPortal;
+

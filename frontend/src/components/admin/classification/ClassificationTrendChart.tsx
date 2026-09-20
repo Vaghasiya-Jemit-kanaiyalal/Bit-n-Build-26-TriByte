@@ -3,13 +3,24 @@ import type { ClassificationTrendPoint } from '../../../types/classification';
 import { TrendingUp } from 'lucide-react';
 
 interface ClassificationTrendChartProps {
-  trendData: ClassificationTrendPoint[];
+  trendData?: ClassificationTrendPoint[];
 }
+
+const DEFAULT_TREND_DATA: ClassificationTrendPoint[] = [
+  { date: 'Mon', totalTons: 1.1, recyclableTons: 0.68, nonRecyclableTons: 0.42, plasticTons: 0.28, paperTons: 0.20, organicTons: 0.35 },
+  { date: 'Tue', totalTons: 1.3, recyclableTons: 0.81, nonRecyclableTons: 0.49, plasticTons: 0.33, paperTons: 0.24, organicTons: 0.40 },
+  { date: 'Wed', totalTons: 1.2, recyclableTons: 0.74, nonRecyclableTons: 0.46, plasticTons: 0.30, paperTons: 0.22, organicTons: 0.37 },
+  { date: 'Thu', totalTons: 1.4, recyclableTons: 0.86, nonRecyclableTons: 0.54, plasticTons: 0.35, paperTons: 0.26, organicTons: 0.44 },
+  { date: 'Fri', totalTons: 1.25, recyclableTons: 0.77, nonRecyclableTons: 0.48, plasticTons: 0.31, paperTons: 0.23, organicTons: 0.39 },
+  { date: 'Sat', totalTons: 1.15, recyclableTons: 0.71, nonRecyclableTons: 0.44, plasticTons: 0.29, paperTons: 0.21, organicTons: 0.36 },
+  { date: 'Sun', totalTons: 1.0, recyclableTons: 0.61, nonRecyclableTons: 0.39, plasticTons: 0.24, paperTons: 0.18, organicTons: 0.31 },
+];
 
 export const ClassificationTrendChart: React.FC<ClassificationTrendChartProps> = ({ trendData }) => {
   const [activeMetric, setActiveMetric] = useState<'total' | 'recyclable' | 'nonRecyclable'>('total');
 
-  const maxVal = Math.max(...trendData.map((d) => d.totalTons)) || 1.5;
+  const dataToRender = trendData && trendData.length > 0 ? trendData : DEFAULT_TREND_DATA;
+  const maxVal = Math.max(...dataToRender.map((d) => d.totalTons)) || 1.5;
 
   return (
     <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs flex flex-col justify-between space-y-4">
@@ -58,7 +69,7 @@ export const ClassificationTrendChart: React.FC<ClassificationTrendChartProps> =
       {/* Bar Graphic Canvas */}
       <div className="pt-2">
         <div className="h-48 w-full flex items-end justify-between gap-3 px-2 border-b border-slate-200 pb-2">
-          {trendData.map((pt) => {
+          {dataToRender.map((pt) => {
             const heightVal =
               activeMetric === 'total'
                 ? pt.totalTons

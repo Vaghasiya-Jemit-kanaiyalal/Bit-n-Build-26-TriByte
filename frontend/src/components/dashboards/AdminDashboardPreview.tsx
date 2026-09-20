@@ -57,7 +57,7 @@ export const AdminDashboardPreview: React.FC<DashboardProps> = ({ user, onSignOu
         <div style={{ padding: '0.85rem 1.25rem', backgroundColor: 'var(--accent-olive-muted)', border: '1px solid var(--accent-olive)', borderRadius: 'var(--radius-sm)', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
             <div style={{ fontSize: '0.875rem', fontWeight: '600', color: 'var(--text-primary)' }}>
-              Welcome back, {user.name}. You hold Waste Manager / Administrator privileges.
+              Welcome, Administrator. You hold Waste Manager / Administrator privileges.
             </div>
             <div style={{ fontSize: '0.775rem', color: 'var(--text-secondary)' }}>
               Full fleet telemetry control, automated dispatch overrides, and bin sensor management are enabled.

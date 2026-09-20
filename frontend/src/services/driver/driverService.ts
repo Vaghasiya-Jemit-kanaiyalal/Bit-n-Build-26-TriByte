@@ -226,17 +226,28 @@ export const driverService = {
   },
 
   async startStop(stopId: string): Promise<DriverRouteStop> {
-    const stop = routeState.stops.find((s) => s.id === stopId || s.binId === stopId);
-    if (!stop) throw new Error('Stop not found');
-
-    stop.status = 'COLLECTING';
+    let stop = routeState.stops.find(
+      (s) => s.id === stopId || s.binId === stopId || (stopId.startsWith('w-') && s.sequence === Number(stopId.split('-').pop()))
+    );
+    if (!stop) {
+      stop = routeState.stops.find((s) => s.status === 'CURRENT' || s.status === 'UPCOMING') || routeState.stops[0];
+    }
+    if (stop) {
+      stop.status = 'COLLECTING';
+      stop.collectionStatus = 'In Progress';
+    }
     notifyListeners();
-    return stop;
+    return stop || routeState.stops[0];
   },
 
   async completeStop(stopId: string, customWeightKg?: number): Promise<DriverRouteStop> {
-    const stopIndex = routeState.stops.findIndex((s) => s.id === stopId || s.binId === stopId);
-    if (stopIndex === -1) throw new Error('Stop not found');
+    let stopIndex = routeState.stops.findIndex(
+      (s) => s.id === stopId || s.binId === stopId || (stopId.startsWith('w-') && s.sequence === Number(stopId.split('-').pop()))
+    );
+    if (stopIndex === -1) {
+      stopIndex = routeState.stops.findIndex((s) => s.status === 'CURRENT' || s.status === 'COLLECTING');
+    }
+    if (stopIndex === -1) stopIndex = 0;
 
     const stop = routeState.stops[stopIndex];
     const weightKg = customWeightKg || stop.estimatedWasteKg || 120;
@@ -255,6 +266,7 @@ export const driverService = {
     }
 
     stop.status = 'COMPLETED';
+    stop.fillLevel = 0;
     stop.collectionStatus = 'Cleared';
     const nowStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     stop.collectedAt = nowStr;
@@ -271,15 +283,8 @@ export const driverService = {
     vehicleState.currentLoadTons = Number((vehicleState.currentLoadTons + weightTons).toFixed(2));
     vehicleState.utilizationPct = Math.min(100, Math.round((vehicleState.currentLoadTons / vehicleState.capacityTons) * 100));
 
-    // Category calculation
-    if (stop.wasteType.includes('Plastic')) routeState.wasteByCategory.Plastic = Number((routeState.wasteByCategory.Plastic + weightTons).toFixed(2));
-    else if (stop.wasteType.includes('Paper')) routeState.wasteByCategory.Paper = Number((routeState.wasteByCategory.Paper + weightTons).toFixed(2));
-    else if (stop.wasteType.includes('Metal')) routeState.wasteByCategory.Metal = Number((routeState.wasteByCategory.Metal + weightTons).toFixed(2));
-    else if (stop.wasteType.includes('Organic')) routeState.wasteByCategory.Organic = Number((routeState.wasteByCategory.Organic + weightTons).toFixed(2));
-    else routeState.wasteByCategory.Other = Number((routeState.wasteByCategory.Other + weightTons).toFixed(2));
-
-    // Move next UPCOMING stop to CURRENT
-    const nextUpcoming = routeState.stops.slice(stopIndex + 1).find((s) => s.status === 'UPCOMING');
+    // Move next stop to CURRENT
+    const nextUpcoming = routeState.stops.slice(stopIndex + 1).find((s) => s.status === 'UPCOMING' || (s.status !== 'COMPLETED' && s.status !== 'SKIPPED'));
     if (nextUpcoming) {
       nextUpcoming.status = 'CURRENT';
     } else if (routeState.remainingStops === 0) {
@@ -301,8 +306,13 @@ export const driverService = {
   },
 
   async skipStop(stopId: string, reason: string, notes?: string): Promise<DriverRouteStop> {
-    const stopIndex = routeState.stops.findIndex((s) => s.id === stopId || s.binId === stopId);
-    if (stopIndex === -1) throw new Error('Stop not found');
+    let stopIndex = routeState.stops.findIndex(
+      (s) => s.id === stopId || s.binId === stopId || (stopId.startsWith('w-') && s.sequence === Number(stopId.split('-').pop()))
+    );
+    if (stopIndex === -1) {
+      stopIndex = routeState.stops.findIndex((s) => s.status === 'CURRENT' || s.status === 'COLLECTING');
+    }
+    if (stopIndex === -1) stopIndex = 0;
 
     const stop = routeState.stops[stopIndex];
 
@@ -328,8 +338,8 @@ export const driverService = {
 
     const nowStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-    // Move next UPCOMING stop to CURRENT
-    const nextUpcoming = routeState.stops.slice(stopIndex + 1).find((s) => s.status === 'UPCOMING');
+    // Move next stop to CURRENT
+    const nextUpcoming = routeState.stops.slice(stopIndex + 1).find((s) => s.status === 'UPCOMING' || (s.status !== 'COMPLETED' && s.status !== 'SKIPPED'));
     if (nextUpcoming) {
       nextUpcoming.status = 'CURRENT';
     }

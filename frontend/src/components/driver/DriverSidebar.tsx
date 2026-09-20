@@ -14,6 +14,7 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import type { UserSession } from '../../types/auth';
+import homeImg from '../../assets/home.png';
 
 interface DriverSidebarProps {
   activeTab: string;
@@ -48,20 +49,18 @@ export const DriverSidebar: React.FC<DriverSidebarProps> = ({
   return (
     <aside className="w-52 bg-white border-r border-slate-200 flex flex-col justify-between p-3 shrink-0 shadow-xs z-20">
       <div>
-        {/* Brand Header — Clickable to Dashboard */}
+        {/* Brand Header with home.png in Big Size */}
         <button
           type="button"
           onClick={() => onNavigateTab('Dashboard')}
           className="flex items-center gap-2 px-1 py-1 mb-3 cursor-pointer bg-transparent border-none text-left hover:opacity-85 transition-opacity"
           title="Go to Dashboard"
         >
-          <div className="w-8 h-8 rounded-lg bg-emerald-700 flex items-center justify-center shadow-md shrink-0">
-            <Leaf className="w-4 h-4 text-white" />
-          </div>
+          <img src={homeImg} alt="EcoTrack Home Logo" className="h-10 w-10 object-contain drop-shadow-md shrink-0" />
           <div className="flex flex-col">
             <span className="text-base font-extrabold text-emerald-950 leading-tight tracking-tight">EcoTrack</span>
             <span className="text-[10px] font-bold text-emerald-700 leading-none flex items-center gap-1">
-              <ShieldCheck className="w-3 h-3" /> Field Driver App
+              <ShieldCheck className="w-3 h-3" /> Driver App
             </span>
           </div>
         </button>
@@ -69,7 +68,7 @@ export const DriverSidebar: React.FC<DriverSidebarProps> = ({
           {/* Driver Profile Summary Card */}
           <div className="mx-0 mb-4 p-2 rounded-lg bg-emerald-50/70 border border-emerald-100 flex items-center gap-2">
             <div className="w-7 h-7 rounded-full bg-emerald-700 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-xs">
-              {user.name ? user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : 'RP'}
+              {user.name ? user.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase() : 'RP'}
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-xs font-bold text-slate-900 truncate">{user.name || 'Rahul Patel'}</p>

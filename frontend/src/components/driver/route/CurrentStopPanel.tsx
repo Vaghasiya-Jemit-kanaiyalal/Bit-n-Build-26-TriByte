@@ -30,7 +30,7 @@ export const CurrentStopPanel: React.FC<CurrentStopPanelProps> = ({
       setTimerSeconds(0);
     }
     return () => clearInterval(interval);
-  }, [stop?.status]);
+  }, [stop?.id, stop?.status]);
 
   if (!stop) {
     return (
@@ -74,7 +74,7 @@ export const CurrentStopPanel: React.FC<CurrentStopPanelProps> = ({
         <div className="mb-4">
           <div className="flex items-center justify-between">
             <span className="text-xl font-extrabold text-slate-900 font-mono">{stop.binId}</span>
-            <span className="text-2xl font-extrabold font-mono text-emerald-800">{stop.fillLevel}%</span>
+            <span className="text-2xl font-extrabold font-mono text-emerald-800">{isCompleted ? 0 : stop.fillLevel}%</span>
           </div>
           <p className="text-xs font-bold text-slate-700 flex items-center gap-1.5 mt-1">
             <MapPin className="w-3.5 h-3.5 text-slate-400" />

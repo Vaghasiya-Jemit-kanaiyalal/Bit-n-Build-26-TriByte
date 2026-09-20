@@ -70,7 +70,14 @@ const SignIn1: React.FC<SignIn1Props> = ({
         return;
       }
 
-      showWebsiteToast(`Welcome back, ${authData.user.full_name}!`, "success", "Authentication Successful");
+      const roleTitleMap: Record<string, string> = {
+        ADMIN: 'Administrator',
+        DRIVER: 'Collection Driver',
+        ANALYST: 'Environmental Analyst',
+        VIEWER: 'Viewer',
+      };
+      const roleTitle = roleTitleMap[authData.user.role] || authData.user.role;
+      showWebsiteToast(`Welcome, ${roleTitle}!`, "success", "Authentication Successful");
 
       if (onSignInSuccess) {
         onSignInSuccess(authData.user.role, authData.user.email, authData.user);
@@ -192,7 +199,6 @@ const SignIn1: React.FC<SignIn1Props> = ({
           {activeTab === "signin" && (
             <form onSubmit={handleSignIn} className="flex flex-col gap-3">
               <div className="flex flex-col gap-3">
-                
                 {/* Email Address */}
                 <div className="flex flex-col gap-1 text-left">
                   <label className="text-xs font-bold text-slate-700 m-0 p-0 block">

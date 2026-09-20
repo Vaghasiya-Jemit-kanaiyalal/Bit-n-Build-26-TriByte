@@ -38,6 +38,38 @@ export const INITIAL_MOCK_USERS: PlatformUser[] = [
     ],
   },
   {
+    id: 'USR-SYS-ADMIN',
+    userCode: 'USR-SYS-ADMIN',
+    firstName: 'System',
+    lastName: 'Admin',
+    fullName: 'System Admin',
+    email: 'admin@gmail.com',
+    phone: '+91 98765 00001',
+    role: 'ADMIN',
+    status: 'ACTIVE',
+    organization: 'EcoTrack AI Central HQ',
+    department: 'IT Operations',
+    zone: 'All Zones',
+    accessScope: 'Full Platform',
+    avatarInitials: 'SA',
+    avatarBgColor: 'bg-[#064e3b] text-white',
+    lastActiveAt: 'Just now',
+    joinedAt: '18 May 2026',
+    createdAt: '2026-05-18',
+    updatedAt: '2026-09-20T10:00:00Z',
+    loginSession: {
+      lastLoginAt: 'Just now',
+      device: 'Chrome / Windows',
+      location: 'Gujarat, India',
+    },
+    adminStats: {
+      usersManaged: 86,
+      routesCreated: 24,
+      vehiclesUpdated: 12,
+      alertsResolved: 38,
+    },
+  },
+  {
     id: 'USR-001',
     userCode: 'USR-001',
     firstName: 'Priya',
@@ -384,62 +416,4 @@ export const INITIAL_MOCK_USERS: PlatformUser[] = [
   },
 ];
 
-// Dynamically generate remaining users up to 86 items for complete mock fidelity
-const firstNames = ['Dhruv', 'Nisarg', 'Mehul', 'Rajesh', 'Deepak', 'Sanjay', 'Kavita', 'Bhavin', 'Manish', 'Pooja', 'Hardik', 'Trupti', 'Girish', 'Parth', 'Vikas'];
-const lastNames = ['Patel', 'Shah', 'Mehta', 'Joshi', 'Trivedi', 'Solanki', 'Parmar', 'Raval', 'Vora', 'Chavda', 'Desai', 'Gohil', 'Rathod', 'Makwana'];
-const zones: PlatformUser['zone'][] = ['Central Zone', 'North Zone', 'South Zone', 'East Zone', 'West Zone', 'Industrial Zone', 'Residential Zone'];
 
-for (let i = 15; i <= 65; i++) {
-  const fName = firstNames[i % firstNames.length];
-  const lName = lastNames[i % lastNames.length];
-  const fullName = `${fName} ${lName}`;
-  const id = `USR-0${i < 10 ? '0' + i : i}`;
-  const role: PlatformUser['role'] = i % 5 === 0 ? 'ADMIN' : i % 3 === 0 ? 'ANALYST' : 'DRIVER';
-  const status: PlatformUser['status'] = i % 11 === 0 ? 'INACTIVE' : 'ACTIVE';
-  const zone = zones[i % zones.length];
-
-  INITIAL_MOCK_USERS.push({
-    id,
-    userCode: id,
-    firstName: fName,
-    lastName: lName,
-    fullName,
-    email: role === 'DRIVER' ? `${fName.toLowerCase()}${i}@driver.gmail.com` : role === 'ANALYST' ? `${fName.toLowerCase()}${i}@analyst.gmail.com` : `${fName.toLowerCase()}.${lName.toLowerCase()}${i}@example.com`,
-    phone: `+91 9${Math.floor(10000000 + Math.random() * 89999999)}`,
-    role,
-    status,
-    organization: role === 'ADMIN' ? 'EcoTrack AI Waste Management' : role === 'ANALYST' ? 'Municipal Environmental Intelligence' : 'Municipal Waste Operations',
-    department: role === 'ADMIN' ? 'Executive Control' : role === 'ANALYST' ? 'Analytics Division' : 'Collection Fleet',
-    zone: role === 'ADMIN' ? 'All Zones' : zone,
-    assignedVehicleId: role === 'DRIVER' ? `TRK-0${(i % 24) + 1}` : undefined,
-    assignedRouteId: role === 'DRIVER' ? `R-10${(i % 8) + 1}` : undefined,
-    analyticsScope: role === 'ANALYST' ? (i % 2 === 0 ? 'All Zones' : 'Assigned Zones') : undefined,
-    accessScope: role === 'ADMIN' ? 'Full Platform' : role === 'ANALYST' ? 'Analytics Only' : 'Operational Only',
-    avatarInitials: `${fName[0]}${lName[0]}`,
-    avatarBgColor: role === 'ADMIN' ? 'bg-[#064e3b] text-white' : role === 'ANALYST' ? 'bg-purple-700 text-white' : 'bg-emerald-600 text-white',
-    lastActiveAt: status === 'INACTIVE' ? `${(i % 5) + 2} days ago` : `${(i % 45) + 1} min ago`,
-    joinedAt: `2026-0${(i % 8) + 1}-15`,
-    createdAt: `2026-0${(i % 8) + 1}-15`,
-    updatedAt: '2026-09-19T08:00:00Z',
-    driverStats: role === 'DRIVER' ? {
-      routesCompleted: 15 + (i % 20),
-      stopsCompleted: 150 + (i * 10),
-      onTimeRate: 85 + (i % 12),
-      collectionVolumeTons: 20 + (i * 1.5),
-      avgCompletionPercent: 88 + (i % 10),
-      currentDutyStatus: i % 2 === 0 ? 'On Route' : 'Idle',
-    } : undefined,
-    analystStats: role === 'ANALYST' ? {
-      reportsGenerated: 10 + (i % 15),
-      analyticsViews: 50 + (i * 4),
-      predictionReports: 5 + (i % 8),
-      lastReportName: `Zone ${zone} Waste Trend Summary`,
-    } : undefined,
-    adminStats: role === 'ADMIN' ? {
-      usersManaged: 86,
-      routesCreated: 20 + i,
-      vehiclesUpdated: 10 + i,
-      alertsResolved: 30 + i,
-    } : undefined,
-  });
-}

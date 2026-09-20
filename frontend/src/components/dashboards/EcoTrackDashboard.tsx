@@ -134,8 +134,7 @@ const getPathFromTab = (tab: string, role: string): string => {
 };
 
 import { DriverPortal } from '../driver/DriverPortal';
-import logoImg from '../../assets/logo.png';
-import logoTextImg from '../../assets/logo_text.png';
+import homeImg from '../../assets/home.png';
 
 interface EcoTrackDashboardProps {
   user: UserSession;
@@ -249,15 +248,18 @@ export const EcoTrackDashboard: React.FC<EcoTrackDashboardProps> = ({ user, onSi
       {/* LEFT SIDEBAR */}
       <aside className="w-52 bg-white border-r border-slate-200 flex flex-col justify-between p-3 shrink-0 shadow-xs z-20">
         <div>
-          {/* Clickable Brand & Home Logo to Dashboard */}
+          {/* Clickable Brand with home.png in Big Size */}
           <button
             type="button"
             onClick={() => handleSelectTab('Dashboard')}
-            className="flex items-center gap-1.5 gap-2.5 px-1 py-1 mb-4 cursor-pointer bg-transparent border-none text-left hover:opacity-85 transition-opacity"
+            className="flex items-center gap-2 px-1 py-1 mb-4 cursor-pointer bg-transparent border-none text-left hover:opacity-85 transition-opacity"
             title="Go to Dashboard"
           >
-            <img src={logoImg} alt="EcoTrack Logo" className="h-7 w-auto object-contain" />
-            <img src={logoTextImg} alt="EcoTrack Brand" className="h-5 w-auto object-contain" />
+            <img src={homeImg} alt="EcoTrack Home Logo" className="h-10 w-10 object-contain drop-shadow-md shrink-0" />
+            <div className="flex flex-col">
+              <span className="text-base font-extrabold text-slate-900 leading-tight tracking-tight">EcoTrack</span>
+              <span className="text-[10px] font-bold text-emerald-600 leading-none">Smart Management</span>
+            </div>
           </button>
 
           {/* MAIN Navigation */}
