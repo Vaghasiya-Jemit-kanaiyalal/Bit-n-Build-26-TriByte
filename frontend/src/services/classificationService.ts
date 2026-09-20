@@ -165,6 +165,71 @@ export const classificationService = {
     return [...MOCK_CLASSIFICATION_INSIGHTS];
   },
 
+  async classifyWaste(input: {
+    binId?: number;
+    source?: 'IMAGE' | 'SENSOR' | 'MANUAL' | 'AI_MODEL' | 'SIMULATION';
+    imageReference?: string;
+    manualWasteType?: WasteType;
+    manualConfidence?: number;
+  }): Promise<ClassificationEvent> {
+    try {
+      const payload = {
+        bin_id: input.binId || 1,
+        source: input.source || 'IMAGE',
+        image_reference: input.imageReference || null,
+        manual_waste_type: input.manualWasteType || null,
+        manual_confidence: input.manualConfidence || null,
+        metadata: {},
+      };
+      const res = await apiFetch(`${API_BASE}/admin/classification`, {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        const item = await res.json();
+        console.log('[classificationService] Classification created via backend API:', item);
+        const event: ClassificationEvent = {
+          id: `CLS-${String(item.id).padStart(5, '0')}`,
+          timestamp: new Date(item.classified_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+          date: new Date(item.classified_at).toISOString().split('T')[0],
+          binId: item.bin_code || (item.bin_id ? `BIN-${item.bin_id}` : 'BIN-C-101'),
+          zone: 'Central Zone',
+          location: 'Sector 4',
+          detectedCategory: (item.waste_type || 'PLASTIC') as WasteType,
+          confidence: Math.round((item.confidence || 0.95) * 100),
+          estimatedWeightKg: 2.8,
+          source: item.source === 'IMAGE' ? 'AI Vision' : 'Bin Sensor',
+          status: item.is_low_confidence ? 'LOW_CONFIDENCE' : 'CONFIRMED',
+          reviewStatus: item.review_required ? 'PENDING' : 'CONFIRMED',
+        };
+        historyStore.unshift(event);
+        liveEventsStore.unshift(event);
+        return event;
+      }
+    } catch (err) {
+      console.warn('[classificationService] classifyWaste API offline, using local simulation:', err);
+    }
+
+    const simulatedEvent: ClassificationEvent = {
+      id: `CLS-${Date.now().toString().slice(-5)}`,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+      date: new Date().toISOString().split('T')[0],
+      binId: input.binId ? `BIN-${input.binId}` : 'BIN-C-104',
+      zone: 'Central Zone',
+      location: 'Sector 4 Commercial Complex',
+      detectedCategory: input.manualWasteType || 'PLASTIC',
+      confidence: input.manualConfidence ? input.manualConfidence * 100 : 96.4,
+      estimatedWeightKg: 2.8,
+      source: input.source === 'MANUAL' ? 'Manual Inspection' : 'AI Vision',
+      status: 'CONFIRMED',
+      reviewStatus: 'CONFIRMED',
+    };
+    historyStore.unshift(simulatedEvent);
+    liveEventsStore.unshift(simulatedEvent);
+    return simulatedEvent;
+  },
+
   async getModelInformation(): Promise<ClassificationModel> {
     await new Promise((r) => setTimeout(r, 80));
     return { ...MOCK_MODEL_INFORMATION };
