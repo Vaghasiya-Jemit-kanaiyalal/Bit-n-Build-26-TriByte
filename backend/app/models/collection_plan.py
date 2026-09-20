@@ -1,5 +1,5 @@
 import enum
-import uuid
+import uuid as uuid_pkg
 from datetime import date, datetime
 from typing import List, Optional
 from sqlalchemy import (
@@ -46,9 +46,9 @@ class CollectionPlan(Base):
     __tablename__ = "collection_plans"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    uuid: Mapped[uuid.UUID] = mapped_column(
+    uuid: Mapped[uuid_pkg.UUID] = mapped_column(
         UUID(as_uuid=True),
-        default=uuid.uuid4,
+        default=uuid_pkg.uuid4,
         unique=True,
         index=True,
         nullable=False,
