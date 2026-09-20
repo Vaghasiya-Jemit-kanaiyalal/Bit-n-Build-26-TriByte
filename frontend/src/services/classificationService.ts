@@ -25,13 +25,56 @@ import type {
   WasteType,
 } from '../types/classification';
 
+const API_BASE = 'http://localhost:8000/api/v1';
+
+function getToken(): string | null {
+  return localStorage.getItem('ecotrack_token') || localStorage.getItem('wastewise_token');
+}
+
+function authHeaders(): Record<string, string> {
+  const token = getToken();
+  return token
+    ? { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }
+    : { 'Content-Type': 'application/json' };
+}
+
+async function apiFetch(url: string, init: RequestInit = {}): Promise<Response> {
+  const headers = {
+    ...authHeaders(),
+    ...((init.headers as Record<string, string>) || {}),
+  };
+  return fetch(url, { ...init, headers });
+}
+
 let reviewQueueStore: ClassificationEvent[] = [...MOCK_REVIEW_QUEUE];
 let liveEventsStore: ClassificationEvent[] = [...MOCK_LIVE_EVENTS];
 let historyStore: ClassificationEvent[] = [...MOCK_CLASSIFICATION_HISTORY];
 
 export const classificationService = {
   async getClassificationSummary(): Promise<ClassificationSummary> {
-    await new Promise((r) => setTimeout(r, 100));
+    try {
+      const res = await apiFetch(`${API_BASE}/admin/classification/summary`);
+      if (res.ok) {
+        const body = await res.json();
+        console.log('[classificationService] Summary loaded from FastAPI backend:', body);
+        return {
+          classifiedWeightTons: MOCK_CLASSIFICATION_SUMMARY.classifiedWeightTons,
+          accuracyPercent: Math.round((body.average_confidence || 0.942) * 1000) / 10,
+          accuracyTrend: MOCK_CLASSIFICATION_SUMMARY.accuracyTrend,
+          recyclablePercent: MOCK_CLASSIFICATION_SUMMARY.recyclablePercent,
+          nonRecyclablePercent: MOCK_CLASSIFICATION_SUMMARY.nonRecyclablePercent,
+          pendingReviewCount: body.low_confidence_count ?? MOCK_CLASSIFICATION_SUMMARY.pendingReviewCount,
+          lowConfidenceCount: body.low_confidence_count ?? MOCK_CLASSIFICATION_SUMMARY.lowConfidenceCount,
+          totalItemsClassified: body.total_classifications ?? MOCK_CLASSIFICATION_SUMMARY.totalItemsClassified,
+          highConfidenceItems: MOCK_CLASSIFICATION_SUMMARY.highConfidenceItems,
+          lastModelSync: body.last_classified_at ? new Date(body.last_classified_at).toLocaleString() : MOCK_CLASSIFICATION_SUMMARY.lastModelSync,
+          modelStatus: MOCK_CLASSIFICATION_SUMMARY.modelStatus,
+          engineStatus: MOCK_CLASSIFICATION_SUMMARY.engineStatus,
+        };
+      }
+    } catch (err) {
+      console.warn('[classificationService] Classification summary API unreachable, using fallback:', err);
+    }
     return {
       ...MOCK_CLASSIFICATION_SUMMARY,
       pendingReviewCount: reviewQueueStore.filter((r) => r.reviewStatus === 'PENDING').length,
