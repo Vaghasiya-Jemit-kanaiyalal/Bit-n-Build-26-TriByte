@@ -17,7 +17,6 @@ import {
   Moon,
 } from 'lucide-react';
 import NotificationToast from '../common/NotificationToast';
-import homeImg from '../../assets/home.png';
 
 import { UnifiedGisMap } from '../common/UnifiedGisMap';
 
@@ -65,9 +64,8 @@ export const ViewerPortal: React.FC<ViewerPortalProps> = ({ user, onSignOut }) =
       <header className={`px-6 py-3.5 border-b flex items-center justify-between transition-colors ${
         isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200 shadow-xs'
       }`}>
-        {/* Brand Logo Header with home.png in Big Size */}
+        {/* Brand Logo Header */}
         <div className="flex items-center gap-2.5">
-          <img src={homeImg} alt="EcoTrack Home Logo" className="h-10 w-10 object-contain drop-shadow-md shrink-0" />
           <div className="flex flex-col">
             <span className={`text-base font-extrabold leading-tight tracking-tight ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>EcoTrack</span>
             <span className={`text-[10px] font-bold ${isDarkMode ? 'text-emerald-400' : 'text-emerald-700'}`}>Viewer Console</span>

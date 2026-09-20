@@ -14,7 +14,6 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import type { UserSession } from '../../types/auth';
-import homeImg from '../../assets/home.png';
 
 interface DriverSidebarProps {
   activeTab: string;
@@ -49,14 +48,13 @@ export const DriverSidebar: React.FC<DriverSidebarProps> = ({
   return (
     <aside className="w-52 bg-white border-r border-slate-200 flex flex-col justify-between p-3 shrink-0 shadow-xs z-20">
       <div>
-        {/* Brand Header with home.png in Big Size */}
+        {/* Brand Header */}
         <button
           type="button"
           onClick={() => onNavigateTab('Dashboard')}
           className="flex items-center gap-2 px-1 py-1 mb-3 cursor-pointer bg-transparent border-none text-left hover:opacity-85 transition-opacity"
           title="Go to Dashboard"
         >
-          <img src={homeImg} alt="EcoTrack Home Logo" className="h-10 w-10 object-contain drop-shadow-md shrink-0" />
           <div className="flex flex-col">
             <span className="text-base font-extrabold text-emerald-950 leading-tight tracking-tight">EcoTrack</span>
             <span className="text-[10px] font-bold text-emerald-700 leading-none flex items-center gap-1">
