@@ -1,7 +1,7 @@
 import { initialRoutes, initialAlerts } from '../mock/routeData';
 import type { RouteItem, RouteAlert, BinStop } from '../mock/routeData';
 
-const API_BASE = 'http://localhost:8000/api/v1';
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
 let mockRouteStore: RouteItem[] = [...initialRoutes];
 let mockAlertStore: RouteAlert[] = [...initialAlerts];

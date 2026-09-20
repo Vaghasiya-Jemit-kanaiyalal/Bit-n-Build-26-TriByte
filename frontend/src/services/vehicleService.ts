@@ -1,7 +1,7 @@
 import { initialVehicles, initialVehicleAttentionItems } from '../mock/vehicleData';
 import type { VehicleItem, VehicleAttentionItem } from '../mock/vehicleData';
 
-const API_BASE = 'http://localhost:8000/api/v1';
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
 let mockVehicleStore: VehicleItem[] = [...initialVehicles];
 
