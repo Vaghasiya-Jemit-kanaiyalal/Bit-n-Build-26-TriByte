@@ -26,6 +26,7 @@ export const MonitoringPage: React.FC<MonitoringPageProps> = ({ onNavigateTab })
   // Live Simulation State
   const [isLive, setIsLive] = useState<boolean>(true);
   const [refreshInterval, setRefreshInterval] = useState<number>(5);
+  const [iotDemoActive, setIotDemoActive] = useState<boolean>(true);
   const [lastUpdated, setLastUpdated] = useState<string>(
     monitoringService.getLastUpdatedTimestamp()
   );
@@ -87,10 +88,41 @@ export const MonitoringPage: React.FC<MonitoringPageProps> = ({ onNavigateTab })
     });
   }, [filters]);
 
-  // Initial & Live Simulation Interval Setup
+  // IoT Demo Simulator Toggle Handler
+  const handleToggleIotDemo = async () => {
+    try {
+      const token = localStorage.getItem('ecotrack_token') || localStorage.getItem('wastewise_token');
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'}/admin/monitoring/iot-simulator/toggle`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setIotDemoActive(data.is_running);
+      } else {
+        setIotDemoActive(!iotDemoActive);
+      }
+    } catch {
+      setIotDemoActive(!iotDemoActive);
+    }
+  };
+
+  // Initial & Live Simulation Interval Setup + WebSocket Stream Connection
   useEffect(() => {
     refreshTelemetryData();
 
+    // 1. Connect WebSocket Real-Time Stream (Phase 2)
+    const cleanupWs = monitoringService.connectLiveTelemetryStream((payload) => {
+      if (payload.type === 'TELEMETRY_UPDATE') {
+        console.log('[MonitoringPage] Real-time WebSocket telemetry update received:', payload);
+        refreshTelemetryData();
+      }
+    });
+
+    // 2. Poll interval fallback
     if (isLive) {
       monitoringService.startSimulation((ts) => {
         setLastUpdated(ts);
@@ -100,11 +132,12 @@ export const MonitoringPage: React.FC<MonitoringPageProps> = ({ onNavigateTab })
       monitoringService.stopSimulation();
     }
 
-    // MANDATORY CLEANUP ON UNMOUNT
     return () => {
+      cleanupWs();
       monitoringService.stopSimulation();
     };
   }, [isLive, refreshInterval, refreshTelemetryData]);
+
 
   // Active Filter Count
   const activeFilterCount = useMemo(() => {
@@ -162,6 +195,8 @@ export const MonitoringPage: React.FC<MonitoringPageProps> = ({ onNavigateTab })
       <MonitoringHeader
         isLive={isLive}
         onToggleLive={() => setIsLive(!isLive)}
+        iotDemoActive={iotDemoActive}
+        onToggleIotDemo={handleToggleIotDemo}
         refreshInterval={refreshInterval}
         onRefreshIntervalChange={(sec) => setRefreshInterval(sec)}
         lastUpdated={lastUpdated}
@@ -175,6 +210,7 @@ export const MonitoringPage: React.FC<MonitoringPageProps> = ({ onNavigateTab })
         isFullscreenMap={isFullscreenMap}
         activeFilterCount={activeFilterCount}
       />
+
 
       {/* 2. Top 5 KPI Summary Cards */}
       <MonitoringKpiGrid summary={kpiSummary} onFilterClick={handleKpiFilterClick} />

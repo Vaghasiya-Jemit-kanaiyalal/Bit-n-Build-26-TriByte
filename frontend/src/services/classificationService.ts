@@ -165,6 +165,54 @@ export const classificationService = {
     return [...MOCK_CLASSIFICATION_INSIGHTS];
   },
 
+  async uploadImage(file: File, binId?: number): Promise<ClassificationEvent> {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      if (binId) {
+        formData.append('bin_id', String(binId));
+      }
+
+      const token = getToken();
+      const headers: Record<string, string> = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const res = await fetch(`${API_BASE}/admin/classification/upload`, {
+        method: 'POST',
+        headers,
+        body: formData,
+      });
+
+      if (res.ok) {
+        const item = await res.json();
+        console.log('[classificationService] Image uploaded & classified via backend API:', item);
+        const event: ClassificationEvent = {
+          id: `CLS-${String(item.id).padStart(5, '0')}`,
+          timestamp: new Date(item.classified_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+          date: new Date(item.classified_at).toISOString().split('T')[0],
+          binId: item.bin_code || (item.bin_id ? `BIN-${item.bin_id}` : 'BIN-C-101'),
+          zone: 'Uploaded Photo Zone',
+          location: file.name,
+          detectedCategory: (item.waste_type || 'PLASTIC') as WasteType,
+          confidence: Math.round((item.confidence || 0.95) * 100),
+          estimatedWeightKg: 2.5,
+          source: 'AI Vision',
+          status: item.is_low_confidence ? 'LOW_CONFIDENCE' : 'CONFIRMED',
+          reviewStatus: item.review_required ? 'PENDING' : 'CONFIRMED',
+        };
+        historyStore.unshift(event);
+        liveEventsStore.unshift(event);
+        return event;
+      }
+    } catch (err) {
+      console.warn('[classificationService] uploadImage failed, falling back to local vision simulation:', err);
+    }
+
+    return this.classifyWaste({ binId, source: 'IMAGE', imageReference: file.name });
+  },
+
   async classifyWaste(input: {
     binId?: number;
     source?: 'IMAGE' | 'SENSOR' | 'MANUAL' | 'AI_MODEL' | 'SIMULATION';
@@ -229,6 +277,7 @@ export const classificationService = {
     liveEventsStore.unshift(simulatedEvent);
     return simulatedEvent;
   },
+
 
   async getModelInformation(): Promise<ClassificationModel> {
     await new Promise((r) => setTimeout(r, 80));

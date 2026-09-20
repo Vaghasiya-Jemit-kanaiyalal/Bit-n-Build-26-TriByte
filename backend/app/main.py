@@ -21,12 +21,16 @@ logging.basicConfig(
 logger = logging.getLogger("ecotrack")
 
 
+from app.services.iot_simulator_service import iot_simulator
+
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """Application lifespan context for startup and shutdown management."""
     logger.info("Starting up EcoTrack AI Backend API...")
+    await iot_simulator.start_simulator()
     yield
     logger.info("Shutting down EcoTrack AI Backend API...")
+    await iot_simulator.stop_simulator()
     await engine.dispose()
 
 
@@ -129,5 +133,24 @@ async def health_check_db():
         )
 
 
+from fastapi import WebSocket, WebSocketDisconnect
+from app.core.websocket_manager import ws_manager
+
+@app.websocket("/api/v1/ws/telemetry")
+async def websocket_telemetry_endpoint(websocket: WebSocket):
+    await ws_manager.connect(websocket)
+    try:
+        while True:
+            # Keep connection open and listen for any client pings
+            data = await websocket.receive_text()
+            if data == "ping":
+                await websocket.send_json({"type": "PONG", "status": "ok"})
+    except WebSocketDisconnect:
+        ws_manager.disconnect(websocket)
+    except Exception as e:
+        logger.warning(f"WebSocket error: {e}")
+        ws_manager.disconnect(websocket)
+
 # Mount API Routers
 app.include_router(api_router, prefix=settings.API_V1_STR)
+

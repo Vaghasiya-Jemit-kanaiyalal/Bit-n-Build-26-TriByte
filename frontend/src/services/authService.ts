@@ -13,21 +13,14 @@ export interface LoginResponse {
     phone?: string;
     organization?: string;
     department?: string;
-    role: 'ADMIN' | 'DRIVER' | 'ANALYST';
+    role: 'ADMIN' | 'DRIVER' | 'ANALYST' | 'VIEWER';
     status: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED';
     created_at: string;
     last_login?: string;
   };
 }
 
-export const redirectUserByRole = (role?: string, email?: string): string => {
-  const cleanEmail = (email || '').toLowerCase().trim();
-  if (cleanEmail.endsWith('@driver.gmail.com')) {
-    return '/driver/dashboard';
-  }
-  if (cleanEmail.endsWith('@analyst.gmail.com')) {
-    return '/analyst/dashboard';
-  }
+export const redirectUserByRole = (role?: string): string => {
   const normalizedRole = (role || '').toUpperCase();
   if (normalizedRole === 'ADMIN') {
     return '/admin/dashboard';
@@ -38,8 +31,11 @@ export const redirectUserByRole = (role?: string, email?: string): string => {
   if (normalizedRole === 'ANALYST') {
     return '/analyst/dashboard';
   }
-  console.warn(`Unknown user role received: "${role}". Redirecting to /login safe state.`);
-  return '/login';
+  if (normalizedRole === 'VIEWER') {
+    return '/viewer/dashboard';
+  }
+  console.warn(`Unknown user role received: "${role}". Redirecting to /viewer/dashboard safe state.`);
+  return '/viewer/dashboard';
 };
 
 export const authService = {
@@ -181,10 +177,23 @@ export const authService = {
       return this.makeMockResponse(capitalized, 'Analyst', normalized, 'ANALYST', 'ACTIVE');
     }
 
+    // Default registered / newly created user fallback
+    if (pass && pass.length >= 6) {
+      const namePart = normalized.split('@')[0];
+      const capitalized = namePart.charAt(0).toUpperCase() + namePart.slice(1);
+      return this.makeMockResponse(capitalized, 'User', normalized, 'VIEWER', 'ACTIVE');
+    }
+
     throw new Error('Invalid email or password.');
   },
 
-  makeMockResponse(first: string, last: string, email: string, role: 'ADMIN' | 'DRIVER' | 'ANALYST', status: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED'): LoginResponse {
+  makeMockResponse(
+    first: string,
+    last: string,
+    email: string,
+    role: 'ADMIN' | 'DRIVER' | 'ANALYST' | 'VIEWER',
+    status: 'ACTIVE' | 'INACTIVE' | 'SUSPENDED'
+  ): LoginResponse {
     const userObj = {
       id: 'mock-' + Date.now(),
       first_name: first,

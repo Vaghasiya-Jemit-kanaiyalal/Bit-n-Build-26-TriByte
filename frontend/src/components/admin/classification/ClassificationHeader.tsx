@@ -1,5 +1,5 @@
-import React from 'react';
-import { Calendar, Filter, RefreshCw, Download, Sparkles } from 'lucide-react';
+import React, { useRef } from 'react';
+import { Calendar, Filter, RefreshCw, Download, Sparkles, Upload } from 'lucide-react';
 import type { DateRangeOption, WasteType } from '../../../types/classification';
 
 interface ClassificationHeaderProps {
@@ -11,6 +11,7 @@ interface ClassificationHeaderProps {
   onWasteTypeChange: (type: WasteType | 'ALL') => void;
   onRefresh: () => void;
   onExport: (type: 'all' | 'composition' | 'review' | 'zone') => void;
+  onUploadImage?: (file: File) => void;
 }
 
 export const ClassificationHeader: React.FC<ClassificationHeaderProps> = ({
@@ -22,7 +23,17 @@ export const ClassificationHeader: React.FC<ClassificationHeaderProps> = ({
   onWasteTypeChange,
   onRefresh,
   onExport,
+  onUploadImage,
 }) => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && onUploadImage) {
+      onUploadImage(file);
+    }
+  };
+
   const dateOptions: DateRangeOption[] = [
     'Today',
     'Last 7 Days',
@@ -54,6 +65,15 @@ export const ClassificationHeader: React.FC<ClassificationHeaderProps> = ({
 
   return (
     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-2 border-b border-slate-200">
+      {/* Hidden File Input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleFileChange}
+        className="hidden"
+      />
+
       {/* Title & Breadcrumb */}
       <div>
         <div className="flex items-center gap-2 text-[11px] font-semibold text-slate-400 tracking-wider uppercase mb-1">
@@ -67,12 +87,21 @@ export const ClassificationHeader: React.FC<ClassificationHeaderProps> = ({
           Waste Classification & Material Intelligence
         </h1>
         <p className="text-xs text-slate-500 font-medium mt-0.5 max-w-2xl leading-relaxed">
-          Monitor AI-based waste classification, review uncertain results, and understand recyclable waste composition across the network.
+          Monitor AI-based waste classification, upload waste photos for instant inference, and review material composition.
         </p>
       </div>
 
       {/* Control Toolbar */}
       <div className="flex flex-wrap items-center gap-2 shrink-0">
+        {/* Upload Image Button */}
+        <button
+          onClick={() => fileInputRef.current?.click()}
+          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg transition-colors shadow-xs cursor-pointer"
+        >
+          <Upload className="w-3.5 h-3.5" />
+          <span>Upload Waste Photo</span>
+        </button>
+
         {/* Date Range Selector */}
         <div className="flex items-center gap-1.5 bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 shadow-xs">
           <Calendar className="w-3.5 h-3.5 text-slate-400" />
@@ -123,7 +152,7 @@ export const ClassificationHeader: React.FC<ClassificationHeaderProps> = ({
         {/* Refresh Button */}
         <button
           onClick={onRefresh}
-          className="p-2 text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg transition-colors shadow-xs"
+          className="p-2 text-slate-600 hover:text-slate-900 bg-white border border-slate-200 hover:bg-slate-50 rounded-lg transition-colors shadow-xs cursor-pointer"
           title="Refresh classification data"
         >
           <RefreshCw className="w-3.5 h-3.5" />
@@ -133,7 +162,7 @@ export const ClassificationHeader: React.FC<ClassificationHeaderProps> = ({
         <div className="relative group">
           <button
             onClick={() => onExport('all')}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 rounded-lg transition-colors shadow-sm"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 rounded-lg transition-colors shadow-sm cursor-pointer"
           >
             <Download className="w-3.5 h-3.5" />
             <span>Export</span>
@@ -143,3 +172,4 @@ export const ClassificationHeader: React.FC<ClassificationHeaderProps> = ({
     </div>
   );
 };
+

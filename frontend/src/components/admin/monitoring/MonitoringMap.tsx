@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import type { MonitoredBin, MonitoredVehicle, MonitoredRoute } from '../../../types/monitoring';
+import type { ZoneName } from '../../../types/bin';
+import { binService } from '../../../services/binService';
 import {
   Plus,
   Minus,
@@ -12,9 +14,9 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
-  Layers,
-  Grid,
-  Map as MapIcon,
+  Search,
+  Globe,
+  PlusCircle,
 } from 'lucide-react';
 
 interface MonitoringMapProps {
@@ -35,7 +37,7 @@ interface MonitoringMapProps {
 }
 
 export const MonitoringMap: React.FC<MonitoringMapProps> = ({
-  bins,
+  bins: initialBins,
   onSelectBin,
   isFullscreen = false,
   onToggleFullscreen,
@@ -43,12 +45,32 @@ export const MonitoringMap: React.FC<MonitoringMapProps> = ({
   showRoutes: _propShowRoutes = true,
   showBinLabels: _propShowBinLabels = true,
 }) => {
-  // Map Modes: 'map' (Realistic Campus Map) vs 'vector' (Vector Grid)
+  // Map Modes & Views
   const [mapType, setMapType] = useState<'map' | 'vector'>('map');
+  const [satelliteView, setSatelliteView] = useState<boolean>(false);
   const [zoomLevel, setZoomLevel] = useState<number>(0.7);
   const [panPosition, setPanPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const [dragStart, setDragStart] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+
+  // Phase 4 & 5: Search & Area Selection Hierarchy
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [selectedArea, setSelectedArea] = useState<string>('All Areas');
+
+  // Phase 6: Functional Bin Allocation State
+  const [isAllocatingBin, setIsAllocatingBin] = useState<boolean>(false);
+  const [allocationModal, setAllocationModal] = useState<{ open: boolean; x: number; y: number } | null>(null);
+  const [allocBinCode, setAllocBinCode] = useState<string>('');
+  const [allocWasteType, setAllocWasteType] = useState<string>('Plastic');
+  const [allocCapacity, setAllocCapacity] = useState<number>(240);
+  const [allocZone, setAllocZone] = useState<string>('Academic Block');
+  const [allocAddress, setAllocAddress] = useState<string>('Campus Gate 3');
+
+  // Local allocated bins list
+  const [allocatedBinsList, setAllocatedBinsList] = useState<MonitoredBin[]>([]);
+
+  // Combined bins
+  const bins = [...allocatedBinsList, ...initialBins];
 
   // Native Fullscreen API state tracking
   const [isNativeFullscreen, setIsNativeFullscreen] = useState<boolean>(false);
@@ -72,6 +94,7 @@ export const MonitoringMap: React.FC<MonitoringMapProps> = ({
   const [openPopupBin, setOpenPopupBin] = useState<MonitoredBin | null>(
     bins.find((b) => b.binCode === 'CSE-001' || b.fillPercent >= 90) || bins[0] || null
   );
+
 
   const containerRef = useRef<HTMLDivElement>(null);
   const mapWidth = 1000;
@@ -265,6 +288,63 @@ export const MonitoringMap: React.FC<MonitoringMapProps> = ({
     { num: 5, x: 510, y: 550 },
   ];
 
+  const handleMapCanvasClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isAllocatingBin) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const clickX = Math.round(e.clientX - rect.left);
+    const clickY = Math.round(e.clientY - rect.top);
+
+    setAllocationModal({ open: true, x: clickX, y: clickY });
+    setAllocBinCode(`BIN-${Math.floor(1000 + Math.random() * 9000)}`);
+  };
+
+  const handleSaveAllocatedBin = async () => {
+    if (!allocationModal) return;
+
+    try {
+      const created = await binService.createBin({
+        code: allocBinCode || `BIN-${Math.floor(1000 + Math.random() * 9000)}`,
+        name: allocAddress,
+        address: allocAddress,
+        zone: allocZone as ZoneName,
+        capacityLiters: allocCapacity,
+        wasteType: allocWasteType as any,
+        latitude: 22.3 + (allocationModal.y / mapHeight) * 0.1,
+        longitude: 73.1 + (allocationModal.x / mapWidth) * 0.1,
+      });
+
+      const mapWaste: MonitoredBin['wasteType'] = allocWasteType === 'Organic' ? 'Organic' : allocWasteType === 'Recyclable' ? 'Recyclable' : 'General';
+      const mapStatus: MonitoredBin['status'] = created.status === 'Critical' ? 'Critical' : created.status === 'Warning' ? 'Warning' : 'Normal';
+
+      const newMonitoredBin: MonitoredBin = {
+        id: created.id,
+        binCode: created.id,
+        location: created.address,
+        zone: 'Central Zone',
+        fillPercent: created.currentFillPercent,
+        capacityLiters: created.capacityLiters,
+        status: mapStatus,
+        wasteType: mapWaste,
+        sensorId: created.sensor.sensorId,
+        batteryPercent: 98,
+        signalStrength: 'Strong',
+        lastUpdate: 'Just now',
+        predictedOverflowMinutes: 1080,
+        x: allocationModal.x,
+        y: allocationModal.y,
+      };
+
+      setAllocatedBinsList((prev) => [newMonitoredBin, ...prev]);
+      setOpenPopupBin(newMonitoredBin);
+      onSelectBin(newMonitoredBin);
+    } catch (err) {
+      console.warn('Bin allocation save error:', err);
+    }
+
+    setAllocationModal(null);
+    setIsAllocatingBin(false);
+  };
+
   return (
     <div
       ref={containerRef}
@@ -279,44 +359,107 @@ export const MonitoringMap: React.FC<MonitoringMapProps> = ({
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
     >
+      {/* Active Allocation Mode Banner */}
+      {isAllocatingBin && (
+        <div className="bg-emerald-600 text-white px-4 py-2 text-xs font-bold flex items-center justify-between z-40 animate-pulse">
+          <span className="flex items-center gap-2">
+            <PlusCircle className="w-4 h-4" />
+            <span>BIN ALLOCATION MODE ACTIVE: Click anywhere on the map to place a new Smart Bin.</span>
+          </span>
+          <button
+            onClick={() => setIsAllocatingBin(false)}
+            className="px-2 py-1 bg-emerald-800 hover:bg-emerald-900 rounded text-[11px] cursor-pointer"
+          >
+            Cancel Allocation
+          </button>
+        </div>
+      )}
+
       {/* 1. TOP CONTROL BAR */}
       <div className="bg-white border-b border-slate-200 p-3 flex flex-wrap items-center justify-between gap-3 z-30 select-none">
-        {/* Left: Map Mode Toggles: Realistic Map vs Vector Grid */}
-        <div className="flex items-center gap-2">
-          {mapType === 'vector' && (
-            <div className="flex items-center gap-2 pr-2 border-r border-slate-200">
-              <Layers className="w-4 h-4 text-emerald-600" />
-              <span className="font-extrabold text-sm text-slate-800">Vector Operations Grid</span>
-              <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
-                7 Operational Zones
-              </span>
-            </div>
-          )}
+        {/* Left: Search & Area Hierarchy & Map Mode Toggles */}
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Search Location Input */}
+          <div className="relative flex items-center bg-slate-100 border border-slate-200 rounded-xl px-2.5 py-1 text-xs">
+            <Search className="w-3.5 h-3.5 text-slate-400 mr-1.5" />
+            <input
+              type="text"
+              placeholder="Search location / bin..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="bg-transparent text-slate-800 focus:outline-none w-32 sm:w-40 font-medium"
+            />
+          </div>
 
+          {/* Area Selection Hierarchy Dropdown */}
+          <div className="flex items-center bg-slate-100 border border-slate-200 rounded-xl px-2.5 py-1 text-xs">
+            <Globe className="w-3.5 h-3.5 text-emerald-600 mr-1.5" />
+            <select
+              value={selectedArea}
+              onChange={(e) => {
+                setSelectedArea(e.target.value);
+                setPanPosition({ x: 0, y: 0 });
+                setZoomLevel(e.target.value === 'All Areas' ? 0.7 : 1.1);
+              }}
+              className="bg-transparent font-bold text-slate-800 focus:outline-none cursor-pointer"
+            >
+              <option value="All Areas">India &gt; Gujarat &gt; Vadodara (All Areas)</option>
+              <option value="CSE Block">Vadodara &gt; CSE &amp; Tech Block</option>
+              <option value="Hostel Block A">Vadodara &gt; Hostel Zone A</option>
+              <option value="Hostel Block B">Vadodara &gt; Hostel Zone B</option>
+              <option value="Library">Vadodara &gt; Library &amp; Academic Zone</option>
+              <option value="East Campus">Vadodara &gt; East Campus &amp; Cafeteria</option>
+              <option value="Sports Complex">Vadodara &gt; Sports Complex</option>
+            </select>
+          </div>
+
+          {/* Map View Mode Toggle */}
           <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs">
             <button
-              onClick={() => setMapType('map')}
-              className={`px-3.5 py-1.5 rounded-lg font-bold transition-all cursor-pointer border-none flex items-center gap-1.5 ${
-                mapType === 'map'
+              onClick={() => { setMapType('map'); setSatelliteView(false); }}
+              className={`px-3 py-1 rounded-lg font-bold transition-all cursor-pointer border-none ${
+                mapType === 'map' && !satelliteView
                   ? 'bg-[#064e3b] text-white shadow-xs'
                   : 'text-slate-600 hover:text-slate-900 bg-transparent'
               }`}
             >
-              <MapIcon className="w-3.5 h-3.5" />
-              <span>Realistic Map</span>
+              Normal View
+            </button>
+            <button
+              onClick={() => { setMapType('map'); setSatelliteView(true); }}
+              className={`px-3 py-1 rounded-lg font-bold transition-all cursor-pointer border-none ${
+                mapType === 'map' && satelliteView
+                  ? 'bg-slate-900 text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 bg-transparent'
+              }`}
+            >
+              Satellite View
             </button>
             <button
               onClick={() => setMapType('vector')}
-              className={`px-3.5 py-1.5 rounded-lg font-bold transition-all cursor-pointer border-none flex items-center gap-1.5 ${
+              className={`px-3 py-1 rounded-lg font-bold transition-all cursor-pointer border-none ${
                 mapType === 'vector'
-                  ? 'bg-[#064e3b] text-white shadow-xs'
+                  ? 'bg-emerald-600 text-white shadow-xs'
                   : 'text-slate-600 hover:text-slate-900 bg-transparent'
               }`}
             >
-              <Grid className="w-3.5 h-3.5" />
-              <span>Vector Grid</span>
+              Vector View
             </button>
           </div>
+
+          {/* Allocate Bin Trigger */}
+          <button
+            onClick={() => setIsAllocatingBin(!isAllocatingBin)}
+            className={`px-3 py-1.5 rounded-xl font-extrabold text-xs cursor-pointer flex items-center gap-1.5 transition-all border ${
+              isAllocatingBin
+                ? 'bg-emerald-700 text-white border-emerald-800 animate-pulse'
+                : 'bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-100'
+            }`}
+            title="Allocate new smart bin on map"
+          >
+            <PlusCircle className="w-3.5 h-3.5" />
+            <span>{isAllocatingBin ? 'Placing Bin...' : 'Allocate Bin'}</span>
+          </button>
         </div>
 
         {/* Center / Right Controls */}
@@ -445,9 +588,10 @@ export const MonitoringMap: React.FC<MonitoringMapProps> = ({
 
       {/* 2. MAIN MAP CANVAS AREA */}
       <div
+        onClick={handleMapCanvasClick}
         className={`relative flex-1 w-full h-full overflow-hidden flex items-center justify-center ${
           mapType === 'vector' ? 'bg-[#f8fafc]' : 'bg-[#eef2f5]'
-        } ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+        } ${isDragging ? 'cursor-grabbing' : isAllocatingBin ? 'cursor-crosshair' : 'cursor-grab'}`}
       >
         {/* MAP CANVAS VIEW TRANSFORM WRAPPER */}
         <div
@@ -1125,6 +1269,108 @@ export const MonitoringMap: React.FC<MonitoringMapProps> = ({
                   <div className="text-[11px] text-slate-400 font-mono pt-1">
                     Predicted: {(openPopupBin as any).predicted || '~ 4 hours'}
                   </div>
+                </div>
+              </div>
+            )}
+
+            {/* NEW SMART BIN ALLOCATION MODAL POPUP */}
+            {allocationModal?.open && (
+              <div
+                style={{
+                  position: 'absolute',
+                  left: `${(allocationModal.x / mapWidth) * 100}%`,
+                  top: `${(allocationModal.y / mapHeight) * 100}%`,
+                  transform: 'translate(-50%, -110%)',
+                }}
+                className="z-50 w-64 bg-white rounded-2xl shadow-2xl border border-emerald-500 p-4 space-y-3 animate-in fade-in duration-200 text-slate-800 interactive-marker"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                  <div className="flex items-center gap-2">
+                    <PlusCircle className="w-4 h-4 text-emerald-600" />
+                    <span className="font-extrabold text-sm text-slate-900 font-mono">
+                      Allocate Bin
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => setAllocationModal(null)}
+                    className="p-1 text-slate-400 hover:text-slate-700 rounded-md cursor-pointer"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <div className="space-y-2 text-xs">
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-500 mb-0.5">Bin Code</label>
+                    <input
+                      type="text"
+                      value={allocBinCode}
+                      onChange={(e) => setAllocBinCode(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1 font-mono font-bold text-slate-800"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-500 mb-0.5">Waste Type</label>
+                      <select
+                        value={allocWasteType}
+                        onChange={(e) => setAllocWasteType(e.target.value)}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 font-bold text-slate-800"
+                      >
+                        <option value="Plastic">Plastic</option>
+                        <option value="Organic">Organic</option>
+                        <option value="Paper">Paper</option>
+                        <option value="General">General</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-500 mb-0.5">Capacity (L)</label>
+                      <input
+                        type="number"
+                        value={allocCapacity}
+                        onChange={(e) => setAllocCapacity(Number(e.target.value))}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 font-bold text-slate-800"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-500 mb-0.5">Zone</label>
+                    <input
+                      type="text"
+                      value={allocZone}
+                      onChange={(e) => setAllocZone(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1 font-bold text-slate-800"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-500 mb-0.5">Location Address</label>
+                    <input
+                      type="text"
+                      value={allocAddress}
+                      onChange={(e) => setAllocAddress(e.target.value)}
+                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1 font-bold text-slate-800"
+                    />
+                  </div>
+                </div>
+
+                <div className="pt-2 flex items-center justify-end gap-2">
+                  <button
+                    onClick={() => setAllocationModal(null)}
+                    className="px-3 py-1.5 rounded-xl border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSaveAllocatedBin}
+                    className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold cursor-pointer shadow-xs"
+                  >
+                    Save Allocation
+                  </button>
                 </div>
               </div>
             )}

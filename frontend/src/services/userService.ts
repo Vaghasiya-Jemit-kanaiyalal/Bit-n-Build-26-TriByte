@@ -70,14 +70,16 @@ function apiUserToPlatformUser(u: any): PlatformUser {
     .map((w: string) => w[0].toUpperCase())
     .join('');
 
-  const role: UserRole = (['ADMIN', 'DRIVER', 'ANALYST'].includes(u.role) ? u.role : 'ANALYST') as UserRole;
+  const role: UserRole = (['ADMIN', 'DRIVER', 'ANALYST', 'VIEWER'].includes(u.role) ? u.role : 'VIEWER') as UserRole;
 
   const bgColor =
     role === 'ADMIN'
       ? 'bg-[#064e3b] text-white'
       : role === 'DRIVER'
       ? 'bg-emerald-600 text-white'
-      : 'bg-purple-700 text-white';
+      : role === 'ANALYST'
+      ? 'bg-purple-700 text-white'
+      : 'bg-slate-700 text-white';
 
   const lastLogin = u.last_login
     ? new Date(u.last_login).toLocaleString('en-GB', {
@@ -115,7 +117,13 @@ function apiUserToPlatformUser(u: any): PlatformUser {
     assignedRouteId: u.assigned_route_id || undefined,
     analyticsScope: u.analytics_scope || (role === 'ANALYST' ? 'All Zones' : undefined),
     accessScope:
-      role === 'ADMIN' ? 'Full Platform' : role === 'ANALYST' ? 'Analytics Only' : 'Operational Only',
+      role === 'ADMIN'
+        ? 'Full Platform'
+        : role === 'ANALYST'
+        ? 'Analytics Only'
+        : role === 'DRIVER'
+        ? 'Operational Only'
+        : 'Read Only',
     avatarInitials: initials || '?',
     avatarBgColor: bgColor,
     lastActiveAt: u.last_login ? lastLogin : 'Never',
@@ -260,15 +268,8 @@ export const userService = {
   async createUser(userData: any): Promise<PlatformUser> {
     const fName = (userData.firstName || userData.first_name || '').trim();
     const lName = (userData.lastName || userData.last_name || '').trim();
-    const targetRole: UserRole = userData.role || 'DRIVER';
+    const targetRole: UserRole = userData.role || 'VIEWER';
     const emailLow = (userData.email || '').toLowerCase().trim();
-
-    if (targetRole === 'DRIVER' && !emailLow.endsWith('@driver.gmail.com')) {
-      throw new Error('Collection Driver accounts must use an @driver.gmail.com email.');
-    }
-    if (targetRole === 'ANALYST' && !emailLow.endsWith('@analyst.gmail.com')) {
-      throw new Error('Operations Analyst accounts must use an @analyst.gmail.com email.');
-    }
 
     const payload = {
       first_name: fName,

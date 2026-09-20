@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.classification.engine import ClassificationEngine, ClassificationInput
-from app.classification.mock_engine import MockClassificationEngine
+from app.classification.vision_engine import VisionClassificationEngine
 from app.core.config import settings
 from app.models.bin import Bin, WasteType
 from app.models.bin_collection import BinCollectionHistory
@@ -25,7 +25,40 @@ from app.schemas.classification import (
 
 class ClassificationService:
     def __init__(self, engine: Optional[ClassificationEngine] = None):
-        self.engine = engine or MockClassificationEngine()
+        self.engine = engine or VisionClassificationEngine()
+
+    async def classify_uploaded_image(
+        self, db: AsyncSession, image_bytes: bytes, filename: str, bin_id: Optional[int] = None
+    ) -> ClassificationResponse:
+        vision_engine = self.engine if isinstance(self.engine, VisionClassificationEngine) else VisionClassificationEngine()
+        w_type, conf, meta = vision_engine.analyze_image_bytes(image_bytes, filename=filename)
+
+        bin_obj: Optional[Bin] = None
+        if bin_id:
+            res = await db.execute(select(Bin).where(Bin.id == bin_id))
+            bin_obj = res.scalars().first()
+
+        now = datetime.now(timezone.utc)
+        record = WasteClassification(
+            uuid=uuid.uuid4(),
+            bin_id=bin_id,
+            waste_type=w_type,
+            confidence=conf,
+            source="IMAGE",
+            model_name=vision_engine.model_name,
+            model_version=vision_engine.model_version,
+            image_reference=filename,
+            metadata_json={**meta, "original_filename": filename},
+            is_low_confidence=conf < vision_engine.low_confidence_threshold,
+            classified_at=now,
+            created_at=now,
+        )
+        db.add(record)
+        await db.commit()
+        await db.refresh(record)
+
+        return self._to_response(record, bin_code=bin_obj.bin_code if bin_obj else None)
+
 
     async def create_classification(
         self, db: AsyncSession, request: ClassificationCreateRequest

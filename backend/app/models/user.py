@@ -19,6 +19,7 @@ class UserRole(str, enum.Enum):
     ADMIN = "ADMIN"
     DRIVER = "DRIVER"
     ANALYST = "ANALYST"
+    VIEWER = "VIEWER"
 
 
 class UserStatus(str, enum.Enum):
@@ -53,7 +54,7 @@ class User(Base):
     
     role: Mapped[UserRole] = mapped_column(
         SQLEnum(UserRole, name="platform_user_role", native_enum=False),
-        default=UserRole.ANALYST,
+        default=UserRole.VIEWER,
         nullable=False,
         index=True,
     )

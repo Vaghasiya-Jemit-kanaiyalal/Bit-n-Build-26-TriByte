@@ -445,6 +445,8 @@ export const binService = {
   },
 
   exportBinsCSV(bins: SmartBin[]): string {
+
+
     const headers = [
       'Bin ID',
       'Name',

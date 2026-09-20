@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calendar, RefreshCw } from 'lucide-react';
+import { Calendar, RefreshCw, Cpu } from 'lucide-react';
 
 interface MonitoringHeaderProps {
   isLive: boolean;
@@ -16,14 +16,16 @@ interface MonitoringHeaderProps {
   onToggleFullscreenMap?: () => void;
   isFullscreenMap?: boolean;
   activeFilterCount?: number;
+  iotDemoActive?: boolean;
+  onToggleIotDemo?: () => void;
 }
 
 export const MonitoringHeader: React.FC<MonitoringHeaderProps> = ({
   isLive,
   onToggleLive,
   onManualRefresh,
-  onToggleFullscreenMap: _onToggleFullscreenMap,
-  isFullscreenMap: _isFullscreenMap = false,
+  iotDemoActive = true,
+  onToggleIotDemo,
 }) => {
   return (
     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-2">
@@ -33,16 +35,32 @@ export const MonitoringHeader: React.FC<MonitoringHeaderProps> = ({
           Bin Map
         </h1>
         <p className="text-xs sm:text-sm text-slate-500 font-medium mt-1">
-          Live locations, fill levels and collection routes across the campus.
+          Live IoT telemetry, fill level predictions, vehicle tracking and collection routes.
         </p>
       </div>
 
       {/* Right Header Actions */}
       <div className="flex items-center gap-3 shrink-0">
+        {/* IoT Demo Mode Control Button */}
+        {onToggleIotDemo && (
+          <button
+            onClick={onToggleIotDemo}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+              iotDemoActive
+                ? 'bg-blue-50 text-blue-800 border-blue-200 hover:bg-blue-100 shadow-2xs'
+                : 'bg-slate-100 text-slate-600 border-slate-300 hover:bg-slate-200'
+            }`}
+            title="Toggle IoT Telemetry Simulator Demo Mode"
+          >
+            <Cpu className={`w-3.5 h-3.5 ${iotDemoActive ? 'text-blue-600 animate-spin-slow' : 'text-slate-400'}`} />
+            <span>IoT Demo: {iotDemoActive ? 'ON' : 'OFF'}</span>
+          </button>
+        )}
+
         {/* Date & Time display */}
         <div className="flex items-center gap-2 bg-white border border-slate-200/80 shadow-2xs rounded-xl px-3.5 py-2 text-xs font-semibold text-slate-700">
           <Calendar className="w-4 h-4 text-slate-400" />
-          <span>Sep 19, 2026 11:24 AM</span>
+          <span>Sep 20, 2026 10:20 AM</span>
         </div>
 
         {/* Live Indicator Pill */}
@@ -71,3 +89,4 @@ export const MonitoringHeader: React.FC<MonitoringHeaderProps> = ({
     </div>
   );
 };
+

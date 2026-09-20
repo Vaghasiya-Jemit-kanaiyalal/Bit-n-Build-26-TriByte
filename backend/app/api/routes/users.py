@@ -195,26 +195,12 @@ async def admin_update_user(
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
 
-    target_role = data.role if data.role is not None else user.role
-    target_email = data.email.lower().strip() if data.email is not None else user.email.lower().strip()
-
-    if target_role == UserRole.DRIVER and not target_email.endswith("@driver.gmail.com"):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Collection Driver accounts must use an @driver.gmail.com email.",
-        )
-    if target_role == UserRole.ANALYST and not target_email.endswith("@analyst.gmail.com"):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Operations Analyst accounts must use an @analyst.gmail.com email.",
-        )
-
     if data.first_name is not None:
         user.first_name = data.first_name.strip()
     if data.last_name is not None:
         user.last_name = data.last_name.strip()
     if data.email is not None:
-        user.email = target_email
+        user.email = data.email.lower().strip()
     if data.phone is not None:
         user.phone = data.phone.strip()
     if data.role is not None:
@@ -247,18 +233,6 @@ async def admin_change_role(
     user = await find_user_by_id_or_uuid(db, user_id)
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
-
-    target_email = user.email.lower().strip()
-    if data.role == UserRole.DRIVER and not target_email.endswith("@driver.gmail.com"):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Collection Driver accounts must use an @driver.gmail.com email.",
-        )
-    if data.role == UserRole.ANALYST and not target_email.endswith("@analyst.gmail.com"):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Operations Analyst accounts must use an @analyst.gmail.com email.",
-        )
 
     user.role = data.role
     await db.commit()

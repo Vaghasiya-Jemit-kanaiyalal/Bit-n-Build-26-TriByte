@@ -16,7 +16,6 @@ import {
   Cpu,
   BrainCircuit,
   CalendarCheck,
-  Clock,
   FileText,
 } from 'lucide-react';
 import type { UserSession } from '../../types/auth';
@@ -144,30 +143,27 @@ interface EcoTrackDashboardProps {
 }
 
 export const EcoTrackDashboard: React.FC<EcoTrackDashboardProps> = ({ user, onSignOut }) => {
-  // Derive normalized role with email domain priority
-  const cleanEmail = (user.email || '').toLowerCase().trim();
-  const userRole: 'ADMIN' | 'DRIVER' | 'ANALYST' = cleanEmail.endsWith('@driver.gmail.com')
+  // Derive normalized role strictly from user.role property
+  const rawRole = (user.role || '').toUpperCase();
+  const userRole: 'ADMIN' | 'ANALYST' | 'DRIVER' | 'VIEWER' = rawRole.includes('ADMIN')
+    ? 'ADMIN'
+    : rawRole.includes('DRIVER')
     ? 'DRIVER'
-    : cleanEmail.endsWith('@analyst.gmail.com')
-      ? 'ANALYST'
-      : (user.role || '').toUpperCase().includes('ADMIN') || user.displayRole === 'Waste Manager'
-        ? 'ADMIN'
-        : (user.role || '').toUpperCase().includes('DRIVER') || user.displayRole === 'Collection Driver'
-          ? 'DRIVER'
-          : 'ANALYST';
+    : rawRole.includes('VIEWER')
+    ? 'VIEWER'
+    : 'ANALYST';
 
   // Route protection guard: Redirect Collection Driver to DriverPortal
-  const rawRole = (user.role || '').toUpperCase();
-  if (userRole === 'DRIVER' || rawRole === 'DRIVER' || user.role === 'Collection Driver' || user.displayRole === 'Collection Driver') {
+  if (userRole === 'DRIVER' || user.role === 'Collection Driver' || user.displayRole === 'Collection Driver') {
     return <DriverPortal user={user} onSignOut={onSignOut} />;
   }
 
   const roleLabel =
     userRole === 'ADMIN'
       ? 'Waste Manager'
-      : (userRole as any) === 'DRIVER'
-        ? 'Collection Driver'
-        : 'Operations Analyst';
+      : userRole === 'VIEWER'
+      ? 'System Viewer'
+      : 'Operations Analyst';
 
   const initialPath = typeof window !== 'undefined' ? window.location.pathname : '/';
   const [activeTab, setActiveTab] = useState<string>(() => getTabFromPath(initialPath, userRole));
@@ -215,49 +211,37 @@ export const EcoTrackDashboard: React.FC<EcoTrackDashboardProps> = ({ user, onSi
   const navMain =
     userRole === 'ADMIN'
       ? [
-        { name: 'Dashboard', icon: LayoutDashboard },
-        { name: 'Bins', icon: Trash2 },
-        { name: 'Monitoring', icon: MapPin },
-        { name: 'Classification', icon: Cpu },
-        { name: 'Predictions', icon: BrainCircuit },
-        { name: 'Planning', icon: CalendarCheck },
-        { name: 'Routes', icon: RouteIcon },
-        { name: 'Vehicles', icon: Truck },
-        { name: 'Alerts', icon: Bell },
-        { name: 'Analytics', icon: BarChart3 },
-      ]
-      : (userRole as any) === 'DRIVER'
-        ? [
           { name: 'Dashboard', icon: LayoutDashboard },
-          { name: 'My Route', icon: RouteIcon },
           { name: 'Bins', icon: Trash2 },
-          { name: 'Collection', icon: CalendarCheck },
-          { name: 'Vehicle', icon: Truck },
-          { name: 'History', icon: Clock },
-          { name: 'Notifications', icon: Bell },
+          { name: 'Monitoring', icon: MapPin },
+          { name: 'Classification', icon: Cpu },
+          { name: 'Predictions', icon: BrainCircuit },
+          { name: 'Planning', icon: CalendarCheck },
+          { name: 'Routes', icon: RouteIcon },
+          { name: 'Vehicles', icon: Truck },
+          { name: 'Alerts', icon: Bell },
+          { name: 'Analytics', icon: BarChart3 },
         ]
-        : [
+      : [
           { name: 'Dashboard', icon: LayoutDashboard },
           { name: 'Analytics', icon: BarChart3 },
-          { name: 'Waste Analytics', icon: Trash2 },
           { name: 'Prediction Analytics', icon: BrainCircuit },
           { name: 'Collection Analytics', icon: Activity },
           { name: 'Area Analysis', icon: MapPin },
           { name: 'Recycling Analytics', icon: Leaf },
           { name: 'Reports', icon: FileText },
-          { name: 'Notifications', icon: Bell },
+          { name: 'Monitoring', icon: MapPin },
         ];
 
   const navAdmin =
     userRole === 'ADMIN'
       ? [
-        { name: 'Users', icon: Users },
-        { name: 'Settings', icon: Settings },
-      ]
+          { name: 'Users', icon: Users },
+          { name: 'Settings', icon: Settings },
+        ]
       : [
-        { name: 'Profile', icon: Users },
-        { name: 'Settings', icon: Settings },
-      ];
+          { name: 'Settings', icon: Settings },
+        ];
 
   return (
     <div className="min-h-screen bg-[#f8fafc] text-slate-800 font-sans flex flex-row overflow-x-hidden">

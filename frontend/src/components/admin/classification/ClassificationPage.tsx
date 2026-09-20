@@ -186,6 +186,13 @@ export const ClassificationPage: React.FC<ClassificationPageProps> = ({ onNaviga
     );
   }
 
+  const handleUploadImage = async (file: File) => {
+    showToast(`Uploading and classifying "${file.name}" via AI vision model...`, 'info');
+    const result = await classificationService.uploadImage(file);
+    showToast(`Classified "${file.name}" as ${result.detectedCategory} with ${result.confidence}% confidence!`, 'success');
+    fetchAllData();
+  };
+
   return (
     <div className="min-h-screen bg-slate-50/50 p-4 lg:p-8 space-y-6 max-w-[1600px] mx-auto pb-24">
       {/* Toast Notification Container */}
@@ -225,7 +232,9 @@ export const ClassificationPage: React.FC<ClassificationPageProps> = ({ onNaviga
         onWasteTypeChange={setSelectedWasteType}
         onRefresh={fetchAllData}
         onExport={handleExport}
+        onUploadImage={handleUploadImage}
       />
+
 
       {/* 2. Classification Status Strip */}
       <ClassificationStatusBar summary={summary} />

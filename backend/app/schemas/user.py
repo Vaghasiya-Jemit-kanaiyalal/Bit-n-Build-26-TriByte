@@ -14,7 +14,14 @@ class UserBase(BaseModel):
     phone: Optional[str] = Field(None, max_length=50)
     organization: Optional[str] = Field(None, max_length=150)
     department: Optional[str] = Field(None, max_length=150)
-    role: UserRole = Field(default=UserRole.ANALYST)
+class UserBase(BaseModel):
+    first_name: str = Field(..., min_length=1, max_length=100)
+    last_name: str = Field(default="", max_length=100)
+    email: EmailStr
+    phone: Optional[str] = Field(None, max_length=50)
+    organization: Optional[str] = Field(None, max_length=150)
+    department: Optional[str] = Field(None, max_length=150)
+    role: UserRole = Field(default=UserRole.VIEWER)
     status: UserStatus = Field(default=UserStatus.ACTIVE)
 
 
@@ -63,7 +70,7 @@ class AdminCreateUserRequest(BaseModel):
     last_name: str = Field(default="", max_length=100, description="Last Name")
     email: EmailStr = Field(..., description="User Email")
     phone: Optional[str] = Field(None, max_length=50, description="Phone Number")
-    role: UserRole = Field(default=UserRole.DRIVER, description="Platform Role (ADMIN, DRIVER, ANALYST)")
+    role: UserRole = Field(default=UserRole.VIEWER, description="Platform Role (ADMIN, DRIVER, ANALYST, VIEWER)")
     status: UserStatus = Field(default=UserStatus.ACTIVE, description="Account Status (ACTIVE, INACTIVE, SUSPENDED)")
     organization: Optional[str] = Field(None, max_length=150, description="Organization")
     department: Optional[str] = Field(None, max_length=150, description="Department")
@@ -97,15 +104,6 @@ class AdminCreateUserRequest(BaseModel):
             raise ValueError("Password must be at least 6 characters.")
         return v
 
-    @model_validator(mode="after")
-    def validate_role_email_convention(self) -> "AdminCreateUserRequest":
-        email_str = str(self.email).strip().lower()
-        if self.role == UserRole.DRIVER and not email_str.endswith("@driver.gmail.com"):
-            raise ValueError("Collection Driver accounts must use an @driver.gmail.com email.")
-        if self.role == UserRole.ANALYST and not email_str.endswith("@analyst.gmail.com"):
-            raise ValueError("Operations Analyst accounts must use an @analyst.gmail.com email.")
-        return self
-
 
 class AdminUpdateUserRequest(BaseModel):
     first_name: Optional[str] = Field(None, min_length=1, max_length=100)
@@ -119,7 +117,7 @@ class AdminUpdateUserRequest(BaseModel):
 
 
 class ChangeRoleRequest(BaseModel):
-    role: UserRole = Field(..., description="New role: ADMIN, DRIVER, or ANALYST")
+    role: UserRole = Field(..., description="New role: ADMIN, DRIVER, ANALYST, or VIEWER")
 
 
 class ChangeStatusRequest(BaseModel):

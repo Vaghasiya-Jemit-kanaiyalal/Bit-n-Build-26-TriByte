@@ -1,5 +1,5 @@
 import React from 'react';
-import { Shield, Truck, BarChart3 } from 'lucide-react';
+import { Shield, Truck, BarChart3, Eye } from 'lucide-react';
 import type { UserRole } from '../../../types/user';
 
 interface RoleBadgeProps {
@@ -28,6 +28,18 @@ export const RoleBadge: React.FC<RoleBadgeProps> = ({ role, showSubtitle = false
           Collection Driver
         </span>
         {showSubtitle && <span className="text-[10px] font-semibold text-slate-500 mt-0.5 font-sans">DRIVER</span>}
+      </div>
+    );
+  }
+
+  if (role === 'VIEWER') {
+    return (
+      <div className="flex flex-col">
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[10px] font-extrabold bg-amber-50 text-amber-800 border border-amber-300 tracking-wider">
+          <Eye className="w-3 h-3 text-amber-600" />
+          New User (Pending Role Assignment)
+        </span>
+        {showSubtitle && <span className="text-[10px] font-semibold text-slate-500 mt-0.5 font-sans">VIEWER</span>}
       </div>
     );
   }

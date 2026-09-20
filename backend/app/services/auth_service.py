@@ -67,7 +67,7 @@ async def register_user(db: AsyncSession, data: RegisterRequest) -> User:
         email=normalized_email,
         password_hash=hashed_pwd,
         organization=data.organization.strip() if data.organization else "EcoTrack AI",
-        role=UserRole.ANALYST,
+        role=UserRole.VIEWER,
         status=UserStatus.ACTIVE,
     )
 

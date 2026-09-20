@@ -66,6 +66,7 @@ export const UserFilterToolbar: React.FC<UserFilterToolbarProps> = ({
             <option value="ADMIN">Waste Manager</option>
             <option value="DRIVER">Collection Driver</option>
             <option value="ANALYST">Operations Analyst</option>
+            <option value="VIEWER">System Viewer (Read-Only)</option>
           </select>
         </div>
 

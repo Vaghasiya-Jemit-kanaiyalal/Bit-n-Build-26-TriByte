@@ -86,28 +86,14 @@ export const AddEditUserModal: React.FC<AddEditUserModalProps> = ({
     setErrors({});
   }, [userToEdit, isModalOpen]);
 
-  // Handle email changes with smart auto-role selection
+  // Handle email changes
   const handleEmailChange = (newEmail: string) => {
     setEmail(newEmail);
-    const low = newEmail.toLowerCase().trim();
-    if (low.endsWith('@driver.gmail.com') || (low.includes('@driver.gmail.com') && !isEditing)) {
-      setRole('DRIVER');
-    } else if (low.endsWith('@analyst.gmail.com') || (low.includes('@analyst.gmail.com') && !isEditing)) {
-      setRole('ANALYST');
-    }
   };
 
-  // Adjust placeholder & email domain suggestion when role changes
+  // Adjust role when selected
   const handleRoleChange = (newRole: UserRole) => {
     setRole(newRole);
-    if (!isEditing && email && email.includes('@')) {
-      const prefix = email.split('@')[0];
-      if (newRole === 'DRIVER') {
-        setEmail(`${prefix}@driver.gmail.com`);
-      } else if (newRole === 'ANALYST') {
-        setEmail(`${prefix}@analyst.gmail.com`);
-      }
-    }
   };
 
   const handleResetForAnother = () => {
@@ -116,7 +102,7 @@ export const AddEditUserModal: React.FC<AddEditUserModalProps> = ({
     setLastName('');
     setEmail('');
     setPhone('');
-    setRole('DRIVER');
+    setRole('VIEWER');
     setStatus('ACTIVE');
     setTempPassword('TempPass123!');
     setConfirmPassword('TempPass123!');
@@ -137,13 +123,6 @@ export const AddEditUserModal: React.FC<AddEditUserModalProps> = ({
       errs.email = 'Email address is required.';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
       errs.email = 'Please enter a valid email address.';
-    } else {
-      // Role email convention validation
-      if (role === 'DRIVER' && !cleanEmail.endsWith('@driver.gmail.com')) {
-        errs.email = 'Collection Driver accounts must use an @driver.gmail.com email address.';
-      } else if (role === 'ANALYST' && !cleanEmail.endsWith('@analyst.gmail.com')) {
-        errs.email = 'Operations Analyst accounts must use an @analyst.gmail.com email address.';
-      }
     }
 
     if (phone && !/^\+?[0-9\s\-]{8,15}$/.test(phone)) {
@@ -493,9 +472,10 @@ export const AddEditUserModal: React.FC<AddEditUserModalProps> = ({
                     onChange={(e) => handleRoleChange(e.target.value as UserRole)}
                     className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-600 focus:outline-none bg-white font-bold text-slate-900"
                   >
-                    <option value="DRIVER">Collection Driver (@driver.gmail.com)</option>
-                    <option value="ANALYST">Operations Analyst (@analyst.gmail.com)</option>
-                    <option value="ADMIN">Waste Manager (ADMIN)</option>
+                    <option value="VIEWER">System Viewer (Read-Only Default)</option>
+                    <option value="DRIVER">Collection Driver</option>
+                    <option value="ANALYST">Operations Analyst</option>
+                    <option value="ADMIN">Waste Manager (Admin)</option>
                   </select>
                 </div>
 

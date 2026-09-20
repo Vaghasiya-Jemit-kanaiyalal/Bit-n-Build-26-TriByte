@@ -2,15 +2,17 @@ export const USER_ROLES = {
   ADMIN: 'ADMIN',
   DRIVER: 'DRIVER',
   ANALYST: 'ANALYST',
+  VIEWER: 'VIEWER',
 } as const;
 
 export const ROLE_LABELS = {
   ADMIN: 'Waste Manager',
   DRIVER: 'Collection Driver',
   ANALYST: 'Operations Analyst',
+  VIEWER: 'System Viewer',
 } as const;
 
-export type UserRole = 'ADMIN' | 'DRIVER' | 'ANALYST';
+export type UserRole = 'ADMIN' | 'DRIVER' | 'ANALYST' | 'VIEWER';
 
 export type UserStatus = 'ACTIVE' | 'INACTIVE' | 'PENDING' | 'SUSPENDED';
 
@@ -78,7 +80,7 @@ export interface PlatformUser {
   assignedVehicleId?: string; // e.g. TRK-021 (for Collection Drivers)
   assignedRouteId?: string; // e.g. R-104 (for Collection Drivers)
   analyticsScope?: 'All Zones' | 'Assigned Zones'; // (for Operations Analysts)
-  accessScope?: 'Full Platform' | 'Operational Only' | 'Analytics Only';
+  accessScope?: 'Full Platform' | 'Operational Only' | 'Analytics Only' | 'Read Only';
   avatarInitials: string;
   avatarBgColor?: string;
   lastActiveAt: string;

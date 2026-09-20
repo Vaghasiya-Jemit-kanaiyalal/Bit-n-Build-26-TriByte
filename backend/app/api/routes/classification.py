@@ -165,3 +165,28 @@ async def create_batch_classification(
     db: AsyncSession = Depends(get_db),
 ) -> List[ClassificationResponse]:
     return await _service.create_batch_classification(db=db, request=request)
+
+
+from fastapi import File, UploadFile, Form
+
+@router.post(
+    "/upload",
+    response_model=ClassificationResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Classify uploaded waste image",
+    description="Accepts a real waste photo file, processes it via VisionClassificationEngine, stores classification record in DB, and returns prediction result.",
+)
+async def upload_and_classify_image(
+    file: UploadFile = File(...),
+    bin_id: Optional[int] = Form(None),
+    current_user: User = Depends(require_roles(UserRole.ADMIN, UserRole.ANALYST, UserRole.DRIVER)),
+    db: AsyncSession = Depends(get_db),
+) -> ClassificationResponse:
+    content = await file.read()
+    return await _service.classify_uploaded_image(
+        db=db,
+        image_bytes=content,
+        filename=file.filename or "uploaded_waste.jpg",
+        bin_id=bin_id,
+    )
+

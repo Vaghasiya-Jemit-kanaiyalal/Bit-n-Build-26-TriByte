@@ -125,4 +125,33 @@ class IoTSimulatorService:
             await db.commit()
             logger.info(f"[IoTSimulator] Telemetry updated for {updated_count}/{len(bins)} bins at {now.isoformat()}")
 
+            # Broadcast real-time telemetry update over WebSocket to all connected frontend clients
+            if updated_count > 0:
+                try:
+                    from app.core.websocket_manager import ws_manager
+                    telemetry_payloads = [
+                        {
+                            "id": b.id,
+                            "bin_code": b.bin_code,
+                            "name": b.name or b.address,
+                            "fill_percentage": b.current_fill_percentage,
+                            "weight_kg": b.current_weight_kg,
+                            "status": b.status.value if hasattr(b.status, 'value') else str(b.status),
+                            "priority": b.priority.value if hasattr(b.priority, 'value') else str(b.priority),
+                            "waste_type": b.waste_type.value if hasattr(b.waste_type, 'value') else str(b.waste_type),
+                            "zone": b.zone,
+                            "last_telemetry_at": b.last_telemetry_at.isoformat() if b.last_telemetry_at else None,
+                        }
+                        for b in bins
+                    ]
+                    await ws_manager.broadcast({
+                        "type": "TELEMETRY_UPDATE",
+                        "timestamp": now.isoformat(),
+                        "bins_updated_count": updated_count,
+                        "bins": telemetry_payloads,
+                    })
+                except Exception as ws_err:
+                    logger.warning(f"[IoTSimulator] Could not broadcast WebSocket event: {ws_err}")
+
 iot_simulator = IoTSimulatorService()
+

@@ -48,19 +48,14 @@ export const ChangeRoleModal: React.FC<ChangeRoleModalProps> = ({
       'Generate & export analytical reports',
       'Zone & area intelligence analysis',
     ],
+    VIEWER: [
+      'Read-only access to campus sustainability overview',
+      'View public campus telemetry & zone metrics',
+      'No access to user management or operational controls',
+    ],
   };
 
   const handleApply = () => {
-    const userEmail = user.email.toLowerCase().trim();
-    if (selectedRole === 'DRIVER' && !userEmail.endsWith('@driver.gmail.com')) {
-      setEmailError('Collection Driver accounts must use an @driver.gmail.com email.');
-      return;
-    }
-    if (selectedRole === 'ANALYST' && !userEmail.endsWith('@analyst.gmail.com')) {
-      setEmailError('Operations Analyst accounts must use an @analyst.gmail.com email.');
-      return;
-    }
-
     setEmailError(null);
     onConfirm(user.id, selectedRole);
     onClose();
@@ -108,6 +103,7 @@ export const ChangeRoleModal: React.FC<ChangeRoleModalProps> = ({
               }}
               className="w-full px-3 py-2 border border-slate-300 rounded-md bg-white text-xs font-semibold text-slate-900 focus:ring-1 focus:ring-slate-500 focus:outline-none"
             >
+              <option value="VIEWER">System Viewer (Read-Only)</option>
               <option value="DRIVER">Collection Driver</option>
               <option value="ANALYST">Operations Analyst</option>
               <option value="ADMIN">Waste Manager (Admin)</option>

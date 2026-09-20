@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { SignIn1 } from './components/ui/modern-stunning-sign-in';
-import type { UserSession } from './types/auth';
+import type { UserSession, PlatformRole } from './types/auth';
 import { EcoTrackDashboard } from './components/dashboards/EcoTrackDashboard';
 import { ShieldCheck } from 'lucide-react';
 import NotificationToast, { showWebsiteToast } from './components/common/NotificationToast';
@@ -8,6 +8,7 @@ import ScrollToTopButton from './components/common/ScrollToTopButton';
 import { authService } from './services/authService';
 
 import { DriverPortal } from './components/driver/DriverPortal';
+import { ViewerPortal } from './components/viewer/ViewerPortal';
 
 export const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<UserSession | null>(null);
@@ -18,25 +19,21 @@ export const App: React.FC = () => {
     typeof window !== 'undefined' ? window.location.pathname : '/'
   );
 
-  // Helper to enforce role guards with email domain priority
+  // Helper to enforce strict RBAC route guards
   const checkRouteGuard = (user: UserSession | null, path: string): string => {
     if (!user) {
-      if (path.startsWith('/admin') || path.startsWith('/driver') || path.startsWith('/analyst')) {
+      if (path.startsWith('/admin') || path.startsWith('/driver') || path.startsWith('/analyst') || path.startsWith('/viewer')) {
         return '/login';
       }
       return path;
     }
 
-    const cleanEmail = (user.email || '').toLowerCase().trim();
-    let roleKey: 'ADMIN' | 'DRIVER' | 'ANALYST';
-    if (cleanEmail.endsWith('@driver.gmail.com')) {
-      roleKey = 'DRIVER';
-    } else if (cleanEmail.endsWith('@analyst.gmail.com')) {
-      roleKey = 'ANALYST';
-    } else {
-      const rawRole = (user.role || '').toUpperCase();
-      roleKey = rawRole.includes('ADMIN') ? 'ADMIN' : rawRole.includes('DRIVER') ? 'DRIVER' : 'ANALYST';
-    }
+    const rawRole = (user.role || 'VIEWER').toUpperCase();
+    let roleKey: PlatformRole = 'VIEWER';
+    if (rawRole.includes('ADMIN')) roleKey = 'ADMIN';
+    else if (rawRole.includes('DRIVER')) roleKey = 'DRIVER';
+    else if (rawRole.includes('ANALYST')) roleKey = 'ANALYST';
+    else roleKey = 'VIEWER';
 
     if (path.startsWith('/admin') && roleKey !== 'ADMIN') {
       return authService.redirectUserByRole(roleKey);
@@ -44,7 +41,7 @@ export const App: React.FC = () => {
     if (path.startsWith('/driver') && roleKey !== 'DRIVER') {
       return authService.redirectUserByRole(roleKey);
     }
-    if (path.startsWith('/analyst') && roleKey !== 'ANALYST') {
+    if (path.startsWith('/analyst') && roleKey !== 'ANALYST' && roleKey !== 'ADMIN') {
       return authService.redirectUserByRole(roleKey);
     }
     if (path === '/' || path === '/login' || path === '') {
@@ -66,23 +63,21 @@ export const App: React.FC = () => {
     const savedUser = authService.getSavedUser();
     const token = authService.getToken();
     if (savedUser && token) {
-      const cleanEmail = (savedUser.email || '').toLowerCase().trim();
-      let roleKey: 'ADMIN' | 'DRIVER' | 'ANALYST';
-      if (cleanEmail.endsWith('@driver.gmail.com')) {
-        roleKey = 'DRIVER';
-      } else if (cleanEmail.endsWith('@analyst.gmail.com')) {
-        roleKey = 'ANALYST';
-      } else {
-        const rawRole = (savedUser.role || 'ANALYST').toUpperCase();
-        roleKey = rawRole === 'ADMIN' ? 'ADMIN' : rawRole === 'DRIVER' ? 'DRIVER' : 'ANALYST';
-      }
+      const rawRole = (savedUser.role || 'VIEWER').toUpperCase();
+      let roleKey: PlatformRole = 'VIEWER';
+      if (rawRole.includes('ADMIN')) roleKey = 'ADMIN';
+      else if (rawRole.includes('DRIVER')) roleKey = 'DRIVER';
+      else if (rawRole.includes('ANALYST')) roleKey = 'ANALYST';
+      else roleKey = 'VIEWER';
 
       const displayRole =
         roleKey === 'ADMIN'
           ? 'Waste Manager'
           : roleKey === 'DRIVER'
           ? 'Collection Driver'
-          : 'Operations Analyst';
+          : roleKey === 'ANALYST'
+          ? 'Operations Analyst'
+          : 'System Viewer';
 
       const userSession: UserSession = {
         id: savedUser.id,
@@ -127,24 +122,22 @@ export const App: React.FC = () => {
   }, [currentUser]);
 
   const handleSignInSuccess = (role: string, email: string, userRecord?: any) => {
-    // Role comes from email domain or database record
-    const cleanEmail = (email || '').toLowerCase().trim();
-    let dbRole: 'ADMIN' | 'DRIVER' | 'ANALYST';
-    if (cleanEmail.endsWith('@driver.gmail.com')) {
-      dbRole = 'DRIVER';
-    } else if (cleanEmail.endsWith('@analyst.gmail.com')) {
-      dbRole = 'ANALYST';
-    } else {
-      const rawRole = (userRecord?.role || role || 'ANALYST').toUpperCase();
-      dbRole = rawRole === 'ADMIN' ? 'ADMIN' : rawRole === 'DRIVER' ? 'DRIVER' : 'ANALYST';
-    }
+    // Role comes strictly from authenticated user database record
+    const rawRole = (userRecord?.role || role || 'VIEWER').toUpperCase();
+    let dbRole: PlatformRole = 'VIEWER';
+    if (rawRole.includes('ADMIN')) dbRole = 'ADMIN';
+    else if (rawRole.includes('DRIVER')) dbRole = 'DRIVER';
+    else if (rawRole.includes('ANALYST')) dbRole = 'ANALYST';
+    else dbRole = 'VIEWER';
 
     const mappedDisplayRole =
       dbRole === 'ADMIN'
         ? 'Waste Manager'
         : dbRole === 'DRIVER'
         ? 'Collection Driver'
-        : 'Operations Analyst';
+        : dbRole === 'ANALYST'
+        ? 'Operations Analyst'
+        : 'System Viewer';
 
     const displayName =
       userRecord?.full_name ||
@@ -185,7 +178,9 @@ export const App: React.FC = () => {
     showWebsiteToast('You have been signed out.', 'info', 'Session Ended');
   };
 
-  const isDriverRole = currentUser?.role === 'Collection Driver' || currentUser?.role === 'DRIVER' || currentUser?.displayRole === 'Collection Driver';
+  const roleUpper = (currentUser?.role || '').toUpperCase();
+  const isDriver = roleUpper === 'DRIVER' || currentUser?.displayRole === 'Collection Driver';
+  const isViewer = roleUpper === 'VIEWER' || currentUser?.displayRole === 'System Viewer';
 
   return (
     <>
@@ -196,8 +191,10 @@ export const App: React.FC = () => {
       <ScrollToTopButton />
 
       {currentUser ? (
-        isDriverRole ? (
+        isDriver ? (
           <DriverPortal user={currentUser} onSignOut={handleSignOut} />
+        ) : isViewer ? (
+          <ViewerPortal user={currentUser} onSignOut={handleSignOut} />
         ) : (
           <EcoTrackDashboard user={currentUser} onSignOut={handleSignOut} />
         )
