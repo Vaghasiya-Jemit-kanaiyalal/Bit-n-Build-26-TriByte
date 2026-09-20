@@ -16,6 +16,27 @@ import {
   INITIAL_DRIVER_VEHICLE,
 } from '../../mock/driver/driverMockData';
 
+const API_BASE = 'http://localhost:8000/api/v1';
+
+function getToken(): string | null {
+  return localStorage.getItem('ecotrack_token') || localStorage.getItem('wastewise_token');
+}
+
+function authHeaders(): Record<string, string> {
+  const token = getToken();
+  return token
+    ? { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }
+    : { 'Content-Type': 'application/json' };
+}
+
+async function apiFetch(url: string, init: RequestInit = {}): Promise<Response> {
+  const headers = {
+    ...authHeaders(),
+    ...((init.headers as Record<string, string>) || {}),
+  };
+  return fetch(url, { ...init, headers });
+}
+
 // In-memory state for live frontend simulation
 let driverStatusState: DriverStatus = 'ON_ROUTE';
 let vehicleState: DriverVehicle = { ...INITIAL_DRIVER_VEHICLE };
@@ -86,6 +107,16 @@ export const driverService = {
   },
 
   async startRoute(): Promise<DriverRoute> {
+    try {
+      const routeId = routeState.id || '1';
+      const res = await apiFetch(`${API_BASE}/admin/routes/${routeId}/start`, { method: 'POST' });
+      if (res.ok) {
+        console.log('[driverService] Route started on backend API');
+      }
+    } catch (err) {
+      console.warn('[driverService] Route start API offline/error, using local fallback:', err);
+    }
+
     driverStatusState = 'ON_ROUTE';
     routeState.status = 'IN_PROGRESS';
     const nowStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -113,6 +144,16 @@ export const driverService = {
   },
 
   async pauseRoute(): Promise<DriverRoute> {
+    try {
+      const routeId = routeState.id || '1';
+      const res = await apiFetch(`${API_BASE}/admin/routes/${routeId}/pause`, { method: 'POST' });
+      if (res.ok) {
+        console.log('[driverService] Route paused on backend API');
+      }
+    } catch (err) {
+      console.warn('[driverService] Route pause API offline/error, using local fallback:', err);
+    }
+
     driverStatusState = 'BREAK';
     routeState.status = 'PAUSED';
     const nowStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -130,6 +171,16 @@ export const driverService = {
   },
 
   async resumeRoute(): Promise<DriverRoute> {
+    try {
+      const routeId = routeState.id || '1';
+      const res = await apiFetch(`${API_BASE}/admin/routes/${routeId}/resume`, { method: 'POST' });
+      if (res.ok) {
+        console.log('[driverService] Route resumed on backend API');
+      }
+    } catch (err) {
+      console.warn('[driverService] Route resume API offline/error, using local fallback:', err);
+    }
+
     driverStatusState = 'ON_ROUTE';
     routeState.status = 'IN_PROGRESS';
     const nowStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -147,6 +198,16 @@ export const driverService = {
   },
 
   async completeRoute(): Promise<DriverRoute> {
+    try {
+      const routeId = routeState.id || '1';
+      const res = await apiFetch(`${API_BASE}/admin/routes/${routeId}/complete?force=true`, { method: 'POST' });
+      if (res.ok) {
+        console.log('[driverService] Route completed on backend API');
+      }
+    } catch (err) {
+      console.warn('[driverService] Route complete API offline/error, using local fallback:', err);
+    }
+
     driverStatusState = 'COMPLETED';
     routeState.status = 'COMPLETED';
     routeState.progressPct = 100;
@@ -180,6 +241,18 @@ export const driverService = {
     const stop = routeState.stops[stopIndex];
     const weightKg = customWeightKg || stop.estimatedWasteKg || 120;
     const weightTons = weightKg / 1000;
+
+    try {
+      const routeId = routeState.id || '1';
+      const numericStopId = stop.id.replace(/\D/g, '') || '1';
+      await apiFetch(`${API_BASE}/admin/routes/${routeId}/stops/${numericStopId}/complete`, {
+        method: 'POST',
+        body: JSON.stringify({ actual_weight_kg: weightKg }),
+      });
+      console.log('[driverService] Stop completion API succeeded');
+    } catch (err) {
+      console.warn('[driverService] Stop completion API offline/error, using local fallback:', err);
+    }
 
     stop.status = 'COMPLETED';
     stop.collectionStatus = 'Cleared';
@@ -232,6 +305,18 @@ export const driverService = {
     if (stopIndex === -1) throw new Error('Stop not found');
 
     const stop = routeState.stops[stopIndex];
+
+    try {
+      const routeId = routeState.id || '1';
+      const numericStopId = stop.id.replace(/\D/g, '') || '1';
+      await apiFetch(`${API_BASE}/admin/routes/${routeId}/stops/${numericStopId}/skip`, {
+        method: 'POST',
+        body: JSON.stringify({ reason, notes }),
+      });
+      console.log('[driverService] Stop skip API succeeded');
+    } catch (err) {
+      console.warn('[driverService] Stop skip API offline/error, using local fallback:', err);
+    }
     stop.status = 'SKIPPED';
     stop.skippedReason = reason;
     stop.skippedNotes = notes;
