@@ -17,7 +17,14 @@ export const DriverHeader: React.FC<DriverHeaderProps> = ({
   onRefresh,
   isSyncing = false,
 }) => {
-  const [currentDateStr, setCurrentDateStr] = useState<string>('');
+  const [currentDateStr, setCurrentDateStr] = useState<string>(() => {
+    return new Date().toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  });
   const [greeting, setGreeting] = useState<string>('Good morning');
 
   useEffect(() => {
@@ -60,7 +67,7 @@ export const DriverHeader: React.FC<DriverHeaderProps> = ({
         {/* Date Badge */}
         <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 text-slate-700 text-xs font-semibold border border-slate-200">
           <Calendar className="w-3.5 h-3.5 text-slate-500" />
-          <span>{currentDateStr || 'Thursday, September 19, 2026'}</span>
+          <span>{currentDateStr}</span>
         </div>
 
         {/* Sync / Refresh */}

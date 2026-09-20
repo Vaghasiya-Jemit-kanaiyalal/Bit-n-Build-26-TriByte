@@ -96,7 +96,7 @@ export const RouteFilters: React.FC<RouteFiltersProps> = ({
         {/* Date Selector */}
         <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-[#f9fafb] border border-[#d1d5db] rounded text-xs font-semibold text-[#374151]">
           <Calendar className="w-3.5 h-3.5 text-[#6b7280]" />
-          <span>Today (Sep 19)</span>
+          <span>Today ({new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })})</span>
         </div>
 
         {/* Clear Filters Button */}

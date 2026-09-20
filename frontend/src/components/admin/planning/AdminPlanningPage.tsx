@@ -53,7 +53,7 @@ export const AdminPlanningPage: React.FC<AdminPlanningPageProps> = ({ onNavigate
   const [recentPlans, setRecentPlans] = useState<PlanningPlan[]>([]);
 
   // Selection & Form States
-  const [planningDate, setPlanningDate] = useState<string>('2026-09-19');
+  const [planningDate, setPlanningDate] = useState<string>(() => new Date().toISOString().split('T')[0]);
   const [planningHorizon, setPlanningHorizon] = useState<string>('Next 24 Hours');
   const [strategy] = useState<OptimizationStrategy>('Balanced');
   const [selectedWindow, setSelectedWindow] = useState<string>('15:00 – 18:00');

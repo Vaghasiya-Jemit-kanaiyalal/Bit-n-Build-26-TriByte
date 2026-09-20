@@ -166,6 +166,33 @@ export const EcoTrackDashboard: React.FC<EcoTrackDashboardProps> = ({ user, onSi
   const initialPath = typeof window !== 'undefined' ? window.location.pathname : '/';
   const [activeTab, setActiveTab] = useState<string>(() => getTabFromPath(initialPath, userRole));
   const [showProfileMenu, setShowProfileMenu] = useState<boolean>(false);
+  const [currentDateTime, setCurrentDateTime] = useState<string>(() =>
+    new Date().toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    })
+  );
+
+  useEffect(() => {
+    const updateTime = () => {
+      setCurrentDateTime(
+        new Date().toLocaleString('en-US', {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: true,
+        })
+      );
+    };
+    const timer = setInterval(updateTime, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   const handleSelectTab = (tabName: string) => {
     // Canonicalize tabName so that sidebar active item is always perfectly highlighted
@@ -347,7 +374,7 @@ export const EcoTrackDashboard: React.FC<EcoTrackDashboardProps> = ({ user, onSi
             {/* Date Time */}
             <div className="hidden lg:flex items-center gap-1.5 text-xs text-slate-500 font-medium">
               <Activity className="w-3.5 h-3.5 text-slate-400" />
-              <span>Sep 19, 2026 11:24 AM</span>
+              <span>{currentDateTime}</span>
             </div>
 
             {/* Notifications */}

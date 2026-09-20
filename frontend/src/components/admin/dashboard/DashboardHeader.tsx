@@ -21,7 +21,22 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   onRefresh,
   onExport,
 }) => {
-  const [currentDateTime, setCurrentDateTime] = useState<string>('');
+  const [currentDateTime, setCurrentDateTime] = useState<string>(() => {
+    const now = new Date();
+    return (
+      now.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      }) +
+      ' ' +
+      now.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+      })
+    );
+  });
 
   useEffect(() => {
     const updateTime = () => {
@@ -68,7 +83,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           {/* Dynamic Clock */}
           <div className="hidden lg:flex items-center gap-1.5 text-xs text-slate-600 font-mono font-bold bg-slate-100/80 px-3 py-2 rounded-xl border border-slate-200/60">
             <Clock className="w-3.5 h-3.5 text-slate-400" />
-            <span>{currentDateTime || 'Sep 19, 2026 11:24:00 AM'}</span>
+            <span>{currentDateTime}</span>
           </div>
 
           {/* Refresh Button */}

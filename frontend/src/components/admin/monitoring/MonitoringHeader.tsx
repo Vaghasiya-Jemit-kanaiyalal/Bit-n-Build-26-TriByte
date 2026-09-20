@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Calendar, RefreshCw, Cpu } from 'lucide-react';
 
 interface MonitoringHeaderProps {
@@ -27,6 +27,33 @@ export const MonitoringHeader: React.FC<MonitoringHeaderProps> = ({
   iotDemoActive = true,
   onToggleIotDemo,
 }) => {
+  const [currentDateTime, setCurrentDateTime] = useState<string>(() =>
+    new Date().toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    })
+  );
+
+  useEffect(() => {
+    const updateTime = () => {
+      setCurrentDateTime(
+        new Date().toLocaleString('en-US', {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: true,
+        })
+      );
+    };
+    const timer = setInterval(updateTime, 1000);
+    return () => clearInterval(timer);
+  }, []);
   return (
     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-2">
       {/* Title & Subtitle */}
@@ -60,7 +87,7 @@ export const MonitoringHeader: React.FC<MonitoringHeaderProps> = ({
         {/* Date & Time display */}
         <div className="flex items-center gap-2 bg-white border border-slate-200/80 shadow-2xs rounded-xl px-3.5 py-2 text-xs font-semibold text-slate-700">
           <Calendar className="w-4 h-4 text-slate-400" />
-          <span>Sep 20, 2026 10:20 AM</span>
+          <span>{currentDateTime}</span>
         </div>
 
         {/* Live Indicator Pill */}
