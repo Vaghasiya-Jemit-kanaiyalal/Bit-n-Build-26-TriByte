@@ -430,7 +430,7 @@ class BinService:
             "battery_healthy": bin_obj.battery_percentage >= 25.0,
             "telemetry_fresh": (
                 bin_obj.last_telemetry_at is not None
-                and (datetime.now(timezone.utc) - bin_obj.last_telemetry_at).total_seconds() < 3600
+                and (datetime.now(timezone.utc) - (bin_obj.last_telemetry_at.replace(tzinfo=timezone.utc) if bin_obj.last_telemetry_at.tzinfo is None else bin_obj.last_telemetry_at)).total_seconds() < 3600
             ),
             "requires_collection": bin_obj.current_fill_percentage >= 75.0 or bin_obj.priority in [CollectionPriority.HIGH, CollectionPriority.CRITICAL],
             "fill_status": bin_obj.status.value,
@@ -1167,7 +1167,8 @@ class BinService:
         now = datetime.now(timezone.utc)
         stale_count = 0
         for b in bins:
-            if not b.last_telemetry_at or (now - b.last_telemetry_at).total_seconds() > 7200:
+            t_dt = b.last_telemetry_at.replace(tzinfo=timezone.utc) if b.last_telemetry_at and b.last_telemetry_at.tzinfo is None else b.last_telemetry_at
+            if not t_dt or (now - t_dt).total_seconds() > 7200:
                 stale_count += 1
 
         avg_batt = round(sum(b.battery_percentage for b in bins) / total, 2) if total > 0 else 0.0

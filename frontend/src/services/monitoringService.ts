@@ -194,9 +194,87 @@ export const monitoringService = {
     return lastUpdatedTimestamp;
   },
 
+  assignVehicleToRoute(vehicleId: string, routeId: string, driverName?: string): MonitoredVehicle | null {
+    const idx = vehiclesStore.findIndex((v) => v.id === vehicleId || v.vehicleCode === vehicleId);
+    if (idx === -1) return null;
+
+    const vehicle = vehiclesStore[idx];
+    const updated: MonitoredVehicle = {
+      ...vehicle,
+      status: 'ON ROUTE',
+      routeId,
+      driver: driverName || vehicle.driver || 'Rohit Patel',
+      speedKmH: 28,
+      lastUpdate: 'Just now',
+    };
+
+    vehiclesStore[idx] = updated;
+
+    // Log live activity event
+    activitiesStore.unshift({
+      id: `ACT-${Date.now()}`,
+      timestamp: new Date().toLocaleTimeString('en-US', { hour12: false }),
+      entityType: 'VEHICLE',
+      entityId: updated.vehicleCode,
+      eventType: 'VEHICLE_ASSIGNED',
+      message: `Admin assigned vehicle ${updated.vehicleCode} to route ${routeId}. Real-time collection started.`,
+      location: 'Central Depot',
+      severity: 'info',
+    });
+
+    return updated;
+  },
+
+  unassignVehicle(vehicleId: string): MonitoredVehicle | null {
+    const idx = vehiclesStore.findIndex((v) => v.id === vehicleId || v.vehicleCode === vehicleId);
+    if (idx === -1) return null;
+
+    const vehicle = vehiclesStore[idx];
+    const updated: MonitoredVehicle = {
+      ...vehicle,
+      status: 'IDLE',
+      routeId: undefined,
+      speedKmH: 0,
+      currentLoadTons: 0,
+      utilizationPercent: 0,
+      x: 515,
+      y: 550,
+      lastUpdate: 'Just now',
+    };
+
+    vehiclesStore[idx] = updated;
+
+    activitiesStore.unshift({
+      id: `ACT-${Date.now()}`,
+      timestamp: new Date().toLocaleTimeString('en-US', { hour12: false }),
+      entityType: 'VEHICLE',
+      entityId: updated.vehicleCode,
+      eventType: 'VEHICLE_UNASSIGNED',
+      message: `Admin unassigned vehicle ${updated.vehicleCode}. Vehicle returned to Main Gate Depot.`,
+      location: 'Main Gate Depot',
+      severity: 'info',
+    });
+
+    return updated;
+  },
+
   // Live Simulation Engine (Ticks every N seconds)
-  startSimulation(onTick: (timestamp: string) => void, intervalSeconds: number = 5) {
+  startSimulation(onTick: (timestamp: string) => void, intervalSeconds: number = 2) {
     this.stopSimulation();
+
+    // Defined route polyline waypoints for assigned vehicles
+    const campusRouteWaypoints = [
+      { x: 515, y: 550, binCode: null, label: 'Depot' },
+      { x: 310, y: 510, binCode: 'H-105', label: 'Hostel Block A' },
+      { x: 425, y: 440, binCode: 'BIN-52', label: 'Library' },
+      { x: 520, y: 330, binCode: 'H-104', label: 'Hostel Block B' },
+      { x: 470, y: 240, binCode: 'CSE-001', label: 'CSE Block' },
+      { x: 410, y: 110, binCode: 'ACAD-02', label: 'Academic Block' },
+      { x: 685, y: 280, binCode: 'CAF-01', label: 'East Campus' },
+      { x: 515, y: 550, binCode: null, label: 'Depot Return' },
+    ];
+
+    let waypointIndices: Record<string, number> = {};
 
     simulationTimer = setInterval(() => {
       const now = new Date();
@@ -207,15 +285,89 @@ export const monitoringService = {
         second: '2-digit',
       });
 
-      // 1. Micro-update 2 random active bins fill level
+      // 1. Process active vehicles movement along assigned route
+      vehiclesStore = vehiclesStore.map((v) => {
+        // UNASSIGNED / IDLE vehicles STAY STATIONARY AT DEPOT
+        if (v.status !== 'ON ROUTE' || !v.routeId) {
+          return {
+            ...v,
+            speedKmH: 0,
+            x: 515,
+            y: 550,
+            lastUpdate: 'Just now',
+          };
+        }
+
+        // Assigned active vehicle moves step-by-step
+        const currentWpIdx = waypointIndices[v.id] || 0;
+        const targetWpIdx = (currentWpIdx + 1) % campusRouteWaypoints.length;
+        const currentWp = campusRouteWaypoints[currentWpIdx];
+        const targetWp = campusRouteWaypoints[targetWpIdx];
+
+        // Interpolate position step
+        const stepRatio = 0.25; // Move 25% closer per tick
+        const nextX = Math.round((v.x ?? currentWp.x) + (targetWp.x - (v.x ?? currentWp.x)) * stepRatio);
+        const nextY = Math.round((v.y ?? currentWp.y) + (targetWp.y - (v.y ?? currentWp.y)) * stepRatio);
+
+        // Check if arrived at target waypoint
+        const distance = Math.hypot(targetWp.x - nextX, targetWp.y - nextY);
+        let updatedLoad = v.currentLoadTons;
+
+        if (distance < 12) {
+          // Advance waypoint index
+          waypointIndices[v.id] = targetWpIdx;
+
+          // If target waypoint has a bin, collect it in real time!
+          if (targetWp.binCode) {
+            const binIdx = binsStore.findIndex((b) => b.binCode === targetWp.binCode);
+            if (binIdx !== -1 && binsStore[binIdx].fillPercent > 10) {
+              const oldFill = binsStore[binIdx].fillPercent;
+              binsStore[binIdx] = {
+                ...binsStore[binIdx],
+                fillPercent: 0,
+                status: 'Normal',
+                lastUpdate: 'Just now',
+              };
+
+              updatedLoad = Math.min(v.capacityTons, Number((v.currentLoadTons + 0.4).toFixed(2)));
+
+              activitiesStore.unshift({
+                id: `ACT-${Date.now()}`,
+                timestamp: lastUpdatedTimestamp,
+                entityType: 'BIN',
+                entityId: targetWp.binCode,
+                eventType: 'BIN_COLLECTED',
+                message: `Vehicle ${v.vehicleCode} collected bin ${targetWp.binCode} (${oldFill}% -> 0%). Load updated to ${updatedLoad} tons.`,
+                location: targetWp.label,
+                severity: 'info',
+              });
+            }
+          }
+        }
+
+        const newSpeed = Math.floor(25 + Math.random() * 10);
+        const utilization = Math.round((updatedLoad / v.capacityTons) * 100);
+
+        return {
+          ...v,
+          x: nextX,
+          y: nextY,
+          speedKmH: newSpeed,
+          currentLoadTons: updatedLoad,
+          utilizationPercent: utilization,
+          lastUpdate: 'Just now',
+        };
+      });
+
+      // 2. Micro-update fill level of 1 uncollected bin to simulate gradual fill accumulation
       const activeBinIndices = binsStore
-        .map((b, i) => (b.status !== 'Offline' && b.fillPercent < 99 ? i : -1))
+        .map((b, i) => (b.status !== 'Offline' && b.fillPercent < 95 ? i : -1))
         .filter((i) => i !== -1);
 
-      if (activeBinIndices.length > 0) {
+      if (activeBinIndices.length > 0 && Math.random() < 0.4) {
         const randomBinIdx = activeBinIndices[Math.floor(Math.random() * activeBinIndices.length)];
         const bin = binsStore[randomBinIdx];
-        const fillIncrement = Number((Math.random() * 0.4 + 0.1).toFixed(1));
+        const fillIncrement = Number((Math.random() * 0.8 + 0.2).toFixed(1));
         const newFill = Math.min(99, Number((bin.fillPercent + fillIncrement).toFixed(1)));
 
         binsStore[randomBinIdx] = {
@@ -224,41 +376,6 @@ export const monitoringService = {
           lastUpdate: 'Just now',
           status: newFill >= 90 ? 'Critical' : newFill >= 75 ? 'Warning' : 'Normal',
         };
-
-        // Emit critical alert event if crossed 90%
-        if (newFill >= 90 && bin.fillPercent < 90) {
-          activitiesStore.unshift({
-            id: `ACT-${Date.now()}`,
-            timestamp: lastUpdatedTimestamp,
-            entityType: 'BIN',
-            entityId: bin.binCode,
-            eventType: 'BIN_THRESHOLD_REACHED',
-            message: `Fill level crossed 90% threshold (${newFill}%). Urgent collection required.`,
-            location: bin.location,
-            severity: 'critical',
-          });
-        }
-      }
-
-      // 2. Micro-update 1 vehicle position & speed
-      const activeVehicles = vehiclesStore.filter((v) => v.status === 'ON ROUTE');
-      if (activeVehicles.length > 0) {
-        const v = activeVehicles[Math.floor(Math.random() * activeVehicles.length)];
-        const idx = vehiclesStore.findIndex((x) => x.id === v.id);
-        if (idx !== -1) {
-          const speedDelta = Math.floor(Math.random() * 5) - 2;
-          const newSpeed = Math.max(15, Math.min(45, v.speedKmH + speedDelta));
-          const dx = (Math.random() - 0.5) * 0.4;
-          const dy = (Math.random() - 0.5) * 0.4;
-
-          vehiclesStore[idx] = {
-            ...v,
-            speedKmH: newSpeed,
-            x: Math.max(10, Math.min(90, Number((v.x + dx).toFixed(2)))),
-            y: Math.max(10, Math.min(90, Number((v.y + dy).toFixed(2)))),
-            lastUpdate: 'Just now',
-          };
-        }
       }
 
       // 3. Keep activity list trimmed to top 30
@@ -326,3 +443,4 @@ export const monitoringService = {
     };
   },
 };
+

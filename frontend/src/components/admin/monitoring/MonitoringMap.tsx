@@ -38,7 +38,9 @@ interface MonitoringMapProps {
 
 export const MonitoringMap: React.FC<MonitoringMapProps> = ({
   bins: initialBins,
+  vehicles,
   onSelectBin,
+  onSelectVehicle,
   isFullscreen = false,
   onToggleFullscreen,
   showVehicles: _propShowVehicles = true,
@@ -1075,33 +1077,60 @@ export const MonitoringMap: React.FC<MonitoringMapProps> = ({
                     </g>
                   ))}
 
-                {/* VEHICLE MARKER */}
+                {/* REAL-TIME DYNAMIC VEHICLES MARKERS */}
                 {mapToggles.vehicles && (
-                  <g
-                    transform="translate(520, 290)"
-                    className="cursor-pointer interactive-marker shadow-xl"
-                  >
-                    <rect
-                      x="-24"
-                      y="-14"
-                      width="48"
-                      height="28"
-                      rx="8"
-                      fill="#0284c7"
-                      stroke="#ffffff"
-                      strokeWidth="2"
-                    />
-                    <text
-                      x="0"
-                      y="4"
-                      textAnchor="middle"
-                      fill="#ffffff"
-                      fontSize="11"
-                      fontWeight="extrabold"
-                      fontFamily="sans-serif"
-                    >
-                      🚛 V-03
-                    </text>
+                  <g>
+                    {(vehicles && vehicles.length > 0
+                      ? vehicles
+                      : [
+                          { id: 'v1', vehicleCode: 'TRK-021', status: 'ON ROUTE', routeId: 'R-104', x: 520, y: 290 },
+                          { id: 'v2', vehicleCode: 'TRK-008', status: 'IDLE', routeId: undefined, x: 515, y: 550 },
+                        ]
+                    ).map((v) => {
+                      const isAssigned = v.status === 'ON ROUTE' && !!v.routeId;
+                      const posX = isAssigned ? (v.x ?? 520) : 515;
+                      const posY = isAssigned ? (v.y ?? 290) : 550;
+
+                      return (
+                        <g
+                          key={v.id}
+                          transform={`translate(${posX}, ${posY})`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (onSelectVehicle) onSelectVehicle(v as any);
+                          }}
+                          className="cursor-pointer interactive-marker transition-all duration-300"
+                        >
+                          {/* Pulsing ring for active moving vehicles */}
+                          {isAssigned && (
+                            <circle r="22" fill="#0284c7" opacity="0.35" className="animate-ping" />
+                          )}
+
+                          <rect
+                            x="-32"
+                            y="-14"
+                            width="64"
+                            height="28"
+                            rx="8"
+                            fill={isAssigned ? '#0284c7' : '#475569'}
+                            stroke="#ffffff"
+                            strokeWidth="2"
+                            className="shadow-lg"
+                          />
+                          <text
+                            x="0"
+                            y="4"
+                            textAnchor="middle"
+                            fill="#ffffff"
+                            fontSize="10"
+                            fontWeight="extrabold"
+                            fontFamily="sans-serif"
+                          >
+                            {isAssigned ? `🚛 ${v.vehicleCode}` : `🅿️ ${v.vehicleCode}`}
+                          </text>
+                        </g>
+                      );
+                    })}
                   </g>
                 )}
               </>

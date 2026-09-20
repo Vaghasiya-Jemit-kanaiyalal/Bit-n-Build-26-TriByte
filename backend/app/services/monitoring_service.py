@@ -843,7 +843,7 @@ class MonitoringService:
         avg_battery = round(sum(s.battery_percentage for s in sensors) / total_sensors, 2)
         conn_pct = round((online_count / total_sensors * 100), 2)
 
-        fresh_count = len([s for s in sensors if s.last_reading_at and s.last_reading_at >= fresh_cutoff])
+        fresh_count = len([s for s in sensors if s.last_reading_at and (s.last_reading_at.replace(tzinfo=timezone.utc) if s.last_reading_at.tzinfo is None else s.last_reading_at) >= fresh_cutoff])
         freshness_pct = round((fresh_count / total_sensors * 100), 2)
 
         return MonitoringSensorHealthResponse(
@@ -894,9 +894,10 @@ class MonitoringService:
                 offline += 1
                 failures += 1
             elif b.last_telemetry_at:
-                if b.last_telemetry_at >= online_cutoff:
+                t_dt = b.last_telemetry_at.replace(tzinfo=timezone.utc) if b.last_telemetry_at.tzinfo is None else b.last_telemetry_at
+                if t_dt >= online_cutoff:
                     connected += 1
-                elif b.last_telemetry_at >= stale_cutoff:
+                elif t_dt >= stale_cutoff:
                     stale += 1
                 else:
                     offline += 1

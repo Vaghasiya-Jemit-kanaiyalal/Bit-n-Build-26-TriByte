@@ -4,6 +4,7 @@ from sqlalchemy import (
     DateTime,
     Float,
     Integer,
+    JSON,
     String,
     func,
 )
@@ -27,7 +28,7 @@ class PlanningConstraint(Base):
     priority_weight: Mapped[int] = mapped_column(Integer, default=30, nullable=False)
     time_weight: Mapped[int] = mapped_column(Integer, default=15, nullable=False)
 
-    config_json: Mapped[dict] = mapped_column(JSONB, default=dict, nullable=False)
+    config_json: Mapped[dict] = mapped_column(JSON().with_variant(JSONB, "postgresql"), default=dict, nullable=False)
 
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),

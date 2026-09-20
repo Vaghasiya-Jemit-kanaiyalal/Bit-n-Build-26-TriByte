@@ -28,7 +28,7 @@ async def test_01_register_user_default_viewer(client: AsyncClient):
     data = response.json()
     assert data["message"] == "Account created successfully."
     assert data["user"]["email"] == "public_analyst@wastewise.ai"
-    assert data["user"]["role"] == "ANALYST"
+    assert data["user"]["role"] == "VIEWER"
     assert data["user"]["status"] == "ACTIVE"
     assert data["user"]["first_name"] == "Public"
     assert data["user"]["last_name"] == "Analyst"
@@ -83,7 +83,7 @@ async def test_04_login_success(client: AsyncClient):
     assert "refresh_token" in data
     assert data["token_type"] == "bearer"
     assert data["user"]["email"] == "public_analyst@wastewise.ai"
-    assert data["user"]["role"] == "ANALYST"
+    assert data["user"]["role"] == "VIEWER"
     assert data["user"]["status"] == "ACTIVE"
 
 
@@ -129,7 +129,7 @@ async def test_07_auth_me_endpoint(client: AsyncClient):
     assert response.status_code == 200
     data = response.json()
     assert data["email"] == "public_analyst@wastewise.ai"
-    assert data["role"] == "ANALYST"
+    assert data["role"] == "VIEWER"
 
 
 @pytest.mark.asyncio

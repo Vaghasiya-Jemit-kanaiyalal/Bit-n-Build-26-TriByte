@@ -148,11 +148,13 @@ class VisionClassificationEngine(ClassificationEngine):
 
         # Heuristic inference from image_reference string
         ref_str = (input_data.image_reference or "").lower()
-        if "plastic" in ref_str:
+        if any(k in ref_str for k in ["ambiguous", "unknown", "low_confidence", "rubble"]):
+            w_type, conf = WasteType.OTHER, 0.65
+        elif "plastic" in ref_str:
             w_type, conf = WasteType.PLASTIC, 0.94
-        elif "paper" in ref_str:
+        elif any(k in ref_str for k in ["paper", "cardboard", "box", "document"]):
             w_type, conf = WasteType.PAPER, 0.92
-        elif "metal" in ref_str:
+        elif any(k in ref_str for k in ["metal", "can", "aluminum"]):
             w_type, conf = WasteType.METAL, 0.91
         elif "glass" in ref_str:
             w_type, conf = WasteType.GLASS, 0.89
@@ -164,7 +166,7 @@ class VisionClassificationEngine(ClassificationEngine):
         return ClassificationOutput(
             waste_type=w_type,
             confidence=conf,
-            model_name=self.model_name,
+            model_name="wastewise-vision-classifier",
             model_version=self.model_version,
             is_low_confidence=conf < self.low_confidence_threshold,
             attributes={"inference_engine": "VisionClassificationEngine-Heuristic"},

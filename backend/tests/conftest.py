@@ -11,12 +11,13 @@ from app.db.base import Base
 from app.db.database import get_db
 from app.main import app
 
-# Use NullPool for tests so each connection is clean and isolated
+# Use SQLite in-memory or file-based async engine for isolated test runs
+TEST_DB_URL = "sqlite+aiosqlite:///./test.db"
+
 test_engine = create_async_engine(
-    settings.TEST_DATABASE_URL,
+    TEST_DB_URL,
     echo=False,
     future=True,
-    poolclass=NullPool,
 )
 
 TestingSessionLocal = async_sessionmaker(

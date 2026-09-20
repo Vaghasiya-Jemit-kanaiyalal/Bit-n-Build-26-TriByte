@@ -252,6 +252,7 @@ export const MonitoringPage: React.FC<MonitoringPageProps> = ({ onNavigateTab })
             filters={mapPanelFilters}
             onFilterChange={(updated) => setMapPanelFilters((prev) => ({ ...prev, ...updated }))}
             onClearFilters={handleResetFilters}
+            onRefresh={refreshTelemetryData}
           />
         </div>
       </div>
