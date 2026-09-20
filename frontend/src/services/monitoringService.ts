@@ -276,4 +276,53 @@ export const monitoringService = {
       simulationTimer = null;
     }
   },
+
+  connectLiveTelemetryStream(
+    onMessage: (data: any) => void,
+    onError?: (err: any) => void
+  ): () => void {
+    const baseUrl = (import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1')
+      .replace(/^http:/, 'ws:')
+      .replace(/^https:/, 'wss:')
+      .replace(/\/api\/v1$/, '');
+
+    const wsUrl = `${baseUrl}/api/v1/ws/telemetry`;
+    let socket: WebSocket | null = null;
+    let isClosedExplicitly = false;
+
+    try {
+      socket = new WebSocket(wsUrl);
+      console.log('[monitoringService] Attempting live telemetry WebSocket connection:', wsUrl);
+
+      socket.onmessage = (event) => {
+        try {
+          const payload = JSON.parse(event.data);
+          console.log('[monitoringService] Telemetry WebSocket message received:', payload);
+          onMessage(payload);
+        } catch (e) {
+          console.warn('[monitoringService] Error parsing WebSocket message:', e);
+        }
+      };
+
+      socket.onerror = (err) => {
+        console.warn('[monitoringService] Telemetry WebSocket connection error (using polling fallback):', err);
+        if (onError) onError(err);
+      };
+
+      socket.onclose = () => {
+        if (!isClosedExplicitly) {
+          console.log('[monitoringService] Telemetry WebSocket closed cleanly or lost server endpoint.');
+        }
+      };
+    } catch (err) {
+      console.warn('[monitoringService] WebSocket initialization error:', err);
+    }
+
+    return () => {
+      isClosedExplicitly = true;
+      if (socket && (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING)) {
+        socket.close();
+      }
+    };
+  },
 };
