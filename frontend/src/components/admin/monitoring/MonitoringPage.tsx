@@ -75,14 +75,16 @@ export const MonitoringPage: React.FC<MonitoringPageProps> = ({ onNavigateTab })
 
   // Telemetry Refresh Function
   const refreshTelemetryData = useCallback(() => {
-    setKpiSummary(monitoringService.getMonitoringSummary());
-    setBins(monitoringService.getBins(filters));
-    setVehicles(monitoringService.getVehicles(filters));
-    setRoutes(monitoringService.getRoutes(filters));
-    setSensors(monitoringService.getSensors());
-    setActivities(monitoringService.getLiveActivities(filters));
-    setZoneStatuses(monitoringService.getZoneStatuses());
-    setLastUpdated(monitoringService.getLastUpdatedTimestamp());
+    monitoringService.fetchLiveSnapshot().then(() => {
+      setKpiSummary(monitoringService.getMonitoringSummary());
+      setBins(monitoringService.getBins(filters));
+      setVehicles(monitoringService.getVehicles(filters));
+      setRoutes(monitoringService.getRoutes(filters));
+      setSensors(monitoringService.getSensors());
+      setActivities(monitoringService.getLiveActivities(filters));
+      setZoneStatuses(monitoringService.getZoneStatuses());
+      setLastUpdated(monitoringService.getLastUpdatedTimestamp());
+    });
   }, [filters]);
 
   // Initial & Live Simulation Interval Setup

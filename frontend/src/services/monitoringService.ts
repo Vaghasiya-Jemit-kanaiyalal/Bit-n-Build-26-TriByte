@@ -32,7 +32,55 @@ let lastUpdatedTimestamp: string = new Date().toLocaleTimeString('en-US', {
   second: '2-digit',
 });
 
+const API_BASE = 'http://localhost:8000/api/v1';
+
+function getToken(): string | null {
+  return localStorage.getItem('ecotrack_token') || localStorage.getItem('wastewise_token');
+}
+
+function authHeaders(): Record<string, string> {
+  const token = getToken();
+  return token
+    ? { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }
+    : { 'Content-Type': 'application/json' };
+}
+
+async function apiFetch(url: string, init: RequestInit = {}): Promise<Response> {
+  const headers = {
+    ...authHeaders(),
+    ...((init.headers as Record<string, string>) || {}),
+  };
+  return fetch(url, { ...init, headers });
+}
+
 export const monitoringService = {
+  async fetchLiveSnapshot(): Promise<void> {
+    try {
+      const res = await apiFetch(`${API_BASE}/admin/monitoring/map-data`);
+      if (res.ok) {
+        const data = await res.json();
+        console.log('[monitoringService] Live map telemetry loaded from FastAPI backend:', data);
+        if (data.bins && data.bins.length > 0) {
+          binsStore = data.bins.map((b: any) => ({
+            id: String(b.id || b.uuid || b.bin_code),
+            binCode: b.bin_code,
+            location: b.name || b.address || 'Central Location',
+            zone: b.zone || 'Central Zone',
+            fillPercent: Math.round(b.fill_percentage || b.current_fill_percentage || 50),
+            status: (b.status || 'NORMAL').toUpperCase() === 'CRITICAL' ? 'Critical' : (b.status || 'NORMAL').toUpperCase() === 'WARNING' ? 'Warning' : 'Normal',
+            wasteType: b.waste_type || 'Mixed',
+            lastUpdate: b.last_telemetry_at ? new Date(b.last_telemetry_at).toLocaleTimeString() : 'Just now',
+            sensorId: `SNS-${b.bin_code}`,
+            x: b.longitude ? ((b.longitude - 73.15) / 0.1) * 80 + 10 : Math.random() * 80 + 10,
+            y: b.latitude ? ((22.35 - b.latitude) / 0.1) * 80 + 10 : Math.random() * 80 + 10,
+          }));
+        }
+      }
+    } catch (err) {
+      console.warn('[monitoringService] Monitoring API unreachable, using local store:', err);
+    }
+  },
+
   getMonitoringSummary(): MonitoringKpiSummary {
     const binsMonitored = 248;
     const onlineBins = binsStore.filter((b) => b.status !== 'Offline').length + 220;
