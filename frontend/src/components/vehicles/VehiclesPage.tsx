@@ -1,5 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { initialVehicles, initialVehicleAttentionItems, type VehicleItem } from '../../mock/vehicleData';
+import { vehicleService } from '../../services/vehicleService';
 import { VehiclesHeader } from './VehiclesHeader';
 import { FleetKpiCards } from './FleetKpiCards';
 import { FleetStatusOverview } from './FleetStatusOverview';
@@ -25,6 +26,14 @@ const VehiclesPage: React.FC<VehiclesPageProps> = ({ onNavigateToRoute }) => {
   const [attentionItems] = useState(initialVehicleAttentionItems);
   const [isLoading, setIsLoading] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+
+  useEffect(() => {
+    vehicleService.getVehicles().then((data) => {
+      if (data && data.length > 0) {
+        setVehicles(data);
+      }
+    });
+  }, []);
   
   // Filter state
   const [searchQuery, setSearchQuery] = useState('');

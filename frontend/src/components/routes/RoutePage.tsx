@@ -12,13 +12,24 @@ import { CreateRouteModal } from './CreateRouteModal';
 import { RouteDetailsDrawer } from './RouteDetailsDrawer';
 import { BinDetailModal } from './BinDetailModal';
 import { ReportIssueModal } from './ReportIssueModal';
+import { useEffect } from 'react';
 import { initialRoutes, initialAlerts } from '../../mock/routeData';
 import type { RouteItem, BinStop, RouteAlert } from '../../mock/routeData';
+import { routeService } from '../../services/routeService';
 
 export const RoutePage: React.FC = () => {
   const [routes, setRoutes] = useState<RouteItem[]>(initialRoutes);
   const [alerts, setAlerts] = useState<RouteAlert[]>(initialAlerts);
   const [selectedRouteId, setSelectedRouteId] = useState<string>('RT-024');
+
+  useEffect(() => {
+    routeService.getRoutes().then((data) => {
+      if (data && data.length > 0) {
+        setRoutes(data);
+        setSelectedRouteId(data[0].id);
+      }
+    });
+  }, []);
 
   // Filter States
   const [searchTerm, setSearchTerm] = useState<string>('');
